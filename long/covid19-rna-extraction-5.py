@@ -1,6 +1,9 @@
 def get_values(*names):
     import json
-    _all_values = json.loads("""{"num_samples":96,"deepwell_type":"nest_96_wellplate_2ml_deep","mag_height":6.8,"z_offset":1,"radial_offset":0.8,"res_type":"nest_12_reservoir_15ml","starting_vol":440,"binding_buffer_vol":600,"wash1_vol":500,"wash2_vol":500,"wash3_vol":500,"elution_vol":50,"mix_reps":10,"settling_time":2,"park_tips":true,"tip_track":false,"flash":false}""")
+
+    _all_values = json.loads(
+        """{"num_samples":96,"deepwell_type":"nest_96_wellplate_2ml_deep","mag_height":6.8,"z_offset":1,"radial_offset":0.8,"res_type":"nest_12_reservoir_15ml","starting_vol":440,"binding_buffer_vol":600,"wash1_vol":500,"wash2_vol":500,"wash3_vol":500,"elution_vol":50,"mix_reps":10,"settling_time":2,"park_tips":true,"tip_track":false,"flash":false}"""
+    )
     return [_all_values[n] for n in names]
 
 
@@ -13,9 +16,9 @@ import threading
 from opentrons import protocol_api
 
 metadata = {
-    'protocolName': 'COVID-19 Station B RNA Extraction',
-    'author': 'Opentrons <protocols@opentrons.com>',
-    'apiLevel': '2.4'
+    "protocolName": "COVID-19 Station B RNA Extraction",
+    "author": "Opentrons <protocols@opentrons.com>",
+    "apiLevel": "2.4",
 }
 
 
@@ -52,14 +55,15 @@ def flashing_rail_lights(
             # Wait until it's time to toggle the lights for the next flash or
             # we're told to stop flashing entirely, whichever comes first.
             got_stop_flashing_event = stop_flashing_event.wait(
-                timeout=seconds_per_flash_cycle/2
+                timeout=seconds_per_flash_cycle / 2
             )
             if got_stop_flashing_event:
                 break
 
     background_thread = threading.Thread(
-        target=background_loop, name="Background thread for flashing rail \
-lights"
+        target=background_loop,
+        name="Background thread for flashing rail \
+lights",
     )
 
     try:
@@ -85,47 +89,81 @@ lights"
 
 # Start protocol
 def run(ctx):
-    [num_samples, deepwell_type, mag_height, z_offset, radial_offset, res_type,
-     starting_vol, binding_buffer_vol, wash1_vol, wash2_vol, wash3_vol,
-     elution_vol, mix_reps, settling_time, park_tips, tip_track,
-     flash] = get_values(  # noqa: F821
-        'num_samples', 'deepwell_type', 'mag_height', 'z_offset',
-        'radial_offset', 'res_type', 'starting_vol', 'binding_buffer_vol',
-        'wash1_vol', 'wash2_vol', 'wash3_vol', 'elution_vol', 'mix_reps',
-        'settling_time', 'park_tips', 'tip_track', 'flash')
+    [
+        num_samples,
+        deepwell_type,
+        mag_height,
+        z_offset,
+        radial_offset,
+        res_type,
+        starting_vol,
+        binding_buffer_vol,
+        wash1_vol,
+        wash2_vol,
+        wash3_vol,
+        elution_vol,
+        mix_reps,
+        settling_time,
+        park_tips,
+        tip_track,
+        flash,
+    ] = get_values(  # noqa: F821
+        "num_samples",
+        "deepwell_type",
+        "mag_height",
+        "z_offset",
+        "radial_offset",
+        "res_type",
+        "starting_vol",
+        "binding_buffer_vol",
+        "wash1_vol",
+        "wash2_vol",
+        "wash3_vol",
+        "elution_vol",
+        "mix_reps",
+        "settling_time",
+        "park_tips",
+        "tip_track",
+        "flash",
+    )
 
     """
     Here is where you can change the locations of your labware and modules
     (note that this is the recommended configuration)
     """
-    magdeck = ctx.load_module('magnetic module gen2', '4')
+    magdeck = ctx.load_module("magnetic module gen2", "4")
     magdeck.disengage()
-    magplate = magdeck.load_labware(deepwell_type, 'deepwell plate')
-    tempdeck = ctx.load_module('Temperature Module Gen2', '1')
+    magplate = magdeck.load_labware(deepwell_type, "deepwell plate")
+    tempdeck = ctx.load_module("Temperature Module Gen2", "1")
     elutionplate = tempdeck.load_labware(
-                'opentrons_96_aluminumblock_nest_wellplate_100ul',
-                'elution plate')
-    waste = ctx.load_labware('nest_1_reservoir_195ml', '11',
-                             'Liquid Waste').wells()[0].top()
-    res2 = ctx.load_labware(res_type, '2', 'reagent reservoir 2')
-    res1 = ctx.load_labware(res_type, '5', 'reagent reservoir 1')
-    num_cols = math.ceil(num_samples/8)
-    tips300 = [ctx.load_labware('opentrons_96_tiprack_300ul', slot,
-                                '200µl filtertiprack')
-               for slot in ['3', '6', '8', '9', '10']]
+        "opentrons_96_aluminumblock_nest_wellplate_100ul", "elution plate"
+    )
+    waste = (
+        ctx.load_labware("nest_1_reservoir_195ml", "11", "Liquid Waste")
+        .wells()[0]
+        .top()
+    )
+    res2 = ctx.load_labware(res_type, "2", "reagent reservoir 2")
+    res1 = ctx.load_labware(res_type, "5", "reagent reservoir 1")
+    num_cols = math.ceil(num_samples / 8)
+    tips300 = [
+        ctx.load_labware("opentrons_96_tiprack_300ul", slot, "200µl filtertiprack")
+        for slot in ["3", "6", "8", "9", "10"]
+    ]
     if park_tips:
         rack = ctx.load_labware(
-            'opentrons_96_tiprack_300ul', '7', 'tiprack for parking')
+            "opentrons_96_tiprack_300ul", "7", "tiprack for parking"
+        )
         parking_spots = rack.rows()[0][:num_cols]
     else:
         rack = ctx.load_labware(
-            'opentrons_96_tiprack_300ul', '7', '200µl filtertiprack')
+            "opentrons_96_tiprack_300ul", "7", "200µl filtertiprack"
+        )
         parking_spots = [None for none in range(12)]
     tips300.insert(0, rack)
 
     # load P300M pipette
-    m300 = ctx.load_instrument(
-        'p300_multi_gen2', 'left', tip_racks=tips300)
+    m300 = ctx.load_instrument("p300_multi_gen2", "left", tip_racks=tips300)
 
     tip_log = {val: {} for val in ctx.loaded_instruments.values()}
 
@@ -149,44 +187,50 @@ def run(ctx):
     m300.flow_rate.dispense = 150
     m300.flow_rate.blow_out = 300
 
-    folder_path = '/data/B'
-    tip_file_path = folder_path + '/tip_log.json'
+    folder_path = "/data/B"
+    tip_file_path = folder_path + "/tip_log.json"
     if tip_track and not ctx.is_simulating():
         if os.path.isfile(tip_file_path):
             with open(tip_file_path) as json_file:
                 data = json.load(json_file)
                 for pip in tip_log:
                     if pip.name in data:
-                        tip_log[pip]['count'] = data[pip.name]
+                        tip_log[pip]["count"] = data[pip.name]
                     else:
-                        tip_log[pip]['count'] = 0
+                        tip_log[pip]["count"] = 0
         else:
             for pip in tip_log:
-                tip_log[pip]['count'] = 0
+                tip_log[pip]["count"] = 0
     else:
         for pip in tip_log:
-            tip_log[pip]['count'] = 0
+            tip_log[pip]["count"] = 0
 
     for pip in tip_log:
-        if pip.type == 'multi':
-            tip_log[pip]['tips'] = [tip for rack in pip.tip_racks
-                                    for tip in rack.rows()[0]]
+        if pip.type == "multi":
+            tip_log[pip]["tips"] = [
+                tip for rack in pip.tip_racks for tip in rack.rows()[0]
+            ]
         else:
-            tip_log[pip]['tips'] = [tip for rack in pip.tip_racks
-                                    for tip in rack.wells()]
-        tip_log[pip]['max'] = len(tip_log[pip]['tips'])
+            tip_log[pip]["tips"] = [
+                tip for rack in pip.tip_racks for tip in rack.wells()
+            ]
+        tip_log[pip]["max"] = len(tip_log[pip]["tips"])
 
     def _pick_up(pip, loc=None):
-        if tip_log[pip]['count'] == tip_log[pip]['max'] and not loc:
-            ctx.pause('Replace ' + str(pip.max_volume) + 'µl tipracks before \
-resuming.')
+        if tip_log[pip]["count"] == tip_log[pip]["max"] and not loc:
+            ctx.pause(
+                "Replace "
+                + str(pip.max_volume)
+                + "µl tipracks before \
+resuming."
+            )
             pip.reset_tipracks()
-            tip_log[pip]['count'] = 0
+            tip_log[pip]["count"] = 0
         if loc:
             pip.pick_up_tip(loc)
         else:
-            pip.pick_up_tip(tip_log[pip]['tips'][tip_log[pip]['count']])
-            tip_log[pip]['count'] += 1
+            pip.pick_up_tip(tip_log[pip]["tips"][tip_log[pip]["count"]])
+            tip_log[pip]["count"] += 1
 
     switch = True
     drop_count = 0
@@ -197,11 +241,10 @@ resuming.')
         nonlocal switch
         nonlocal drop_count
         side = 30 if switch else -18
-        drop_loc = ctx.loaded_labwares[12].wells()[0].top().move(
-            Point(x=side))
+        drop_loc = ctx.loaded_labwares[12].wells()[0].top().move(Point(x=side))
         pip.drop_tip(drop_loc)
         switch = not switch
-        if pip.type == 'multi':
+        if pip.type == "multi":
             drop_count += 8
         else:
             drop_count += 1
@@ -211,8 +254,10 @@ resuming.')
             if flash:
                 if not ctx._hw_manager.hardware.is_simulator:
                     with flashing_rail_lights(ctx, seconds_per_flash_cycle=1):
-                        ctx.pause('Please empty tips from waste before \
-resuming.')
+                        ctx.pause(
+                            "Please empty tips from waste before \
+resuming."
+                        )
             drop_count = 0
 
     waste_vol = 0
@@ -235,33 +280,32 @@ resuming.')
                 ctx.home()
                 if flash:
                     if not ctx._hw_manager.hardware.is_simulator:
-                        with flashing_rail_lights(ctx,
-                                                  seconds_per_flash_cycle=1):
-                            ctx.pause('Please empty liquid waste (slot 11) \
-before resuming.')
+                        with flashing_rail_lights(ctx, seconds_per_flash_cycle=1):
+                            ctx.pause(
+                                "Please empty liquid waste (slot 11) \
+before resuming."
+                            )
 
                 waste_vol = 0
             waste_vol += vol
 
         m300.flow_rate.aspirate = 30
-        num_trans = math.ceil(vol/200)
-        vol_per_trans = vol/num_trans
+        num_trans = math.ceil(vol / 200)
+        vol_per_trans = vol / num_trans
         for i, (m, spot) in enumerate(zip(mag_samples_m, parking_spots)):
             if park:
                 _pick_up(m300, spot)
             else:
                 _pick_up(m300)
             side = -1 if i % 2 == 0 else 1
-            loc = m.bottom(0).move(Point(x=side*radius*radial_offset,
-                                         z=z_offset))
+            loc = m.bottom(0).move(Point(x=side * radius * radial_offset, z=z_offset))
             for _ in range(num_trans):
                 _waste_track(vol_per_trans)
                 if m300.current_volume > 0:
                     # void air gap if necessary
                     m300.dispense(m300.current_volume, m.top())
                 m300.move_to(m.center())
-                m300.transfer(vol_per_trans, loc, waste, new_tip='never',
-                              air_gap=20)
+                m300.transfer(vol_per_trans, loc, waste, new_tip="never", air_gap=20)
                 m300.blow_out(waste)
                 m300.air_gap(20)
             _drop(m300)
@@ -285,11 +329,11 @@ before resuming.')
         latest_chan = -1
         for i, (well, spot) in enumerate(zip(mag_samples_m, parking_spots)):
             _pick_up(m300)
-            num_trans = math.ceil(vol/200)
-            vol_per_trans = vol/num_trans
-            asp_per_chan = (0.95*res1.wells()[0].max_volume)//(vol_per_trans*8)
+            num_trans = math.ceil(vol / 200)
+            vol_per_trans = vol / num_trans
+            asp_per_chan = (0.95 * res1.wells()[0].max_volume) // (vol_per_trans * 8)
             for t in range(num_trans):
-                chan_ind = int((i*num_trans + t)//asp_per_chan)
+                chan_ind = int((i * num_trans + t) // asp_per_chan)
                 source = binding_buffer[chan_ind]
                 if m300.current_volume > 0:
                     # void air gap if necessary
@@ -299,8 +343,9 @@ before resuming.')
                         m300.aspirate(180, source.bottom(0.5))
                         m300.dispense(180, source.bottom(5))
                     latest_chan = chan_ind
-                m300.transfer(vol_per_trans, source, well.top(), air_gap=20,
-                              new_tip='never')
+                m300.transfer(
+                    vol_per_trans, source, well.top(), air_gap=20, new_tip="never"
+                )
                 if t < num_trans - 1:
                     m300.air_gap(20)
             m300.mix(5, 200, well)
@@ -312,11 +357,16 @@ before resuming.')
                 _drop(m300)
 
         magdeck.engage(height=mag_height)
-        ctx.delay(minutes=settling_time, msg='Incubating on MagDeck for \
-' + str(settling_time) + ' minutes.')
+        ctx.delay(
+            minutes=settling_time,
+            msg="Incubating on MagDeck for \
+"
+            + str(settling_time)
+            + " minutes.",
+        )
 
         # remove initial supernatant
-        remove_supernatant(vol+starting_vol, park=park)
+        remove_supernatant(vol + starting_vol, park=park)
 
     def wash(vol, source, mix_reps=15, park=True, resuspend=True):
         """
@@ -337,22 +387,20 @@ before resuming.')
         :param resuspend (boolean): Whether to resuspend beads in wash buffer.
         """
 
-        if resuspend and magdeck.status == 'engaged':
+        if resuspend and magdeck.status == "engaged":
             magdeck.disengage()
 
-        num_trans = math.ceil(vol/200)
-        vol_per_trans = vol/num_trans
+        num_trans = math.ceil(vol / 200)
+        vol_per_trans = vol / num_trans
         for i, (m, spot) in enumerate(zip(mag_samples_m, parking_spots)):
             _pick_up(m300)
             side = 1 if i % 2 == 0 else -1
-            loc = m.bottom().move(Point(x=side*radius*radial_offset,
-                                        z=z_offset))
-            src = source[i//(12//len(source))]
+            loc = m.bottom().move(Point(x=side * radius * radial_offset, z=z_offset))
+            src = source[i // (12 // len(source))]
             for n in range(num_trans):
                 if m300.current_volume > 0:
                     m300.dispense(m300.current_volume, src.top())
-                m300.transfer(vol_per_trans, src, m.top(), air_gap=20,
-                              new_tip='never')
+                m300.transfer(vol_per_trans, src, m.top(), air_gap=20, new_tip="never")
                 if n < num_trans - 1:  # only air_gap if going back to source
                     m300.air_gap(20)
             if resuspend:
@@ -364,11 +412,16 @@ before resuming.')
             else:
                 _drop(m300)
 
-        if magdeck.status == 'disengaged':
+        if magdeck.status == "disengaged":
             magdeck.engage(height=mag_height)
 
-        ctx.delay(minutes=settling_time, msg='Incubating on MagDeck for \
-' + str(settling_time) + ' minutes.')
+        ctx.delay(
+            minutes=settling_time,
+            msg="Incubating on MagDeck for \
+"
+            + str(settling_time)
+            + " minutes.",
+        )
 
         remove_supernatant(vol, park=park)
 
@@ -386,17 +439,16 @@ before resuming.')
         """
 
         # resuspend beads in elution
-        if magdeck.status == 'enagaged':
+        if magdeck.status == "enagaged":
             magdeck.disengage()
         for i, (m, spot) in enumerate(zip(mag_samples_m, parking_spots)):
             _pick_up(m300)
             side = 1 if i % 2 == 0 else -1
-            loc = m.bottom().move(Point(x=side*radius*radial_offset,
-                                        z=z_offset))
+            loc = m.bottom().move(Point(x=side * radius * radial_offset, z=z_offset))
             m300.aspirate(vol, elution_solution)
             m300.move_to(m.center())
             m300.dispense(vol, loc)
-            m300.mix(mix_reps, 0.8*vol, loc)
+            m300.mix(mix_reps, 0.8 * vol, loc)
             m300.blow_out(m.bottom(5))
             m300.air_gap(20)
             if park:
@@ -411,9 +463,8 @@ before resuming.')
             else:
                 _pick_up(m300)
             side = 1 if i % 2 == 0 else -1
-            loc = m.bottom().move(Point(x=side*radius*radial_offset,
-                                        z=z_offset))
-            m300.mix(10, 0.8*vol, loc)
+            loc = m.bottom().move(Point(x=side * radius * radial_offset, z=z_offset))
+            m300.mix(10, 0.8 * vol, loc)
             m300.blow_out(m.bottom(5))
             m300.air_gap(20)
             if park:
@@ -422,19 +473,24 @@ before resuming.')
                 _drop(m300)
 
         magdeck.engage(height=mag_height)
-        ctx.delay(minutes=settling_time, msg='Incubating on MagDeck for \
-' + str(settling_time) + ' minutes.')
+        ctx.delay(
+            minutes=settling_time,
+            msg="Incubating on MagDeck for \
+"
+            + str(settling_time)
+            + " minutes.",
+        )
 
         for i, (m, e, spot) in enumerate(
-                zip(mag_samples_m, elution_samples_m, parking_spots)):
+            zip(mag_samples_m, elution_samples_m, parking_spots)
+        ):
             if park:
                 _pick_up(m300, spot)
             else:
                 _pick_up(m300)
             side = -1 if i % 2 == 0 else 1
-            loc = m.bottom().move(Point(x=side*radius*radial_offset,
-                                        z=z_offset))
-            m300.transfer(vol, loc, e.bottom(5), air_gap=20, new_tip='never')
+            loc = m.bottom().move(Point(x=side * radius * radial_offset, z=z_offset))
+            m300.transfer(vol, loc, e.bottom(5), air_gap=20, new_tip="never")
             m300.blow_out(e.top(-2))
             m300.air_gap(20)
             m300.drop_tip()
@@ -453,6 +509,6 @@ before resuming.')
     if tip_track and not ctx.is_simulating():
         if not os.path.isdir(folder_path):
             os.mkdir(folder_path)
-        data = {pip.name: tip_log[pip]['count'] for pip in tip_log}
-        with open(tip_file_path, 'w') as outfile:
+        data = {pip.name: tip_log[pip]["count"] for pip in tip_log}
+        with open(tip_file_path, "w") as outfile:
             json.dump(data, outfile)
