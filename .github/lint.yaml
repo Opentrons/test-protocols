@@ -1,0 +1,48 @@
+# This workflow runs lint on any pull requests in this repo
+
+name: 'lint'
+
+on:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  lint:
+    env:
+      PIPENV_VENV_IN_PROJECT: 1
+    name: 'lint'
+    timeout-minutes: 5
+    runs-on: 'ubuntu-22.04'
+    steps:
+      - name: Checkout opentrons repo
+        uses: 'actions/checkout@v3'
+
+      - name: Setup Python
+        uses: 'actions/setup-python@v2'
+        with:
+          python-version: '3.10'
+
+      - name: Install Pipenv
+        run: |
+          pip install pipenv
+
+      - name: Cache Dependencies
+        uses: actions/cache@v3
+        id: cache-dependencies
+        with:
+          path: ./.venv
+          key: ${{ runner.os }}-pipenv-${{ hashFiles('./app-testing/Pipfile.lock') }}
+      - name: Pipenv Install
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
+        run: make setup
+      - name: Black
+        run: make black
+      - name: Isort
+        run: make isort
