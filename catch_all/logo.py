@@ -30,7 +30,7 @@ class Values:
 
 values: Values = Values(
     pipette_model="p300_single_gen2",
-    pipette_mount="left",
+    pipette_mount="right",
     destination_labware_name="nest_96_wellplate_100ul_pcr_full_skirt",
     destination_labware_location="3",
     destination_labware_label="Destination Plate",

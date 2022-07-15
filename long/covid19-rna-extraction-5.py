@@ -7,13 +7,14 @@ def get_values(*names):
     return [_all_values[n] for n in names]
 
 
-from opentrons.types import Point
-import json
-import os
-import math
 import contextlib
+import json
+import math
+import os
 import threading
+
 from opentrons import protocol_api
+from opentrons.types import Point
 
 metadata = {
     "protocolName": "COVID-19 Station B RNA Extraction",

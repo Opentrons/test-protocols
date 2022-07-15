@@ -7,13 +7,14 @@ def get_values(*names):
     return [_all_values[n] for n in names]
 
 
-from opentrons.types import Point
 import json
-import os
 import math
+import os
 import threading
 from time import sleep
+
 from opentrons import types
+from opentrons.types import Point
 
 metadata = {
     "protocolName": "Zymo Direct-zol96 Magbead RNA",
