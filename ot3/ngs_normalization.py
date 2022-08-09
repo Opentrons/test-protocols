@@ -26,7 +26,8 @@ def right(s, amount):
 
 # settings
 DRYRUN = "NO"  # YES or NO, DRYRUN = 'YES' will return tips, skip incubation times, shorten mix, for testing purposes
-NOMODULES = "NO"  # YES or NO, NOMODULES = 'YES' will not require modules on the deck and will skip module steps, for testing purposes, if DRYRUN = 'YES', then NOMODULES will automatically set itself to 'NO'
+# this protocol does not actually use modules
+NOMODULES = "YES"  # YES or NO, NOMODULES = 'YES' will not require modules on the deck and will skip module steps, for testing purposes, if DRYRUN = 'YES', then NOMODULES will automatically set itself to 'NO'
 TIPREUSE = "NO"  # YES or NO, Reusing tips on wash steps reduces tips needed, no tip refill needed, suggested only for 24x run with all steps
 OFFSET = "YES"  # YES or NO, Sets whether to use protocol specific z offsets for each tip and labware or no offsets aside from defaults
 
@@ -43,7 +44,7 @@ def run(protocol: protocol_api.ProtocolContext):
         protocol.comment("THIS IS A NO MODULE RUN")
         reservoir = protocol.load_labware("nest_12_reservoir_15ml", "2")
         tiprack_200_1 = protocol.load_labware("opentrons_96_filtertiprack_200ul", "5")
-        sample_plate = thermocycler.load_labware(
+        sample_plate = protocol.load_labware(
             "nest_96_wellplate_100ul_pcr_full_skirt", "7"
         )
         tiprack_200_X = protocol.load_labware("opentrons_96_filtertiprack_200ul", "9")
@@ -70,8 +71,10 @@ def run(protocol: protocol_api.ProtocolContext):
         )
         p20 = protocol.load_instrument("p20_multi_gen2", "right")
     else:
-        p300 = protocol.load_instrument("p300_multi", "left", tip_racks=[tiprack_200_1])
-        p20 = protocol.load_instrument("p10_multi", "right")
+        p300 = protocol.load_instrument(
+            "p300_multi_gen2", "left", tip_racks=[tiprack_200_1]
+        )
+        p20 = protocol.load_instrument("p20_multi_gen2", "right")
 
     MaxTubeVol = 200
     RSBUsed = 0
