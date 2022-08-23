@@ -49,7 +49,7 @@ def run(context):
 
     hs_mod.deactivate_shaker()
 
-    p20.aspirate(15, hs_plate["P21"])
+    p20.aspirate(15, hs_plate["P1"])
     p20.dispense(10, hs_plate["A24"])
     p20.drop_tip()
 
