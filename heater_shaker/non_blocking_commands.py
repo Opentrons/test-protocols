@@ -3,7 +3,7 @@ import time
 metadata = {
     "protocolName": "Heater-shaker test protocol w/ non blocking commands",
     "author": "Opentrons <protocols@opentrons.com>",
-    "apiLevel": "2.12",
+    "apiLevel": "2.13",
 }
 
 SHAKE_TIME_MINUTES = 1

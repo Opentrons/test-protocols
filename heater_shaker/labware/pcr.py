@@ -4,7 +4,7 @@ metadata = {
     "protocolName": "Deep Plate Heater-Shaker testing",
     "author": "Opentrons Engineering <engineering@opentrons.com>",
     "source": "Software Testing Team",
-    "apiLevel": "2.12",
+    "apiLevel": "2.13",
 }
 
 

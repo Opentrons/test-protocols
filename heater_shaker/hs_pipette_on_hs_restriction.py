@@ -1,7 +1,7 @@
 metadata = {
     "protocolName": "Heater-shaker testing",
     "author": "Opentrons <protocols@opentrons.com>",
-    "apiLevel": "2.12",
+    "apiLevel": "2.13",
 }
 
 
