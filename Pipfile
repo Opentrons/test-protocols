@@ -7,6 +7,7 @@ name = "pypi"
 black = "*"
 isort = "*"
 flake8 = "*"
+colorama = {version = "*", sys_platform = "== 'win32'"}
 
 [dev-packages]
 

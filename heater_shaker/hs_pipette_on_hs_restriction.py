@@ -20,15 +20,15 @@ def run(context):
     hs_mod.close_labware_latch()
 
     # tiprack_300ul = [context.load_labware('opentrons_96_tiprack_300ul', 3)]
-    #p20 = context.load_instrument('p300_single', 'right', tip_racks=tiprack_300ul)
+    # p20 = context.load_instrument('p300_single', 'right', tip_racks=tiprack_300ul)
 
     p20rack = [context.load_labware("opentrons_96_tiprack_20ul", "9")]
     p20 = context.load_instrument("p20_single_gen2", "right", tip_racks=p20rack)
 
     p20.pick_up_tip()
-    #p20.touch_tip(hs_plate['A1'])
-    p20.move_to(hs_plate.wells_by_name()['A1'].bottom())
-    #hs_mod.set_and_wait_for_temperature(celsius=37)  # should work????
+    # p20.touch_tip(hs_plate['A1'])
+    p20.move_to(hs_plate.wells_by_name()["A1"].bottom())
+    # hs_mod.set_and_wait_for_temperature(celsius=37)  # should work????
 
     hs_mod.set_and_wait_for_shake_speed(
         rpm=300
