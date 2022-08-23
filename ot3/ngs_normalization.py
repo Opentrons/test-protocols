@@ -67,14 +67,14 @@ def run(protocol: protocol_api.ProtocolContext):
     # pipette
     if NOMODULES == "NO":
         p300 = protocol.load_instrument(
-            "p300_multi_gen2", "left", tip_racks=[tiprack_200_1]
+            "p1000_multi_gen3", "right", tip_racks=[tiprack_200_1]
         )
-        p20 = protocol.load_instrument("p20_multi_gen2", "right")
+        p20 = protocol.load_instrument("p50_multi_gen3", "left")
     else:
         p300 = protocol.load_instrument(
-            "p300_multi_gen2", "left", tip_racks=[tiprack_200_1]
+            "p1000_multi_gen3", "right", tip_racks=[tiprack_200_1]
         )
-        p20 = protocol.load_instrument("p20_multi_gen2", "right")
+        p20 = protocol.load_instrument("p50_multi_gen3", "left")
 
     MaxTubeVol = 200
     RSBUsed = 0
