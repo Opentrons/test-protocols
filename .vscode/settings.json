@@ -1,6 +1,10 @@
 {
     "cSpell.words": [
-        "labware"
+        "labware",
+        "Opentrons",
+        "tiprack",
+        "tuberack",
+        "wellplate"
     ],
     "python.formatting.provider": "black",
     "workbench.colorCustomizations": {
