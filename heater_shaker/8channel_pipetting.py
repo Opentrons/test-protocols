@@ -11,14 +11,6 @@ metadata = {
     "apiLevel": "2.13",
 }
 
-SCENARIO = "A"
-
-
-class Scenario:
-    def __init__(self, hs_position: str, tip_rack_position: str) -> None:
-        self.hs_position: str = hs_position
-        self.tip_rack_position: str = tip_rack_position
-
 
 def run(context: protocol_api.ProtocolContext):
 

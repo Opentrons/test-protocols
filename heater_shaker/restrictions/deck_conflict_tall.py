@@ -1,4 +1,3 @@
-
 metadata = {
     "protocolName": "DeckConflictError Tall Heater-Shaker testing",
     "author": "Opentrons Engineering <engineering@opentrons.com>",

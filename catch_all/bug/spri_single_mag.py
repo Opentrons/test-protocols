@@ -5,13 +5,13 @@
 import math
 import threading
 from time import sleep
+
 from opentrons import types
 
-
 metadata = {
-    'protocolName': '8 Samples SPRI Bead Purification, Size Selection',
-    'author': 'Opentrons <protocols@opentrons.com>',
-    'apiLevel': '2.11'
+    "protocolName": "8 Samples SPRI Bead Purification, Size Selection",
+    "author": "Opentrons <protocols@opentrons.com>",
+    "apiLevel": "2.11",
 }
 
 
@@ -51,8 +51,10 @@ def turn_on_blinking_notification(hardware, pause):
 
 def create_thread(ctx, cancel_token):
     """FLASH SETUP."""
-    t1 = threading.Thread(target=turn_on_blinking_notification,
-                          args=(ctx._hw_manager.hardware, cancel_token))
+    t1 = threading.Thread(
+        target=turn_on_blinking_notification,
+        args=(ctx._hw_manager.hardware, cancel_token),
+    )
     t1.start()
     return t1
 
@@ -74,9 +76,9 @@ def run(ctx):
     # Testing variables/always useful ones
     size_selection = True
     num_samples = 8
-    num_cols = math.ceil(num_samples/8)
+    num_cols = math.ceil(num_samples / 8)
     flash = True
-    p300_mount = 'left'
+    p300_mount = "left"
 
     # Drop Down Variables for Testing
     vol_start = 50  # volume of starting well
@@ -91,10 +93,11 @@ def run(ctx):
     vol_final_plate = 50
 
     # Math and Calculations
-    vol_bead_add_1 = vol_start*bead_ratio_1
-    vol_post_add_1 = vol_bead_add_1+vol_start
-    vol_bead_add_2 = (bead_ratio_2*vol_start*(vol_trans/vol_post_add_1))\
-        - vol_bead_add_1
+    vol_bead_add_1 = vol_start * bead_ratio_1
+    vol_post_add_1 = vol_bead_add_1 + vol_start
+    vol_bead_add_2 = (
+        bead_ratio_2 * vol_start * (vol_trans / vol_post_add_1)
+    ) - vol_bead_add_1
 
     """Above vol_bead_add_2 equation came from Illumina website. Source here:
         https://support.illumina.com/bulletins/2020/07/library-size-selection-
@@ -106,33 +109,36 @@ def run(ctx):
 
     supernatant_headspeed_modulator = 10
 
-    if p300_mount == 'right':
-        p20_mount = 'left'
+    if p300_mount == "right":
+        p20_mount = "left"
     else:
-        p20_mount = 'right'
+        p20_mount = "right"
     """
     Here is where you can change the locations of your labware and modules
     (note that this is the recommended configuration)
     """
-    magdeck_1 = ctx.load_module('magnetic module gen2', '7')
+    magdeck_1 = ctx.load_module("magnetic module gen2", "7")
     magdeck_1.disengage()
-    magplate_1 = magdeck_1.load_labware('customadapter_96_wellplate_200ul',
-                                        'sample plate')
-    magplate_2 = ctx.load_labware('customadapter_96_wellplate_200ul', '6')
+    magplate_1 = magdeck_1.load_labware(
+        "customadapter_96_wellplate_200ul", "sample plate"
+    )
+    magplate_2 = ctx.load_labware("customadapter_96_wellplate_200ul", "6")
 
-    elutionplate = ctx.load_labware(
-                'thermo_96_aluminumblock_200ul',
-                '3')
-    waste = ctx.load_labware('nest_1_reservoir_195ml', '4',
-                             'Liquid Waste').wells()[0].top()
-    res1 = ctx.load_labware('nest_12_reservoir_15ml', '5',
-                            'reagent reservoir 1')
-    tips300 = [ctx.load_labware('opentrons_96_filtertiprack_200ul', slot,
-                                '200µl filtertiprack')
-               for slot in ['2', '8', '9', '10', '11']]
-    tips20 = [ctx.load_labware('opentrons_96_filtertiprack_200ul', slot,
-                               '20µl filtertiprack')
-              for slot in ['1']]
+    elutionplate = ctx.load_labware("thermo_96_aluminumblock_200ul", "3")
+    waste = (
+        ctx.load_labware("nest_1_reservoir_195ml", "4", "Liquid Waste").wells()[0].top()
+    )
+    res1 = ctx.load_labware("nest_12_reservoir_15ml", "5", "reagent reservoir 1")
+    tips300 = [
+        ctx.load_labware(
+            "opentrons_96_filtertiprack_200ul", slot, "200µl filtertiprack"
+        )
+        for slot in ["2", "8", "9", "10", "11"]
+    ]
+    tips20 = [
+        ctx.load_labware("opentrons_96_filtertiprack_200ul", slot, "20µl filtertiprack")
+        for slot in ["1"]
+    ]
 
     parking_spots = [column for column in tips300[0].rows()[0][:num_cols]]
     parking_spots_2 = [column for column in tips300[1].rows()[0][:num_cols]]
@@ -148,14 +154,13 @@ def run(ctx):
     elution_solution = res1.wells()[-1]
 
     # load P300M pipette
-    m300 = ctx.load_instrument(
-        'p300_multi_gen2', p300_mount, tip_racks=tips300)
-    m20 = ctx.load_instrument('p20_multi_gen2', p20_mount, tip_racks=tips20)
+    m300 = ctx.load_instrument("p300_multi_gen2", p300_mount, tip_racks=tips300)
+    m20 = ctx.load_instrument("p20_multi_gen2", p20_mount, tip_racks=tips20)
 
-    ctx.max_speeds['Z'] = 400
-    ctx.max_speeds['A'] = 400
-    ctx.max_speeds['X'] = 400
-    ctx.max_speeds['Y'] = 400
+    ctx.max_speeds["Z"] = 400
+    ctx.max_speeds["A"] = 400
+    ctx.max_speeds["X"] = 400
+    ctx.max_speeds["Y"] = 400
 
     # Custom Functions
     def bead_mixing(well, pip, mvol, reps=10):
@@ -173,7 +178,7 @@ def run(ctx):
         dispensing at the top and 2 cycles of aspirating from middle,
         dispensing at the bottom
         """
-        vol = mvol * .9
+        vol = mvol * 0.9
 
         pip.move_to(well.center())
         pip.flow_rate.aspirate = 200
@@ -185,6 +190,7 @@ def run(ctx):
             pip.dispense(vol, well.bottom(1))
         pip.flow_rate.aspirate = 150
         pip.flow_rate.aspirate = 300
+
     # Begin Protocol
 
     # bead  addition 1
@@ -222,13 +228,12 @@ def run(ctx):
         side = -1 if i % 2 == 0 else 1
         m300.pick_up_tip()
         m300.aspirate(10, src.top())  # extra air for full liquid dispense
-        ctx.max_speeds['Z'] /= supernatant_headspeed_modulator
-        ctx.max_speeds['A'] /= supernatant_headspeed_modulator
-        m300.aspirate(75, src.bottom().move(types.Point(x=side,
-                                                        y=0, z=0.2)))
+        ctx.max_speeds["Z"] /= supernatant_headspeed_modulator
+        ctx.max_speeds["A"] /= supernatant_headspeed_modulator
+        m300.aspirate(75, src.bottom().move(types.Point(x=side, y=0, z=0.2)))
         m300.aspirate(10, src.top())
-        ctx.max_speeds['Z'] *= supernatant_headspeed_modulator
-        ctx.max_speeds['A'] *= supernatant_headspeed_modulator
+        ctx.max_speeds["Z"] *= supernatant_headspeed_modulator
+        ctx.max_speeds["A"] *= supernatant_headspeed_modulator
         m300.dispense(10, dest.top())
         m300.dispense(m300.current_volume, dest)
         m300.aspirate(20, dest.top())  # suck in droplets before drop_tip
@@ -274,7 +279,7 @@ def run(ctx):
             cancellationToken.set_true()
         thread = create_thread(ctx, cancellationToken)
     m300.home()
-    ctx.pause('Please Empty Trash')
+    ctx.pause("Please Empty Trash")
     ctx.home()  # home before continuing with protocol
     if flash:
         cancellationToken.set_false()  # stop light flashing after home
@@ -286,14 +291,14 @@ def run(ctx):
         side = -1 if i % 2 == 0 else 1
         m300.pick_up_tip()
         m300.aspirate(10, src.top())  # extra air for full liquid dispense
-        ctx.max_speeds['Z'] /= supernatant_headspeed_modulator
-        ctx.max_speeds['A'] /= supernatant_headspeed_modulator
-        m300.aspirate(75+vol_bead_add_2,
-                      src.bottom().move(types.Point(x=side,
-                                                    y=0, z=0.2)))
+        ctx.max_speeds["Z"] /= supernatant_headspeed_modulator
+        ctx.max_speeds["A"] /= supernatant_headspeed_modulator
+        m300.aspirate(
+            75 + vol_bead_add_2, src.bottom().move(types.Point(x=side, y=0, z=0.2))
+        )
         m300.aspirate(10, src.top())  # air gap
-        ctx.max_speeds['Z'] *= supernatant_headspeed_modulator
-        ctx.max_speeds['A'] *= supernatant_headspeed_modulator
+        ctx.max_speeds["Z"] *= supernatant_headspeed_modulator
+        ctx.max_speeds["A"] *= supernatant_headspeed_modulator
         m300.dispense(10, waste)
         m300.dispense(m300.current_volume, dest)
         m300.aspirate(20, waste)  # suck in droplets before drop_tip
@@ -301,11 +306,10 @@ def run(ctx):
     # magdeck_2.disengage()
 
     # EtOH Wash 1
-    for i, (dest, park_loc) in enumerate(zip(sample_dest_1,
-                                             parking_spots)):
+    for i, (dest, park_loc) in enumerate(zip(sample_dest_1, parking_spots)):
         m300.pick_up_tip()
         m300.move_to(src.top())
-        m300.aspirate(200, etoh_1_wells[i//6])
+        m300.aspirate(200, etoh_1_wells[i // 6])
         m300.dispense(200, dest.top(-1))
         m300.drop_tip(park_loc)
 
@@ -320,13 +324,11 @@ def run(ctx):
     for src, park_loc in zip(sample_dest_1, parking_spots):
         side = -1 if i % 2 == 0 else 1
         m300.pick_up_tip(park_loc)
-        ctx.max_speeds['Z'] /= supernatant_headspeed_modulator
-        ctx.max_speeds['A'] /= supernatant_headspeed_modulator
-        m300.aspirate(200,
-                      src.bottom().move(types.Point(x=side,
-                                                    y=0, z=0.2)))
-        ctx.max_speeds['Z'] *= supernatant_headspeed_modulator
-        ctx.max_speeds['A'] *= supernatant_headspeed_modulator
+        ctx.max_speeds["Z"] /= supernatant_headspeed_modulator
+        ctx.max_speeds["A"] /= supernatant_headspeed_modulator
+        m300.aspirate(200, src.bottom().move(types.Point(x=side, y=0, z=0.2)))
+        ctx.max_speeds["Z"] *= supernatant_headspeed_modulator
+        ctx.max_speeds["A"] *= supernatant_headspeed_modulator
         m300.dispense(200, waste)
         m300.aspirate(20, waste)  # suck in droplets before drop_tip
         m300.drop_tip(park_loc)
@@ -334,11 +336,10 @@ def run(ctx):
     # magdeck_2.disengage()
 
     # EtOH wash 2
-    for i, (dest, park_loc) in enumerate(zip(sample_dest_1,
-                                             parking_spots)):
+    for i, (dest, park_loc) in enumerate(zip(sample_dest_1, parking_spots)):
         m300.pick_up_tip(park_loc)
         m300.move_to(src.top())
-        m300.aspirate(200, etoh_2_wells[i//6])
+        m300.aspirate(200, etoh_2_wells[i // 6])
         m300.dispense(200, dest.top(-1))
         m300.drop_tip(park_loc)
 
@@ -352,13 +353,11 @@ def run(ctx):
     for src, park_loc in zip(sample_dest_1, parking_spots):
         side = -1 if i % 2 == 0 else 1
         m300.pick_up_tip(park_loc)
-        ctx.max_speeds['Z'] /= supernatant_headspeed_modulator
-        ctx.max_speeds['A'] /= supernatant_headspeed_modulator
-        m300.aspirate(200,
-                      src.bottom().move(types.Point(x=side,
-                                                    y=0, z=0.2)))
-        ctx.max_speeds['Z'] *= supernatant_headspeed_modulator
-        ctx.max_speeds['A'] *= supernatant_headspeed_modulator
+        ctx.max_speeds["Z"] /= supernatant_headspeed_modulator
+        ctx.max_speeds["A"] /= supernatant_headspeed_modulator
+        m300.aspirate(200, src.bottom().move(types.Point(x=side, y=0, z=0.2)))
+        ctx.max_speeds["Z"] *= supernatant_headspeed_modulator
+        ctx.max_speeds["A"] *= supernatant_headspeed_modulator
         m300.dispense(200, waste)
         m300.aspirate(20, waste)  # suck in droplets before drop_tip
         m300.drop_tip()
@@ -376,8 +375,10 @@ def run(ctx):
             cancellationToken.set_true()
         thread = create_thread(ctx, cancellationToken)
     m300.home()
-    ctx.pause('Please Refill Tip Boxes in Slot 2 then Empty Trash'
-              'Press Resume When Finished')
+    ctx.pause(
+        "Please Refill Tip Boxes in Slot 2 then Empty Trash"
+        "Press Resume When Finished"
+    )
     ctx.home()  # home before continuing with protocol
     if flash:
         cancellationToken.set_false()  # stop light flashing after home
@@ -410,17 +411,16 @@ def run(ctx):
         ctx.delay(minutes=bead_delay_time)
 
     # move elution solution to new, final plate
-    for src, dest, park_loc in zip(sample_dest_1, sample_dest_2,
-                                   parking_spots_2):
+    for src, dest, park_loc in zip(sample_dest_1, sample_dest_2, parking_spots_2):
         side = -1 if i % 2 == 0 else 1
         m300.pick_up_tip(park_loc)
-        ctx.max_speeds['Z'] /= supernatant_headspeed_modulator
-        ctx.max_speeds['A'] /= supernatant_headspeed_modulator
-        m300.aspirate(vol_final_plate,
-                      src.bottom().move(types.Point(x=side,
-                                                    y=0, z=0.2)))
-        ctx.max_speeds['Z'] *= supernatant_headspeed_modulator
-        ctx.max_speeds['A'] *= supernatant_headspeed_modulator
+        ctx.max_speeds["Z"] /= supernatant_headspeed_modulator
+        ctx.max_speeds["A"] /= supernatant_headspeed_modulator
+        m300.aspirate(
+            vol_final_plate, src.bottom().move(types.Point(x=side, y=0, z=0.2))
+        )
+        ctx.max_speeds["Z"] *= supernatant_headspeed_modulator
+        ctx.max_speeds["A"] *= supernatant_headspeed_modulator
         m300.dispense(m300.current_volume, dest)
         m300.aspirate(20, dest)  # suck in droplets before drop_tip
         m300.drop_tip(park_loc)

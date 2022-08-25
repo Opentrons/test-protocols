@@ -32,14 +32,18 @@ def run(protocol_context: protocol_api.ProtocolContext) -> None:
     # 300ul tips
     tips_300ul: List[Labware] = [
         protocol_context.load_labware(
-            load_name="opentrons_96_tiprack_300ul", location=tips_300ul_position, label="300ul tips"
+            load_name="opentrons_96_tiprack_300ul",
+            location=tips_300ul_position,
+            label="300ul tips",
         )
     ]
 
     # 20ul tips
     tips_20ul: List[Labware] = [
         protocol_context.load_labware(
-            load_name="opentrons_96_tiprack_20ul", location=tips_20ul_position, label="20ul tips"
+            load_name="opentrons_96_tiprack_20ul",
+            location=tips_20ul_position,
+            label="20ul tips",
         )
     ]
 
@@ -52,10 +56,11 @@ def run(protocol_context: protocol_api.ProtocolContext) -> None:
         instrument_name="p300_multi_gen2", mount="left", tip_racks=tips_300ul
     )
 
-
     # modules
-    magnetic_module = protocol_context.load_module("magnetic module gen2", magnetic_position)
-    temperature_module = protocol_context.load_module("temperature module", temperature_position)
+    magnetic_module = protocol_context.load_module(
+        "magnetic module gen2", magnetic_position
+    )
+    temperature_module = protocol_context.load_module(
+        "temperature module", temperature_position
+    )
     thermocycler_module = protocol_context.load_module("thermocycler module")
-
- 

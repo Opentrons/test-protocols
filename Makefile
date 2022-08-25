@@ -8,7 +8,7 @@ flake8:
 
 .PHONY: isort
 isort:
-	pipenv run python -m isort **/*.py
+	pipenv run python -m isort ./
 
 .PHONY: lint
 lint:

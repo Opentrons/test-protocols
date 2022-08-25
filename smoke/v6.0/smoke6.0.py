@@ -17,6 +17,7 @@ metadata = {
 
 CUSTOM = True
 
+
 def run(ctx: protocol_api.ProtocolContext) -> None:
     """This method is run by the protocol engine."""
 
@@ -34,14 +35,18 @@ def run(ctx: protocol_api.ProtocolContext) -> None:
     # 300ul tips
     tips_300ul: List[Labware] = [
         ctx.load_labware(
-            load_name="opentrons_96_tiprack_300ul", location=tips_300ul_position, label="300ul tips"
+            load_name="opentrons_96_tiprack_300ul",
+            location=tips_300ul_position,
+            label="300ul tips",
         )
     ]
 
     # 20ul tips
     tips_20ul: List[Labware] = [
         ctx.load_labware(
-            load_name="opentrons_96_tiprack_20ul", location=tips_20ul_position, label="20ul tips"
+            load_name="opentrons_96_tiprack_20ul",
+            location=tips_20ul_position,
+            label="20ul tips",
         )
     ]
 
@@ -54,7 +59,6 @@ def run(ctx: protocol_api.ProtocolContext) -> None:
         instrument_name="p300_multi_gen2", mount="left", tip_racks=tips_300ul
     )
 
-
     # modules
     magnetic_module = ctx.load_module("magnetic module gen2", magnetic_position)
     temperature_module = ctx.load_module("temperature module", temperature_position)
@@ -63,10 +67,13 @@ def run(ctx: protocol_api.ProtocolContext) -> None:
     # module labware
 
     temp_plate = temperature_module.load_labware(
-        "opentrons_96_aluminumblock_nest_wellplate_100ul", label="Temperature-Controlled plate"
+        "opentrons_96_aluminumblock_nest_wellplate_100ul",
+        label="Temperature-Controlled plate",
     )
     mag_plate = magnetic_module.load_labware("nest_96_wellplate_100ul_pcr_full_skirt")
-    tc_plate = thermocycler_module.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')
+    tc_plate = thermocycler_module.load_labware(
+        "nest_96_wellplate_100ul_pcr_full_skirt"
+    )
 
     custom_labware: Optional[Labware] = None
 
@@ -120,7 +127,6 @@ def run(ctx: protocol_api.ProtocolContext) -> None:
     #     logo_destination_plate.wells_by_name()["H9"],
     # ]
 
-
     dye2_destination_wells: List[Well] = [
         logo_destination_plate.wells_by_name()["C7"],
         logo_destination_plate.wells_by_name()["D6"],
@@ -166,17 +172,17 @@ def run(ctx: protocol_api.ProtocolContext) -> None:
     # Play with the modules
     temperature_module.await_temperature(25)
 
-    for height in range(0, 9): # 0-8
+    for height in range(0, 9):  # 0-8
         magnetic_module.engage(height=height)
         ctx.delay(0.3)
-    for height in range(7, -1, -1): # 7-0
+    for height in range(7, -1, -1):  # 7-0
         magnetic_module.engage(height=height)
         ctx.delay(0.3)
     magnetic_module.disengage()
 
     thermocycler_module.open_lid()
     thermocycler_module.close_lid()
-    thermocycler_module.set_lid_temperature(38) # 37 is the minimum
+    thermocycler_module.set_lid_temperature(38)  # 37 is the minimum
     thermocycler_module.set_block_temperature(temperature=28, hold_time_seconds=5)
     thermocycler_module.deactivate_block()
     thermocycler_module.deactivate_lid()
@@ -205,7 +211,7 @@ def run(ctx: protocol_api.ProtocolContext) -> None:
         pipette_right.drop_tip()
 
     # to thermocycler
-    pipette_left.pick_up_tip() # should get from A1
+    pipette_left.pick_up_tip()  # should get from A1
     pipette_left.aspirate(volume=75, location=dye2_source)
     pipette_left.dispense(volume=60, location=tc_plate.wells_by_name()["A6"])
     pipette_left.drop_tip()
