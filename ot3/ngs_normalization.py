@@ -43,11 +43,11 @@ def run(protocol: protocol_api.ProtocolContext):
     if NOMODULES == "YES":
         protocol.comment("THIS IS A NO MODULE RUN")
         reservoir = protocol.load_labware("nest_12_reservoir_15ml", "2")
-        tiprack_200_1 = protocol.load_labware("opentrons_96_filtertiprack_200ul", "5")
+        tiprack_200_1 = protocol.load_labware("opentrons_ot3_96_tiprack_1000ul", "5")
         sample_plate = protocol.load_labware(
             "nest_96_wellplate_100ul_pcr_full_skirt", "7"
         )
-        tiprack_200_X = protocol.load_labware("opentrons_96_filtertiprack_200ul", "9")
+        tiprack_200_X = protocol.load_labware("opentrons_ot3_96_tiprack_1000ul", "9")
 
     else:
         protocol.comment("THIS IS A MODULE RUN")
@@ -476,9 +476,13 @@ def run(protocol: protocol_api.ProtocolContext):
                 + str(MaxTubeVol)
                 + "ul"
             )
+            protocol.pause()
             p300.pick_up_tip(p300TIPS[p300TIPCOUNT], presses=1, increment=0.5)
+            protocol.pause()
             p300.aspirate(DilutionVol, RSB.bottom())
+            protocol.pause()
             p300.dispense(DilutionVol, sample_plate.wells_by_name()[CurrentWell])
+            protocol.pause()
             HighVolMix = 10
             for Mix in range(HighVolMix):
                 p300.move_to(sample_plate.wells_by_name()[CurrentWell].center())
