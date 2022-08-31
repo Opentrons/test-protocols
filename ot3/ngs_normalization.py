@@ -1,4 +1,5 @@
 import inspect
+from dataclasses import replace
 
 from opentrons import protocol_api, types
 
@@ -29,7 +30,23 @@ DRYRUN = "NO"  # YES or NO, DRYRUN = 'YES' will return tips, skip incubation tim
 # this protocol does not actually use modules
 NOMODULES = "YES"  # YES or NO, NOMODULES = 'YES' will not require modules on the deck and will skip module steps, for testing purposes, if DRYRUN = 'YES', then NOMODULES will automatically set itself to 'NO'
 TIPREUSE = "NO"  # YES or NO, Reusing tips on wash steps reduces tips needed, no tip refill needed, suggested only for 24x run with all steps
-OFFSET = "YES"  # YES or NO, Sets whether to use protocol specific z offsets for each tip and labware or no offsets aside from defaults
+OFFSET = "NO"  # YES or NO, Sets whether to use protocol specific z offsets for each tip and labware or no offsets aside from defaults
+
+def pick_up_tip(instrument: protocol_api.InstrumentContext,
+                tip: protocol_api.Well):
+    """
+    This is a special pick up tip to drop the current for partial pickups.
+
+    Once that's implemented, or we switch to a single, it should be removed.
+    """
+    hw = instrument._implementation._protocol_interface.get_hardware()
+    hw_instr = hw.hardware_pipettes[instrument._implementation._mount]
+    old_pickup = hw_instr._config.pick_up_current
+    try:
+        hw_instr._config = replace(hw_instr._config, pick_up_current=0.125)
+        instrument.pick_up_tip(tip, presses=1, increment=0.5)
+    finally:
+        hw_instr._config = replace(hw_instr._config, pick_up_current=old_pickup)
 
 
 def run(protocol: protocol_api.ProtocolContext):
@@ -69,12 +86,12 @@ def run(protocol: protocol_api.ProtocolContext):
         p300 = protocol.load_instrument(
             "p1000_multi_gen3", "right", tip_racks=[tiprack_200_1]
         )
-        p20 = protocol.load_instrument("p50_multi_gen3", "left")
+        #p20 = protocol.load_instrument("p50_multi_gen3", "left")
     else:
         p300 = protocol.load_instrument(
             "p1000_multi_gen3", "right", tip_racks=[tiprack_200_1]
         )
-        p20 = protocol.load_instrument("p50_multi_gen3", "left")
+        #p20 = protocol.load_instrument("p50_multi_gen3", "left", tip_racks=[tiprack_200_1])
 
     MaxTubeVol = 200
     RSBUsed = 0
@@ -83,6 +100,7 @@ def run(protocol: protocol_api.ProtocolContext):
     # samples
     src_file_path = inspect.getfile(lambda: None)
     protocol.comment(src_file_path)
+
 
     sample_quant_csv = """
     Sample_Plate, Sample_well,InitialVol,InitialConc,TargetConc
@@ -476,13 +494,9 @@ def run(protocol: protocol_api.ProtocolContext):
                 + str(MaxTubeVol)
                 + "ul"
             )
-            protocol.pause()
-            p300.pick_up_tip(p300TIPS[p300TIPCOUNT], presses=1, increment=0.5)
-            protocol.pause()
+            pick_up_tip(p300, p300TIPS[p300TIPCOUNT])
             p300.aspirate(DilutionVol, RSB.bottom())
-            protocol.pause()
             p300.dispense(DilutionVol, sample_plate.wells_by_name()[CurrentWell])
-            protocol.pause()
             HighVolMix = 10
             for Mix in range(HighVolMix):
                 p300.move_to(sample_plate.wells_by_name()[CurrentWell].center())
@@ -501,7 +515,7 @@ def run(protocol: protocol_api.ProtocolContext):
             p300TIPDROP += 1
         else:
             protocol.comment("Using p300 to add " + str(round(DilutionVol, 1)))
-            p300.pick_up_tip(p300TIPS[p300TIPCOUNT], presses=1, increment=0.5)
+            pick_up_tip(p300, p300TIPS[p300TIPCOUNT])
             p300.aspirate(DilutionVol, RSB.bottom())
             if DilutionVol + InitialVol >= 120:
                 HighVolMix = 10
