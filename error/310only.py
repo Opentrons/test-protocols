@@ -1,8 +1,5 @@
-from typing import List, Optional
-
 from opentrons import protocol_api
-from opentrons.protocol_api.contexts import InstrumentContext
-from opentrons.protocol_api.labware import Labware, Well
+
 
 metadata = {
     "protocolName": "🛠 3.10 only Python 🛠",
