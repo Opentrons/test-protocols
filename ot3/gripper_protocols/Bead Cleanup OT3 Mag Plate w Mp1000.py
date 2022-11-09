@@ -5,7 +5,7 @@ metadata = {
     'protocolName': 'Bead Cleanup OT3 Mag Plate w Mp1000',
     'author': 'Opentrons <protocols@opentrons.com>',
     'source': 'Protocol Library',
-    'apiLevel': '2.9'
+    'apiLevel': '2.13'
     }
 
 # SCRIPT SETTINGS
@@ -26,6 +26,9 @@ STEP_AMPURESS      = 0
 p20_tips  = 0
 p300_tips = 0
 
+MAG_PLATE_SLOT = 2
+USE_GRIPPER = True
+
 def run(protocol: protocol_api.ProtocolContext):
     global TIPREUSE
     global DRYRUN
@@ -38,7 +41,6 @@ def run(protocol: protocol_api.ProtocolContext):
 
     # DECK SETUP AND LABWARE
     protocol.comment('THIS IS A MODULE RUN')
-    Dummy               = protocol.load_labware('armadillomagnet_96_wellplate_200ul','2')
     sample_plate        = protocol.load_labware('nest_96_wellplate_100ul_pcr_full_skirt','1')
     reservoir           = protocol.load_labware('nest_12_reservoir_15ml','3')
     tiprack_200_1       = protocol.load_labware('opentrons_ot3_96_tiprack_200ul', '5')
@@ -172,7 +174,7 @@ def run(protocol: protocol_api.ProtocolContext):
                     p300.move_to(sample_plate[X].center().move(types.Point(x=1.3,y=0,z=-4)))
                 if pos == 'p300_loc3':
                     p300.move_to(sample_plate[X].center().move(types.Point(x=1.3,y=0,z=-4)))
-        if MAG == 'MAGMOD':
+        elif MAG == 'MAGMOD':
             if well in ('A1','A3','A5','A7','A9','A11'):
                 if pos == 'p300_bead_side':
                     p300.move_to(sample_plate[X].center().move(types.Point(x=-0.50,y=0,z=-7.2)))
@@ -266,10 +268,11 @@ def run(protocol: protocol_api.ProtocolContext):
 #       GRIPPER MOVE PLATE FROM DECK TO MAG PLATE
 
         if MAG == 'MAGPLATE':
-            protocol.pause('PUT ON MAGNET')
-            del protocol.deck['1']
-            del protocol.deck['2']
-            sample_plate    = protocol.load_labware('armadillomagnet_96_wellplate_200ul','2')
+            protocol.move_labware(
+                labware=sample_plate,
+                new_location=MAG_PLATE_SLOT,
+                use_gripper=USE_GRIPPER,
+            )
 #       ============================================================================================
 
         if DRYRUN == 'NO':
@@ -303,7 +306,7 @@ def run(protocol: protocol_api.ProtocolContext):
             p300.default_speed = 5
             p300.move_to(sample_plate[X].top(z=-2))
             protocol.delay(minutes=0.1)
-            p300.blow_out()
+            p300.blow_out(sample_plate[X].top(z=-2))
             p300.default_speed = 400
             p300_drop_tip(loop)
 
@@ -338,7 +341,7 @@ def run(protocol: protocol_api.ProtocolContext):
             p300.default_speed = 5
             p300.move_to(sample_plate[X].top(z=-2))
             protocol.delay(minutes=0.1)
-            p300.blow_out()
+            p300.blow_out(sample_plate[X].top(z=-2))
             p300.default_speed = 400
             p300_drop_tip(loop)
 
@@ -357,7 +360,7 @@ def run(protocol: protocol_api.ProtocolContext):
             p300.dispense(200, Liquid_trash)
             p300.move_to(Liquid_trash.top(z=5))
             protocol.delay(minutes=0.1)
-            p300.blow_out()
+            p300.blow_out(Liquid_trash.top(z=5))
             p300_drop_tip(loop)
 
         if DRYRUN == 'NO':
@@ -373,10 +376,11 @@ def run(protocol: protocol_api.ProtocolContext):
 #       ============================================================================================
 #       GRIPPER MOVE PLATE FROM MAGNET PLATE TO DECK
         if MAG == 'MAGPLATE':
-            protocol.pause('PUT ON DECK')
-            del protocol.deck['1']
-            del protocol.deck['2']
-            sample_plate    = protocol.load_labware('nest_96_wellplate_100ul_pcr_full_skirt','1')
+            protocol.move_labware(
+                labware=sample_plate,
+                new_location=1,
+                use_gripper=USE_GRIPPER,
+            )
 #       ============================================================================================
 
         protocol.comment('--> Adding RSB')
@@ -427,10 +431,11 @@ def run(protocol: protocol_api.ProtocolContext):
 #       ============================================================================================
 #       GRIPPER MOVE PLATE FROM DECK TO MAG PLATE
         if MAG == 'MAGPLATE':
-            protocol.pause('PUT ON MAGNET')
-            del protocol.deck['1']
-            del protocol.deck['2']
-            sample_plate    = protocol.load_labware('armadillomagnet_96_wellplate_200ul','2')
+            protocol.move_labware(
+                labware=sample_plate,
+                new_location=MAG_PLATE_SLOT,
+                use_gripper=USE_GRIPPER,
+            )
 #       ============================================================================================
 
         if DRYRUN == 'NO':

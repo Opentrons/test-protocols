@@ -20,6 +20,8 @@ requirements = {
     "apiLevel": "2.13",
 }
 
+MAG_PLATE_SLOT = 6      # Specify slot for Magnetic plate
+
 """
 Here is where you can modify the magnetic module engage height:
 """
@@ -63,14 +65,10 @@ def run(ctx):
     settling_time= 4
 
     h_s = ctx.load_module('heaterShakerModuleV1','10')
-    sample_plate = h_s.load_labware(deepwell_type)
-    # magnet = ctx.load_module('ring_magnet', '6')      # No need to load magnetic module. Mag plate requires no loading
+    sample_plate = h_s.load_labware(deepwell_type)      # H/S should have deepwell adapter attached but it won't be specified in `load_labware`
+    # magnet = ctx.load_module('ring_magnet', '6')      # Mag plate requires no loading right now
     elutionplate = ctx.load_labware('opentrons_96_aluminumblock_nest_wellplate_100ul','1')
 
-    #Cut waste out?
-    waste = ctx.load_labware('nest_1_reservoir_195ml', '9',
-                             'Liquid Waste').wells()[0].top()
-    #??
 
     lysis_res = ctx.load_labware(deepwell_type, '5')
     elution_res = ctx.load_labware(deepwell_type, '4')
@@ -201,10 +199,10 @@ def run(ctx):
 
     #Remove Supernatant and move off magnet
     pip.aspirate(1000,sample_plate.bottom(0.3))
-    pip.dispense(1000,waste)
+    pip.dispense(1000, ctx.fixed_trash['A1'])       # TODO: check with science team that this is okay
     if starting_vol+binding_buffer_vol > 1000:
         pip.aspirate(1000,sample_plate.bottom(0.3))
-        pip.dispense(1000,waste)
+        pip.dispense(1000, ctx.fixed_trash['A1'])
 
     # grip.move(deepwell_type,magnet,h_s)
     ctx.move_labware(
