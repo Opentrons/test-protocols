@@ -53,6 +53,8 @@ STEP_POSTPCR2       = 0
 
 STEPS = {STEP_FRERAT, STEP_LIG, STEP_POSTLIG, STEP_PCR, STEP_POSTPCR1, STEP_POSTPCR2}
 
+MAG_PLATE_SLOT = 1
+
 
 def run(protocol: protocol_api.ProtocolContext):
     global TIPREUSE
@@ -73,7 +75,8 @@ def run(protocol: protocol_api.ProtocolContext):
     # DECK SETUP AND LABWARE
     if NOMODULES == 'YES':
         protocol.comment("THIS IS A NO MODULE RUN")
-        sample_plate_mag    = protocol.load_labware('nest_96_wellplate_100ul_pcr_full_skirt', '1') #<--- Actually an Eppendorf 96 well, same dimensions
+        # Don't load labware since the plate will be ,oved from TC to mag plate
+        # sample_plate    = protocol.load_labware('nest_96_wellplate_100ul_pcr_full_skirt', '1') #<--- Actually an Eppendorf 96 well, same dimensions
         if TIPREUSE == 'NO':
             reservoir           = protocol.load_labware('nest_12_reservoir_15ml','2')
         else :
@@ -82,14 +85,14 @@ def run(protocol: protocol_api.ProtocolContext):
         tiprack_20          = protocol.load_labware('opentrons_96_filtertiprack_20ul',  '4')
         tiprack_200_1       = protocol.load_labware('opentrons_96_filtertiprack_200ul', '5')
         tiprack_200_2       = protocol.load_labware('opentrons_96_filtertiprack_200ul', '6')
-        sample_plate_thermo = protocol.load_labware('nest_96_wellplate_100ul_pcr_full_skirt','7')
+        sample_plate = protocol.load_labware('nest_96_wellplate_100ul_pcr_full_skirt', '7')
         tiprack_200_3       = protocol.load_labware('opentrons_96_filtertiprack_200ul', '9')
     else:
         protocol.comment("THIS IS A MODULE RUN")
+        # No loading mag plate. Don't load labware since the plate will be ,oved from TC to mag plate
         # mag_block           = protocol.load_module('magnetic module gen2','1')
-        # sample_plate_mag    = mag_block.load_labware('nest_96_wellplate_100ul_pcr_full_skirt') #<--- Actually an Eppendorf 96 well, same dimensions
+        # sample_plate    = mag_block.load_labware('nest_96_wellplate_100ul_pcr_full_skirt') #<--- Actually an Eppendorf 96 well, same dimensions
 
-        sample_plate_mag = protocol.load_labware('nest_96_wellplate_100ul_pcr_full_skirt', '1')
         if TIPREUSE == 'NO':
             reservoir           = protocol.load_labware('nest_12_reservoir_15ml','2')
         else :
@@ -100,7 +103,7 @@ def run(protocol: protocol_api.ProtocolContext):
         tiprack_200_1       = protocol.load_labware('opentrons_96_filtertiprack_200ul', '5')
         tiprack_200_2       = protocol.load_labware('opentrons_96_filtertiprack_200ul', '6')
         thermocycler        = protocol.load_module('thermocycler module')
-        sample_plate_thermo = thermocycler.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')
+        sample_plate = thermocycler.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')
         tiprack_200_3       = protocol.load_labware('opentrons_96_filtertiprack_200ul', '9')
 
     if TIPREUSE == 'YES':
@@ -199,34 +202,34 @@ def run(protocol: protocol_api.ProtocolContext):
 
     # positions
     ############################################################################################################################################
-    #  sample_plate_thermo on the Thermocycler
-    A1_p20_bead_side  = sample_plate_thermo['A1'].center().move(types.Point(x=-1.8*0.50,y=0,         z=p20_offset_Thermo-5))                #Beads to the Right
-    A1_p20_bead_top   = sample_plate_thermo['A1'].center().move(types.Point(x=1.5,y=0,               z=p20_offset_Thermo+2))                #Beads to the Right
-    A1_p20_bead_mid   = sample_plate_thermo['A1'].center().move(types.Point(x=1,y=0,                 z=p20_offset_Thermo-2))                #Beads to the Right
-    A1_p300_bead_side = sample_plate_thermo['A1'].center().move(types.Point(x=-0.50,y=0,             z=p300_offset_Thermo-7.2))             #Beads to the Right
-    A1_p300_bead_top  = sample_plate_thermo['A1'].center().move(types.Point(x=1.30,y=0,              z=p300_offset_Thermo-1))               #Beads to the Right
-    A1_p300_bead_mid  = sample_plate_thermo['A1'].center().move(types.Point(x=0.80,y=0,              z=p300_offset_Thermo-4))               #Beads to the Right
-    A1_p300_loc1      = sample_plate_thermo['A1'].center().move(types.Point(x=1.3*0.8,y=1.3*0.8,     z=p300_offset_Thermo-4))               #Beads to the Right
-    A1_p300_loc2      = sample_plate_thermo['A1'].center().move(types.Point(x=1.3,y=0,               z=p300_offset_Thermo-4))               #Beads to the Right
-    A1_p300_loc3      = sample_plate_thermo['A1'].center().move(types.Point(x=1.3*0.8,y=-1.3*0.8,    z=p300_offset_Thermo-4))               #Beads to the Right
-    A3_p20_bead_side  = sample_plate_thermo['A3'].center().move(types.Point(x=-1.8*0.50,y=0,         z=p20_offset_Thermo-5))                #Beads to the Right
-    A3_p20_bead_top   = sample_plate_thermo['A3'].center().move(types.Point(x=1.5,y=0,               z=p20_offset_Thermo+2))                #Beads to the Right
-    A3_p20_bead_mid   = sample_plate_thermo['A3'].center().move(types.Point(x=1,y=0,                 z=p20_offset_Thermo-2))                #Beads to the Right
-    A3_p300_bead_side = sample_plate_thermo['A3'].center().move(types.Point(x=-0.50,y=0,             z=p300_offset_Thermo-7.2))             #Beads to the Right
-    A3_p300_bead_top  = sample_plate_thermo['A3'].center().move(types.Point(x=1.30,y=0,              z=p300_offset_Thermo-1))               #Beads to the Right
-    A3_p300_bead_mid  = sample_plate_thermo['A3'].center().move(types.Point(x=0.80,y=0,              z=p300_offset_Thermo-4))               #Beads to the Right
-    A3_p300_loc1      = sample_plate_thermo['A3'].center().move(types.Point(x=1.3*0.8,y=1.3*0.8,     z=p300_offset_Thermo-4))               #Beads to the Right
-    A3_p300_loc2      = sample_plate_thermo['A3'].center().move(types.Point(x=1.3,y=0,               z=p300_offset_Thermo-4))               #Beads to the Right
-    A3_p300_loc3      = sample_plate_thermo['A3'].center().move(types.Point(x=1.3*0.8,y=-1.3*0.8,    z=p300_offset_Thermo-4))               #Beads to the Right
-    A5_p20_bead_side  = sample_plate_thermo['A5'].center().move(types.Point(x=-1.8*0.50,y=0,         z=p20_offset_Thermo-5))                #Beads to the Right
-    A5_p20_bead_top   = sample_plate_thermo['A5'].center().move(types.Point(x=1.5,y=0,               z=p20_offset_Thermo+2))                #Beads to the Right
-    A5_p20_bead_mid   = sample_plate_thermo['A5'].center().move(types.Point(x=1,y=0,                 z=p20_offset_Thermo-2))                #Beads to the Right
-    A5_p300_bead_side = sample_plate_thermo['A5'].center().move(types.Point(x=-0.50,y=0,             z=p300_offset_Thermo-7.2))             #Beads to the Right
-    A5_p300_bead_top  = sample_plate_thermo['A5'].center().move(types.Point(x=1.30,y=0,              z=p300_offset_Thermo-1))               #Beads to the Right
-    A5_p300_bead_mid  = sample_plate_thermo['A5'].center().move(types.Point(x=0.80,y=0,              z=p300_offset_Thermo-4))               #Beads to the Right
-    A5_p300_loc1      = sample_plate_thermo['A5'].center().move(types.Point(x=1.3*0.8,y=1.3*0.8,     z=p300_offset_Thermo-4))               #Beads to the Right
-    A5_p300_loc2      = sample_plate_thermo['A5'].center().move(types.Point(x=1.3,y=0,               z=p300_offset_Thermo-4))               #Beads to the Right
-    A5_p300_loc3      = sample_plate_thermo['A5'].center().move(types.Point(x=1.3*0.8,y=-1.3*0.8,    z=p300_offset_Thermo-4))               #Beads to the Right
+    #  sample_plate on the Thermocycler
+    A1_p20_bead_side  = sample_plate['A1'].center().move(types.Point(x=-1.8 * 0.50, y=0, z=p20_offset_Thermo - 5))                #Beads to the Right
+    A1_p20_bead_top   = sample_plate['A1'].center().move(types.Point(x=1.5, y=0, z=p20_offset_Thermo + 2))                #Beads to the Right
+    A1_p20_bead_mid   = sample_plate['A1'].center().move(types.Point(x=1, y=0, z=p20_offset_Thermo - 2))                #Beads to the Right
+    A1_p300_bead_side = sample_plate['A1'].center().move(types.Point(x=-0.50, y=0, z=p300_offset_Thermo - 7.2))             #Beads to the Right
+    A1_p300_bead_top  = sample_plate['A1'].center().move(types.Point(x=1.30, y=0, z=p300_offset_Thermo - 1))               #Beads to the Right
+    A1_p300_bead_mid  = sample_plate['A1'].center().move(types.Point(x=0.80, y=0, z=p300_offset_Thermo - 4))               #Beads to the Right
+    A1_p300_loc1      = sample_plate['A1'].center().move(types.Point(x=1.3 * 0.8, y=1.3 * 0.8, z=p300_offset_Thermo - 4))               #Beads to the Right
+    A1_p300_loc2      = sample_plate['A1'].center().move(types.Point(x=1.3, y=0, z=p300_offset_Thermo - 4))               #Beads to the Right
+    A1_p300_loc3      = sample_plate['A1'].center().move(types.Point(x=1.3 * 0.8, y=-1.3 * 0.8, z=p300_offset_Thermo - 4))               #Beads to the Right
+    A3_p20_bead_side  = sample_plate['A3'].center().move(types.Point(x=-1.8 * 0.50, y=0, z=p20_offset_Thermo - 5))                #Beads to the Right
+    A3_p20_bead_top   = sample_plate['A3'].center().move(types.Point(x=1.5, y=0, z=p20_offset_Thermo + 2))                #Beads to the Right
+    A3_p20_bead_mid   = sample_plate['A3'].center().move(types.Point(x=1, y=0, z=p20_offset_Thermo - 2))                #Beads to the Right
+    A3_p300_bead_side = sample_plate['A3'].center().move(types.Point(x=-0.50, y=0, z=p300_offset_Thermo - 7.2))             #Beads to the Right
+    A3_p300_bead_top  = sample_plate['A3'].center().move(types.Point(x=1.30, y=0, z=p300_offset_Thermo - 1))               #Beads to the Right
+    A3_p300_bead_mid  = sample_plate['A3'].center().move(types.Point(x=0.80, y=0, z=p300_offset_Thermo - 4))               #Beads to the Right
+    A3_p300_loc1      = sample_plate['A3'].center().move(types.Point(x=1.3 * 0.8, y=1.3 * 0.8, z=p300_offset_Thermo - 4))               #Beads to the Right
+    A3_p300_loc2      = sample_plate['A3'].center().move(types.Point(x=1.3, y=0, z=p300_offset_Thermo - 4))               #Beads to the Right
+    A3_p300_loc3      = sample_plate['A3'].center().move(types.Point(x=1.3 * 0.8, y=-1.3 * 0.8, z=p300_offset_Thermo - 4))               #Beads to the Right
+    A5_p20_bead_side  = sample_plate['A5'].center().move(types.Point(x=-1.8 * 0.50, y=0, z=p20_offset_Thermo - 5))                #Beads to the Right
+    A5_p20_bead_top   = sample_plate['A5'].center().move(types.Point(x=1.5, y=0, z=p20_offset_Thermo + 2))                #Beads to the Right
+    A5_p20_bead_mid   = sample_plate['A5'].center().move(types.Point(x=1, y=0, z=p20_offset_Thermo - 2))                #Beads to the Right
+    A5_p300_bead_side = sample_plate['A5'].center().move(types.Point(x=-0.50, y=0, z=p300_offset_Thermo - 7.2))             #Beads to the Right
+    A5_p300_bead_top  = sample_plate['A5'].center().move(types.Point(x=1.30, y=0, z=p300_offset_Thermo - 1))               #Beads to the Right
+    A5_p300_bead_mid  = sample_plate['A5'].center().move(types.Point(x=0.80, y=0, z=p300_offset_Thermo - 4))               #Beads to the Right
+    A5_p300_loc1      = sample_plate['A5'].center().move(types.Point(x=1.3 * 0.8, y=1.3 * 0.8, z=p300_offset_Thermo - 4))               #Beads to the Right
+    A5_p300_loc2      = sample_plate['A5'].center().move(types.Point(x=1.3, y=0, z=p300_offset_Thermo - 4))               #Beads to the Right
+    A5_p300_loc3      = sample_plate['A5'].center().move(types.Point(x=1.3 * 0.8, y=-1.3 * 0.8, z=p300_offset_Thermo - 4))               #Beads to the Right
     ############################################################################################################################################
 
     bypass = protocol.deck.position_for('11').move(types.Point(x=70,y=80,z=130))
@@ -258,24 +261,24 @@ def run(protocol: protocol_api.ProtocolContext):
             X = 'A1'
             p20.pick_up_tip()
             p20.aspirate(FRERATVol, FRERAT.bottom(z=p20_offset_Temp))
-            p20.dispense(FRERATVol, sample_plate_thermo.wells_by_name()[X].bottom(z=p20_offset_Thermo))
-            p20.move_to(sample_plate_thermo[X].bottom(z=p300_offset_Thermo))
+            p20.dispense(FRERATVol, sample_plate.wells_by_name()[X].bottom(z=p20_offset_Thermo))
+            p20.move_to(sample_plate[X].bottom(z=p300_offset_Thermo))
             p20.mix(FRERATMixRep,FRERATMixVol)
             p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
         if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
             X = 'A3'
             p20.pick_up_tip()
             p20.aspirate(FRERATVol, FRERAT.bottom(z=p20_offset_Temp))
-            p20.dispense(FRERATVol, sample_plate_thermo.wells_by_name()[X].bottom(z=p20_offset_Thermo))
-            p20.move_to(sample_plate_thermo[X].bottom(z=p300_offset_Thermo))
+            p20.dispense(FRERATVol, sample_plate.wells_by_name()[X].bottom(z=p20_offset_Thermo))
+            p20.move_to(sample_plate[X].bottom(z=p300_offset_Thermo))
             p20.mix(FRERATMixRep,FRERATMixVol)
             p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
         if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
             X = 'A5'
             p20.pick_up_tip()
             p20.aspirate(FRERATVol, FRERAT.bottom(z=p20_offset_Temp))
-            p20.dispense(FRERATVol, sample_plate_thermo.wells_by_name()[X].bottom(z=p20_offset_Thermo))
-            p20.move_to(sample_plate_thermo[X].bottom(z=p300_offset_Thermo))
+            p20.dispense(FRERATVol, sample_plate.wells_by_name()[X].bottom(z=p20_offset_Thermo))
+            p20.move_to(sample_plate[X].bottom(z=p300_offset_Thermo))
             p20.mix(FRERATMixRep,FRERATMixVol)
             p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
 
@@ -320,10 +323,10 @@ def run(protocol: protocol_api.ProtocolContext):
             p300.move_to(LIG.top(z=p300_offset_Temp+5))
             protocol.delay(seconds=0.2)
             p300.default_speed = 400
-            p300.dispense(LIGVol, sample_plate_thermo[X].bottom(z=p300_offset_Thermo), rate=0.25)
-            p300.move_to(sample_plate_thermo[X].bottom(z=p300_offset_Thermo))
+            p300.dispense(LIGVol, sample_plate[X].bottom(z=p300_offset_Thermo), rate=0.25)
+            p300.move_to(sample_plate[X].bottom(z=p300_offset_Thermo))
             p300.mix(LIGMixRep,LIGMixVol, rate=0.5)
-            p300.blow_out(sample_plate_thermo[X].top(z=-5))
+            p300.blow_out(sample_plate[X].top(z=-5))
             p300.move_to(bypass) 
             p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
         if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
@@ -335,10 +338,10 @@ def run(protocol: protocol_api.ProtocolContext):
             p300.move_to(LIG.top(z=p300_offset_Temp+5))
             protocol.delay(seconds=0.2)
             p300.default_speed = 400
-            p300.dispense(LIGVol, sample_plate_thermo[X].bottom(z=p300_offset_Thermo), rate=0.25)
-            p300.move_to(sample_plate_thermo[X].bottom(z=p300_offset_Thermo))
+            p300.dispense(LIGVol, sample_plate[X].bottom(z=p300_offset_Thermo), rate=0.25)
+            p300.move_to(sample_plate[X].bottom(z=p300_offset_Thermo))
             p300.mix(LIGMixRep,LIGMixVol, rate=0.5)
-            p300.blow_out(sample_plate_thermo[X].top(z=-5))
+            p300.blow_out(sample_plate[X].top(z=-5))
             p300.move_to(bypass) 
             p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
         if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
@@ -350,10 +353,10 @@ def run(protocol: protocol_api.ProtocolContext):
             p300.move_to(LIG.top(z=p300_offset_Temp+5))
             protocol.delay(seconds=0.2)
             p300.default_speed = 400
-            p300.dispense(LIGVol, sample_plate_thermo[X].bottom(z=p300_offset_Thermo), rate=0.25)
-            p300.move_to(sample_plate_thermo[X].bottom(z=p300_offset_Thermo))
+            p300.dispense(LIGVol, sample_plate[X].bottom(z=p300_offset_Thermo), rate=0.25)
+            p300.move_to(sample_plate[X].bottom(z=p300_offset_Thermo))
             p300.mix(LIGMixRep,LIGMixVol, rate=0.5)
-            p300.blow_out(sample_plate_thermo[X].top(z=-5))
+            p300.blow_out(sample_plate[X].top(z=-5))
             p300.move_to(bypass) 
             p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
 
@@ -378,77 +381,77 @@ def run(protocol: protocol_api.ProtocolContext):
         Plate = eppendorf skirted 96 well plate (containing 90ul of liquid)
         From Thermocycler (Pos 7) to Magnetic Block (Pos 1)
         '''
-        protocol.move_labware(labware=sample_plate_thermo,
-                              new_location=1,
+        protocol.move_labware(labware=sample_plate,
+                              new_location=MAG_PLATE_SLOT,
                               use_gripper=True)
 
 
     # positions
     ############################################################################################################################################
-    #  sample_plate_mag on the Mag Block
-    A1_p20_bead_side  = sample_plate_mag['A1'].center().move(types.Point(x=-1.8*0.50,y=0,         z=p20_offset_Mag-5))                #Beads to the Right
-    A1_p20_bead_top   = sample_plate_mag['A1'].center().move(types.Point(x=1.5,y=0,               z=p20_offset_Mag+2))                #Beads to the Right
-    A1_p20_bead_mid   = sample_plate_mag['A1'].center().move(types.Point(x=1,y=0,                 z=p20_offset_Mag-2))                #Beads to the Right
-    A1_p300_bead_side = sample_plate_mag['A1'].center().move(types.Point(x=-0.50,y=0,             z=p300_offset_Mag-7.2))             #Beads to the Right
-    A1_p300_bead_top  = sample_plate_mag['A1'].center().move(types.Point(x=1.30,y=0,              z=p300_offset_Mag-1))               #Beads to the Right
-    A1_p300_bead_mid  = sample_plate_mag['A1'].center().move(types.Point(x=0.80,y=0,              z=p300_offset_Mag-4))               #Beads to the Right
-    A1_p300_loc1      = sample_plate_mag['A1'].center().move(types.Point(x=1.3*0.8,y=1.3*0.8,     z=p300_offset_Mag-4))               #Beads to the Right
-    A1_p300_loc2      = sample_plate_mag['A1'].center().move(types.Point(x=1.3,y=0,               z=p300_offset_Mag-4))               #Beads to the Right
-    A1_p300_loc3      = sample_plate_mag['A1'].center().move(types.Point(x=1.3*0.8,y=-1.3*0.8,    z=p300_offset_Mag-4))               #Beads to the Right
-    A1_p20_loc1       = sample_plate_mag['A1'].center().move(types.Point(x=1.3*0.8,y=1.3*0.8,     z=p20_offset_Mag-7))             #Beads to the Right
-    A1_p20_loc2       = sample_plate_mag['A1'].center().move(types.Point(x=1.3,y=0,               z=p20_offset_Mag-7))             #Beads to the Right
-    A1_p20_loc3       = sample_plate_mag['A1'].center().move(types.Point(x=1.3*0.8,y=-1.3*0.8,    z=p20_offset_Mag-7))             #Beads to the Right
-    A3_p20_bead_side  = sample_plate_mag['A3'].center().move(types.Point(x=-1.8*0.50,y=0,         z=p20_offset_Mag-5))                #Beads to the Right
-    A3_p20_bead_top   = sample_plate_mag['A3'].center().move(types.Point(x=1.5,y=0,               z=p20_offset_Mag+2))                #Beads to the Right
-    A3_p20_bead_mid   = sample_plate_mag['A3'].center().move(types.Point(x=1,y=0,                 z=p20_offset_Mag-2))                #Beads to the Right
-    A3_p300_bead_side = sample_plate_mag['A3'].center().move(types.Point(x=-0.50,y=0,             z=p300_offset_Mag-7.2))             #Beads to the Right
-    A3_p300_bead_top  = sample_plate_mag['A3'].center().move(types.Point(x=1.30,y=0,              z=p300_offset_Mag-1))               #Beads to the Right
-    A3_p300_bead_mid  = sample_plate_mag['A3'].center().move(types.Point(x=0.80,y=0,              z=p300_offset_Mag-4))               #Beads to the Right
-    A3_p300_loc1      = sample_plate_mag['A3'].center().move(types.Point(x=1.3*0.8,y=1.3*0.8,     z=p300_offset_Mag-4))               #Beads to the Right
-    A3_p300_loc2      = sample_plate_mag['A3'].center().move(types.Point(x=1.3,y=0,               z=p300_offset_Mag-4))               #Beads to the Right
-    A3_p300_loc3      = sample_plate_mag['A3'].center().move(types.Point(x=1.3*0.8,y=-1.3*0.8,    z=p300_offset_Mag-4))               #Beads to the Right
-    A3_p20_loc1       = sample_plate_mag['A3'].center().move(types.Point(x=1.3*0.8,y=1.3*0.8,     z=p20_offset_Mag-7))             #Beads to the Right
-    A3_p20_loc2       = sample_plate_mag['A3'].center().move(types.Point(x=1.3,y=0,               z=p20_offset_Mag-7))             #Beads to the Right
-    A3_p20_loc3       = sample_plate_mag['A3'].center().move(types.Point(x=1.3*0.8,y=-1.3*0.8,    z=p20_offset_Mag-7))             #Beads to the Right
-    A5_p20_bead_side  = sample_plate_mag['A5'].center().move(types.Point(x=-1.8*0.50,y=0,         z=p20_offset_Mag-5))                #Beads to the Right
-    A5_p20_bead_top   = sample_plate_mag['A5'].center().move(types.Point(x=1.5,y=0,               z=p20_offset_Mag+2))                #Beads to the Right
-    A5_p20_bead_mid   = sample_plate_mag['A5'].center().move(types.Point(x=1,y=0,                 z=p20_offset_Mag-2))                #Beads to the Right
-    A5_p300_bead_side = sample_plate_mag['A5'].center().move(types.Point(x=-0.50,y=0,             z=p300_offset_Mag-7.2))             #Beads to the Right
-    A5_p300_bead_top  = sample_plate_mag['A5'].center().move(types.Point(x=1.30,y=0,              z=p300_offset_Mag-1))               #Beads to the Right
-    A5_p300_bead_mid  = sample_plate_mag['A5'].center().move(types.Point(x=0.80,y=0,              z=p300_offset_Mag-4))               #Beads to the Right
-    A5_p300_loc1      = sample_plate_mag['A5'].center().move(types.Point(x=1.3*0.8,y=1.3*0.8,     z=p300_offset_Mag-4))               #Beads to the Right
-    A5_p300_loc2      = sample_plate_mag['A5'].center().move(types.Point(x=1.3,y=0,               z=p300_offset_Mag-4))               #Beads to the Right
-    A5_p300_loc3      = sample_plate_mag['A5'].center().move(types.Point(x=1.3*0.8,y=-1.3*0.8,    z=p300_offset_Mag-4))               #Beads to the Right
-    A5_p20_loc1       = sample_plate_mag['A5'].center().move(types.Point(x=1.3*0.8,y=1.3*0.8,     z=p20_offset_Mag-7))             #Beads to the Right
-    A5_p20_loc2       = sample_plate_mag['A5'].center().move(types.Point(x=1.3,y=0,               z=p20_offset_Mag-7))             #Beads to the Right
-    A5_p20_loc3       = sample_plate_mag['A5'].center().move(types.Point(x=1.3*0.8,y=-1.3*0.8,    z=p20_offset_Mag-7))             #Beads to the Right
-    A7_p20_bead_side  = sample_plate_mag['A7'].center().move(types.Point(x=-1.8*0.50,y=0,         z=p20_offset_Mag-5))                #Beads to the Right
-    A7_p20_bead_top   = sample_plate_mag['A7'].center().move(types.Point(x=1.5,y=0,               z=p20_offset_Mag+2))                #Beads to the Right
-    A7_p20_bead_mid   = sample_plate_mag['A7'].center().move(types.Point(x=1,y=0,                 z=p20_offset_Mag-2))                #Beads to the Right
-    A7_p300_bead_side = sample_plate_mag['A7'].center().move(types.Point(x=-0.50,y=0,             z=p300_offset_Mag-7.2))             #Beads to the Right
-    A7_p300_bead_top  = sample_plate_mag['A7'].center().move(types.Point(x=1.30,y=0,              z=p300_offset_Mag-1))               #Beads to the Right
-    A7_p300_bead_mid  = sample_plate_mag['A7'].center().move(types.Point(x=0.80,y=0,              z=p300_offset_Mag-4))               #Beads to the Right
-    A7_p300_loc1      = sample_plate_mag['A7'].center().move(types.Point(x=1.3*0.8,y=1.3*0.8,     z=p300_offset_Mag-5.5))               #Beads to the Right
-    A7_p300_loc2      = sample_plate_mag['A7'].center().move(types.Point(x=1.3,y=0,               z=p300_offset_Mag-5.5))               #Beads to the Right
-    A7_p300_loc3      = sample_plate_mag['A7'].center().move(types.Point(x=1.3*0.8,y=-1.3*0.8,    z=p300_offset_Mag-5.5))               #Beads to the Right
-    A9_p20_bead_side  = sample_plate_mag['A9'].center().move(types.Point(x=-1.8*0.50,y=0,         z=p20_offset_Mag-5))                #Beads to the Right
-    A9_p20_bead_top   = sample_plate_mag['A9'].center().move(types.Point(x=1.5,y=0,               z=p20_offset_Mag+2))                #Beads to the Right
-    A9_p20_bead_mid   = sample_plate_mag['A9'].center().move(types.Point(x=1,y=0,                 z=p20_offset_Mag-2))                #Beads to the Right
-    A9_p300_bead_side = sample_plate_mag['A9'].center().move(types.Point(x=-0.50,y=0,             z=p300_offset_Mag-7.2))             #Beads to the Right
-    A9_p300_bead_top  = sample_plate_mag['A9'].center().move(types.Point(x=1.30,y=0,              z=p300_offset_Mag-1))               #Beads to the Right
-    A9_p300_bead_mid  = sample_plate_mag['A9'].center().move(types.Point(x=0.80,y=0,              z=p300_offset_Mag-4))               #Beads to the Right
-    A9_p300_loc1      = sample_plate_mag['A9'].center().move(types.Point(x=1.3*0.8,y=1.3*0.8,     z=p300_offset_Mag-5.5))               #Beads to the Right
-    A9_p300_loc2      = sample_plate_mag['A9'].center().move(types.Point(x=1.3,y=0,               z=p300_offset_Mag-5.5))               #Beads to the Right
-    A9_p300_loc3      = sample_plate_mag['A9'].center().move(types.Point(x=1.3*0.8,y=-1.3*0.8,    z=p300_offset_Mag-5.5))               #Beads to the Right
-    A11_p20_bead_side  = sample_plate_mag['A11'].center().move(types.Point(x=-1.8*0.50,y=0,         z=p20_offset_Mag-5))                #Beads to the Right
-    A11_p20_bead_top   = sample_plate_mag['A11'].center().move(types.Point(x=1.5,y=0,               z=p20_offset_Mag+2))                #Beads to the Right
-    A11_p20_bead_mid   = sample_plate_mag['A11'].center().move(types.Point(x=1,y=0,                 z=p20_offset_Mag-2))                #Beads to the Right
-    A11_p300_bead_side = sample_plate_mag['A11'].center().move(types.Point(x=-0.50,y=0,             z=p300_offset_Mag-7.2))             #Beads to the Right
-    A11_p300_bead_top  = sample_plate_mag['A11'].center().move(types.Point(x=1.30,y=0,              z=p300_offset_Mag-1))               #Beads to the Right
-    A11_p300_bead_mid  = sample_plate_mag['A11'].center().move(types.Point(x=0.80,y=0,              z=p300_offset_Mag-4))               #Beads to the Right
-    A11_p300_loc1      = sample_plate_mag['A11'].center().move(types.Point(x=1.3*0.8,y=1.3*0.8,     z=p300_offset_Mag-5.5))               #Beads to the Right
-    A11_p300_loc2      = sample_plate_mag['A11'].center().move(types.Point(x=1.3,y=0,               z=p300_offset_Mag-5.5))               #Beads to the Right
-    A11_p300_loc3      = sample_plate_mag['A11'].center().move(types.Point(x=1.3*0.8,y=-1.3*0.8,    z=p300_offset_Mag-5.5))               #Beads to the Right
+    #  sample_plate on the Mag Block
+    A1_p20_bead_side  = sample_plate['A1'].center().move(types.Point(x=-1.8*0.50,y=0,         z=p20_offset_Mag-5))                #Beads to the Right
+    A1_p20_bead_top   = sample_plate['A1'].center().move(types.Point(x=1.5,y=0,               z=p20_offset_Mag+2))                #Beads to the Right
+    A1_p20_bead_mid   = sample_plate['A1'].center().move(types.Point(x=1,y=0,                 z=p20_offset_Mag-2))                #Beads to the Right
+    A1_p300_bead_side = sample_plate['A1'].center().move(types.Point(x=-0.50,y=0,             z=p300_offset_Mag-7.2))             #Beads to the Right
+    A1_p300_bead_top  = sample_plate['A1'].center().move(types.Point(x=1.30,y=0,              z=p300_offset_Mag-1))               #Beads to the Right
+    A1_p300_bead_mid  = sample_plate['A1'].center().move(types.Point(x=0.80,y=0,              z=p300_offset_Mag-4))               #Beads to the Right
+    A1_p300_loc1      = sample_plate['A1'].center().move(types.Point(x=1.3*0.8,y=1.3*0.8,     z=p300_offset_Mag-4))               #Beads to the Right
+    A1_p300_loc2      = sample_plate['A1'].center().move(types.Point(x=1.3,y=0,               z=p300_offset_Mag-4))               #Beads to the Right
+    A1_p300_loc3      = sample_plate['A1'].center().move(types.Point(x=1.3*0.8,y=-1.3*0.8,    z=p300_offset_Mag-4))               #Beads to the Right
+    A1_p20_loc1       = sample_plate['A1'].center().move(types.Point(x=1.3*0.8,y=1.3*0.8,     z=p20_offset_Mag-7))             #Beads to the Right
+    A1_p20_loc2       = sample_plate['A1'].center().move(types.Point(x=1.3,y=0,               z=p20_offset_Mag-7))             #Beads to the Right
+    A1_p20_loc3       = sample_plate['A1'].center().move(types.Point(x=1.3*0.8,y=-1.3*0.8,    z=p20_offset_Mag-7))             #Beads to the Right
+    A3_p20_bead_side  = sample_plate['A3'].center().move(types.Point(x=-1.8*0.50,y=0,         z=p20_offset_Mag-5))                #Beads to the Right
+    A3_p20_bead_top   = sample_plate['A3'].center().move(types.Point(x=1.5,y=0,               z=p20_offset_Mag+2))                #Beads to the Right
+    A3_p20_bead_mid   = sample_plate['A3'].center().move(types.Point(x=1,y=0,                 z=p20_offset_Mag-2))                #Beads to the Right
+    A3_p300_bead_side = sample_plate['A3'].center().move(types.Point(x=-0.50,y=0,             z=p300_offset_Mag-7.2))             #Beads to the Right
+    A3_p300_bead_top  = sample_plate['A3'].center().move(types.Point(x=1.30,y=0,              z=p300_offset_Mag-1))               #Beads to the Right
+    A3_p300_bead_mid  = sample_plate['A3'].center().move(types.Point(x=0.80,y=0,              z=p300_offset_Mag-4))               #Beads to the Right
+    A3_p300_loc1      = sample_plate['A3'].center().move(types.Point(x=1.3*0.8,y=1.3*0.8,     z=p300_offset_Mag-4))               #Beads to the Right
+    A3_p300_loc2      = sample_plate['A3'].center().move(types.Point(x=1.3,y=0,               z=p300_offset_Mag-4))               #Beads to the Right
+    A3_p300_loc3      = sample_plate['A3'].center().move(types.Point(x=1.3*0.8,y=-1.3*0.8,    z=p300_offset_Mag-4))               #Beads to the Right
+    A3_p20_loc1       = sample_plate['A3'].center().move(types.Point(x=1.3*0.8,y=1.3*0.8,     z=p20_offset_Mag-7))             #Beads to the Right
+    A3_p20_loc2       = sample_plate['A3'].center().move(types.Point(x=1.3,y=0,               z=p20_offset_Mag-7))             #Beads to the Right
+    A3_p20_loc3       = sample_plate['A3'].center().move(types.Point(x=1.3*0.8,y=-1.3*0.8,    z=p20_offset_Mag-7))             #Beads to the Right
+    A5_p20_bead_side  = sample_plate['A5'].center().move(types.Point(x=-1.8*0.50,y=0,         z=p20_offset_Mag-5))                #Beads to the Right
+    A5_p20_bead_top   = sample_plate['A5'].center().move(types.Point(x=1.5,y=0,               z=p20_offset_Mag+2))                #Beads to the Right
+    A5_p20_bead_mid   = sample_plate['A5'].center().move(types.Point(x=1,y=0,                 z=p20_offset_Mag-2))                #Beads to the Right
+    A5_p300_bead_side = sample_plate['A5'].center().move(types.Point(x=-0.50,y=0,             z=p300_offset_Mag-7.2))             #Beads to the Right
+    A5_p300_bead_top  = sample_plate['A5'].center().move(types.Point(x=1.30,y=0,              z=p300_offset_Mag-1))               #Beads to the Right
+    A5_p300_bead_mid  = sample_plate['A5'].center().move(types.Point(x=0.80,y=0,              z=p300_offset_Mag-4))               #Beads to the Right
+    A5_p300_loc1      = sample_plate['A5'].center().move(types.Point(x=1.3*0.8,y=1.3*0.8,     z=p300_offset_Mag-4))               #Beads to the Right
+    A5_p300_loc2      = sample_plate['A5'].center().move(types.Point(x=1.3,y=0,               z=p300_offset_Mag-4))               #Beads to the Right
+    A5_p300_loc3      = sample_plate['A5'].center().move(types.Point(x=1.3*0.8,y=-1.3*0.8,    z=p300_offset_Mag-4))               #Beads to the Right
+    A5_p20_loc1       = sample_plate['A5'].center().move(types.Point(x=1.3*0.8,y=1.3*0.8,     z=p20_offset_Mag-7))             #Beads to the Right
+    A5_p20_loc2       = sample_plate['A5'].center().move(types.Point(x=1.3,y=0,               z=p20_offset_Mag-7))             #Beads to the Right
+    A5_p20_loc3       = sample_plate['A5'].center().move(types.Point(x=1.3*0.8,y=-1.3*0.8,    z=p20_offset_Mag-7))             #Beads to the Right
+    A7_p20_bead_side  = sample_plate['A7'].center().move(types.Point(x=-1.8*0.50,y=0,         z=p20_offset_Mag-5))                #Beads to the Right
+    A7_p20_bead_top   = sample_plate['A7'].center().move(types.Point(x=1.5,y=0,               z=p20_offset_Mag+2))                #Beads to the Right
+    A7_p20_bead_mid   = sample_plate['A7'].center().move(types.Point(x=1,y=0,                 z=p20_offset_Mag-2))                #Beads to the Right
+    A7_p300_bead_side = sample_plate['A7'].center().move(types.Point(x=-0.50,y=0,             z=p300_offset_Mag-7.2))             #Beads to the Right
+    A7_p300_bead_top  = sample_plate['A7'].center().move(types.Point(x=1.30,y=0,              z=p300_offset_Mag-1))               #Beads to the Right
+    A7_p300_bead_mid  = sample_plate['A7'].center().move(types.Point(x=0.80,y=0,              z=p300_offset_Mag-4))               #Beads to the Right
+    A7_p300_loc1      = sample_plate['A7'].center().move(types.Point(x=1.3*0.8,y=1.3*0.8,     z=p300_offset_Mag-5.5))               #Beads to the Right
+    A7_p300_loc2      = sample_plate['A7'].center().move(types.Point(x=1.3,y=0,               z=p300_offset_Mag-5.5))               #Beads to the Right
+    A7_p300_loc3      = sample_plate['A7'].center().move(types.Point(x=1.3*0.8,y=-1.3*0.8,    z=p300_offset_Mag-5.5))               #Beads to the Right
+    A9_p20_bead_side  = sample_plate['A9'].center().move(types.Point(x=-1.8*0.50,y=0,         z=p20_offset_Mag-5))                #Beads to the Right
+    A9_p20_bead_top   = sample_plate['A9'].center().move(types.Point(x=1.5,y=0,               z=p20_offset_Mag+2))                #Beads to the Right
+    A9_p20_bead_mid   = sample_plate['A9'].center().move(types.Point(x=1,y=0,                 z=p20_offset_Mag-2))                #Beads to the Right
+    A9_p300_bead_side = sample_plate['A9'].center().move(types.Point(x=-0.50,y=0,             z=p300_offset_Mag-7.2))             #Beads to the Right
+    A9_p300_bead_top  = sample_plate['A9'].center().move(types.Point(x=1.30,y=0,              z=p300_offset_Mag-1))               #Beads to the Right
+    A9_p300_bead_mid  = sample_plate['A9'].center().move(types.Point(x=0.80,y=0,              z=p300_offset_Mag-4))               #Beads to the Right
+    A9_p300_loc1      = sample_plate['A9'].center().move(types.Point(x=1.3*0.8,y=1.3*0.8,     z=p300_offset_Mag-5.5))               #Beads to the Right
+    A9_p300_loc2      = sample_plate['A9'].center().move(types.Point(x=1.3,y=0,               z=p300_offset_Mag-5.5))               #Beads to the Right
+    A9_p300_loc3      = sample_plate['A9'].center().move(types.Point(x=1.3*0.8,y=-1.3*0.8,    z=p300_offset_Mag-5.5))               #Beads to the Right
+    A11_p20_bead_side  = sample_plate['A11'].center().move(types.Point(x=-1.8*0.50,y=0,         z=p20_offset_Mag-5))                #Beads to the Right
+    A11_p20_bead_top   = sample_plate['A11'].center().move(types.Point(x=1.5,y=0,               z=p20_offset_Mag+2))                #Beads to the Right
+    A11_p20_bead_mid   = sample_plate['A11'].center().move(types.Point(x=1,y=0,                 z=p20_offset_Mag-2))                #Beads to the Right
+    A11_p300_bead_side = sample_plate['A11'].center().move(types.Point(x=-0.50,y=0,             z=p300_offset_Mag-7.2))             #Beads to the Right
+    A11_p300_bead_top  = sample_plate['A11'].center().move(types.Point(x=1.30,y=0,              z=p300_offset_Mag-1))               #Beads to the Right
+    A11_p300_bead_mid  = sample_plate['A11'].center().move(types.Point(x=0.80,y=0,              z=p300_offset_Mag-4))               #Beads to the Right
+    A11_p300_loc1      = sample_plate['A11'].center().move(types.Point(x=1.3*0.8,y=1.3*0.8,     z=p300_offset_Mag-5.5))               #Beads to the Right
+    A11_p300_loc2      = sample_plate['A11'].center().move(types.Point(x=1.3,y=0,               z=p300_offset_Mag-5.5))               #Beads to the Right
+    A11_p300_loc3      = sample_plate['A11'].center().move(types.Point(x=1.3*0.8,y=-1.3*0.8,    z=p300_offset_Mag-5.5))               #Beads to the Right
     ############################################################################################################################################
 
     if STEP_POSTLIG == 1:
@@ -457,7 +460,7 @@ def run(protocol: protocol_api.ProtocolContext):
         protocol.comment('==============================================')
             
         if DRYRUN == 'NO':
-            protocol.pause("PLACE sample_plate_mag MAGNET")
+            protocol.pause("PLACE sample_plate MAGNET")
 
         protocol.comment('--> ADDING AMPure (0.8x)')
         WASHNUM = 1
@@ -481,19 +484,19 @@ def run(protocol: protocol_api.ProtocolContext):
                 p300.pick_up_tip(W3_AMPure_Bind_1)
             p300.mix(10,AMPureVol+10, AMPure.bottom(z=p300_offset_Res))
             p300.aspirate(AMPureVol, AMPure.bottom(z=p300_offset_Res), rate=0.25)
-            p300.dispense(AMPureVol/2, sample_plate_mag[X].bottom(z=p300_offset_Mag), rate=0.25)
+            p300.dispense(AMPureVol/2, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
             p300.default_speed = 5
-            p300.dispense(AMPureVol/2, sample_plate_mag[X].center(), rate=0.25)
-            p300.move_to(sample_plate_mag[X].center())
+            p300.dispense(AMPureVol/2, sample_plate[X].center(), rate=0.25)
+            p300.move_to(sample_plate[X].center())
             for Mix in range(AMPureMixRep):
                 p300.aspirate(AMPureMixVol/2, rate=0.5)
-                p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag))
+                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
                 p300.aspirate(AMPureMixVol/2, rate=0.5)
                 p300.dispense(AMPureMixVol/2, rate=0.5)
-                p300.move_to(sample_plate_mag[X].center())
+                p300.move_to(sample_plate[X].center())
                 p300.dispense(AMPureMixVol/2, rate=0.5)
                 Mix += 1
-            p300.blow_out(sample_plate_mag[X].top(z=1))
+            p300.blow_out(sample_plate[X].top(z=1))
             p300.default_speed = 400
             p300.move_to(bypass)              
             if TIPREUSE == 'NO':
@@ -512,19 +515,19 @@ def run(protocol: protocol_api.ProtocolContext):
                 p300.pick_up_tip(W3_AMPure_Bind_2)
             p300.mix(3,AMPureVol+10, AMPure.bottom(z=p300_offset_Res))
             p300.aspirate(AMPureVol, AMPure.bottom(z=p300_offset_Res), rate=0.25)
-            p300.dispense(AMPureVol/2, sample_plate_mag[X].bottom(z=p300_offset_Mag), rate=0.25)
+            p300.dispense(AMPureVol/2, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
             p300.default_speed = 5
-            p300.dispense(AMPureVol/2, sample_plate_mag[X].center(), rate=0.25)
-            p300.move_to(sample_plate_mag[X].center())
+            p300.dispense(AMPureVol/2, sample_plate[X].center(), rate=0.25)
+            p300.move_to(sample_plate[X].center())
             for Mix in range(AMPureMixRep):
                 p300.aspirate(AMPureMixVol/2, rate=0.5)
-                p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag))
+                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
                 p300.aspirate(AMPureMixVol/2, rate=0.5)
                 p300.dispense(AMPureMixVol/2, rate=0.5)
-                p300.move_to(sample_plate_mag[X].center())
+                p300.move_to(sample_plate[X].center())
                 p300.dispense(AMPureMixVol/2, rate=0.5)
                 Mix += 1
-            p300.blow_out(sample_plate_mag[X].top(z=1))
+            p300.blow_out(sample_plate[X].top(z=1))
             p300.default_speed = 400
             p300.move_to(bypass)              
             if TIPREUSE == 'NO':
@@ -543,19 +546,19 @@ def run(protocol: protocol_api.ProtocolContext):
                 p300.pick_up_tip(W3_AMPure_Bind_3)
             p300.mix(3,AMPureVol+10, AMPure.bottom(z=p300_offset_Res))
             p300.aspirate(AMPureVol, AMPure.bottom(z=p300_offset_Res), rate=0.25)
-            p300.dispense(AMPureVol/2, sample_plate_mag[X].bottom(z=p300_offset_Mag), rate=0.25)
+            p300.dispense(AMPureVol/2, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
             p300.default_speed = 5
-            p300.dispense(AMPureVol/2, sample_plate_mag[X].center(), rate=0.25)
-            p300.move_to(sample_plate_mag[X].center())
+            p300.dispense(AMPureVol/2, sample_plate[X].center(), rate=0.25)
+            p300.move_to(sample_plate[X].center())
             for Mix in range(AMPureMixRep):
                 p300.aspirate(AMPureMixVol/2, rate=0.5)
-                p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag))
+                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
                 p300.aspirate(AMPureMixVol/2, rate=0.5)
                 p300.dispense(AMPureMixVol/2, rate=0.5)
-                p300.move_to(sample_plate_mag[X].center())
+                p300.move_to(sample_plate[X].center())
                 p300.dispense(AMPureMixVol/2, rate=0.5)
                 Mix += 1
-            p300.blow_out(sample_plate_mag[X].top(z=1))
+            p300.blow_out(sample_plate[X].top(z=1))
             p300.default_speed = 400
             p300.move_to(bypass)              
             if TIPREUSE == 'NO':
@@ -572,15 +575,15 @@ def run(protocol: protocol_api.ProtocolContext):
                 protocol.delay(minutes=1)
 
             protocol.comment('MAGNET ENGAGE')
-            mag_block.engage(height_from_base=8.5)
+            mag_block.engage(height_from_base=8.5)      # TODO: remove?
             protocol.delay(minutes=1)
-            mag_block.engage(height_from_base=7.5)
+            mag_block.engage(height_from_base=7.5)      # TODO: remove?
             protocol.delay(minutes=1)
-            mag_block.engage(height_from_base=7)
+            mag_block.engage(height_from_base=7)        # TODO: remove?
             protocol.delay(minutes=1)
-            mag_block.engage(height_from_base=6)
+            mag_block.engage(height_from_base=6)        # TODO: remove?
             protocol.delay(minutes=1)
-            mag_block.engage(height_from_base=5)
+            mag_block.engage(height_from_base=5)        # TODO: remove?
             protocol.delay(minutes=1)
 
         protocol.comment('--> Removing Supernatant')
@@ -595,7 +598,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 p300.pick_up_tip(W2_AMPure_Bind_1)
             elif WASHNUM == 3:
                 p300.pick_up_tip(W3_AMPure_Bind_1)
-            p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag+4))
+            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
             p300.aspirate(RemoveSup-20, rate=0.25)
             p300.default_speed = 5
             if X == 'A1': p300.move_to(A1_p300_bead_side)
@@ -603,7 +606,7 @@ def run(protocol: protocol_api.ProtocolContext):
             if X == 'A5': p300.move_to(A5_p300_bead_side)
             protocol.delay(minutes=0.1)
             p300.aspirate(20, rate=0.2)
-            p300.move_to(sample_plate_mag[X].top(z=2))
+            p300.move_to(sample_plate[X].top(z=2))
             p300.default_speed = 400
             p300.dispense(200, Liquid_trash)
             p300.move_to(bypass)
@@ -621,7 +624,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 p300.pick_up_tip(W2_AMPure_Bind_2)
             elif WASHNUM == 3:
                 p300.pick_up_tip(W3_AMPure_Bind_2)
-            p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag+4))
+            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
             p300.aspirate(RemoveSup-20, rate=0.25)
             p300.default_speed = 5
             if X == 'A1': p300.move_to(A1_p300_bead_side)
@@ -629,7 +632,7 @@ def run(protocol: protocol_api.ProtocolContext):
             if X == 'A5': p300.move_to(A5_p300_bead_side)
             protocol.delay(minutes=0.1)
             p300.aspirate(20, rate=0.2)
-            p300.move_to(sample_plate_mag[X].top(z=2))
+            p300.move_to(sample_plate[X].top(z=2))
             p300.default_speed = 400
             p300.dispense(200, Liquid_trash)
             p300.move_to(bypass)
@@ -647,7 +650,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 p300.pick_up_tip(W2_AMPure_Bind_3)
             elif WASHNUM == 3:
                 p300.pick_up_tip(W3_AMPure_Bind_3)
-            p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag+4))
+            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
             p300.aspirate(RemoveSup-20, rate=0.25)
             p300.default_speed = 5
             if X == 'A1': p300.move_to(A1_p300_bead_side)
@@ -655,7 +658,7 @@ def run(protocol: protocol_api.ProtocolContext):
             if X == 'A5': p300.move_to(A5_p300_bead_side)
             protocol.delay(minutes=0.1)
             p300.aspirate(20, rate=0.2)
-            p300.move_to(sample_plate_mag[X].top(z=2))
+            p300.move_to(sample_plate[X].top(z=2))
             p300.default_speed = 400
             p300.dispense(200, Liquid_trash)
             p300.move_to(bypass)
@@ -683,11 +686,11 @@ def run(protocol: protocol_api.ProtocolContext):
                 if X == 'A3': p300.move_to(A3_p300_bead_side)
                 if X == 'A5': p300.move_to(A5_p300_bead_side)
                 p300.dispense(ETOHMaxVol-50, rate=0.5)
-                p300.move_to(sample_plate_mag[X].center())
+                p300.move_to(sample_plate[X].center())
                 p300.dispense(50, rate=0.5)
-                p300.move_to(sample_plate_mag[X].top(z=2))
+                p300.move_to(sample_plate[X].top(z=2))
                 p300.default_speed = 5
-                p300.move_to(sample_plate_mag[X].top(z=-2))
+                p300.move_to(sample_plate[X].top(z=-2))
                 protocol.delay(minutes=0.1)
                 p300.blow_out()
                 p300.default_speed = 400
@@ -705,11 +708,11 @@ def run(protocol: protocol_api.ProtocolContext):
                 if X == 'A3': p300.move_to(A3_p300_bead_side)
                 if X == 'A5': p300.move_to(A5_p300_bead_side)
                 p300.dispense(ETOHMaxVol-50, rate=0.5)
-                p300.move_to(sample_plate_mag[X].center())
+                p300.move_to(sample_plate[X].center())
                 p300.dispense(50, rate=0.5)
-                p300.move_to(sample_plate_mag[X].top(z=2))
+                p300.move_to(sample_plate[X].top(z=2))
                 p300.default_speed = 5
-                p300.move_to(sample_plate_mag[X].top(z=-2))
+                p300.move_to(sample_plate[X].top(z=-2))
                 protocol.delay(minutes=0.1)
                 p300.blow_out()
                 p300.default_speed = 400
@@ -727,11 +730,11 @@ def run(protocol: protocol_api.ProtocolContext):
                 if X == 'A3': p300.move_to(A3_p300_bead_side)
                 if X == 'A5': p300.move_to(A5_p300_bead_side)
                 p300.dispense(ETOHMaxVol-50, rate=0.5)
-                p300.move_to(sample_plate_mag[X].center())
+                p300.move_to(sample_plate[X].center())
                 p300.dispense(50, rate=0.5)
-                p300.move_to(sample_plate_mag[X].top(z=2))
+                p300.move_to(sample_plate[X].top(z=2))
                 p300.default_speed = 5
-                p300.move_to(sample_plate_mag[X].top(z=-2))
+                p300.move_to(sample_plate[X].top(z=-2))
                 protocol.delay(minutes=0.1)
                 p300.blow_out()
                 p300.default_speed = 400
@@ -748,7 +751,7 @@ def run(protocol: protocol_api.ProtocolContext):
                     p300.pick_up_tip(W1_ETOH_removetip_1)
                 elif WASHNUM == 2:
                     p300.pick_up_tip(W2_ETOH_removetip_1)
-                p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag+4))
+                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
                 p300.aspirate(ETOHMaxVol, rate=0.25)
                 p300.default_speed = 5
                 if X == 'A1': p300.move_to(A1_p300_bead_side)
@@ -770,7 +773,7 @@ def run(protocol: protocol_api.ProtocolContext):
                     p300.pick_up_tip(W1_ETOH_removetip_2)
                 elif WASHNUM == 2:
                     p300.pick_up_tip(W2_ETOH_removetip_2)
-                p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag+4))
+                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
                 p300.aspirate(ETOHMaxVol, rate=0.25)
                 p300.default_speed = 5
                 if X == 'A1': p300.move_to(A1_p300_bead_side)
@@ -792,7 +795,7 @@ def run(protocol: protocol_api.ProtocolContext):
                     p300.pick_up_tip(W1_ETOH_removetip_3)
                 elif WASHNUM == 2:
                     p300.pick_up_tip(W2_ETOH_removetip_3)
-                p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag+4))
+                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
                 p300.aspirate(ETOHMaxVol, rate=0.25)
                 p300.default_speed = 5
                 if X == 'A1': p300.move_to(A1_p300_bead_side)
@@ -816,21 +819,21 @@ def run(protocol: protocol_api.ProtocolContext):
             if samplecolumns >= 1:#-----------------------------------------------------------------------------------------
                 X = 'A1'
                 p20.pick_up_tip()
-                p20.move_to(sample_plate_mag[X].bottom(z=p20_offset_Mag+1))
+                p20.move_to(sample_plate[X].bottom(z=p20_offset_Mag+1))
                 p20.aspirate(20, rate=0.25)if NOMODULES == 'NO' else p20.aspirate(10, rate=0.25)
                 p20.move_to(bypass)
                 p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
             if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
                 X = 'A3'
                 p20.pick_up_tip()
-                p20.move_to(sample_plate_mag[X].bottom(z=p20_offset_Mag+1))
+                p20.move_to(sample_plate[X].bottom(z=p20_offset_Mag+1))
                 p20.aspirate(20, rate=0.25)if NOMODULES == 'NO' else p20.aspirate(10, rate=0.25)
                 p20.move_to(bypass)
                 p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
             if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
                 X = 'A5'
                 p20.pick_up_tip()
-                p20.move_to(sample_plate_mag[X].bottom(z=p20_offset_Mag+1))
+                p20.move_to(sample_plate[X].bottom(z=p20_offset_Mag+1))
                 p20.aspirate(20, rate=0.25)if NOMODULES == 'NO' else p20.aspirate(10, rate=0.25)
                 p20.move_to(bypass)
                 p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
@@ -843,7 +846,7 @@ def run(protocol: protocol_api.ProtocolContext):
                     p300.pick_up_tip(W1_ETOH_removetip_1)
                 elif WASHNUM == 2:
                     p300.pick_up_tip(W2_ETOH_removetip_1)
-                p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag+1))
+                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+1))
                 p300.aspirate(20, rate=0.25)
                 p300.move_to(bypass)
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
@@ -855,7 +858,7 @@ def run(protocol: protocol_api.ProtocolContext):
                     p300.pick_up_tip(W1_ETOH_removetip_2)
                 elif WASHNUM == 2:
                     p300.pick_up_tip(W2_ETOH_removetip_2)
-                p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag+1))
+                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+1))
                 p300.aspirate(20, rate=0.25)
                 p300.move_to(bypass)
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
@@ -867,18 +870,18 @@ def run(protocol: protocol_api.ProtocolContext):
                     p300.pick_up_tip(W1_ETOH_removetip_3)
                 elif WASHNUM == 2:
                     p300.pick_up_tip(W2_ETOH_removetip_3)
-                p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag+1))
+                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+1))
                 p300.aspirate(20, rate=0.25)
                 p300.move_to(bypass)
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
 
         if DRYRUN == 'NO':
-            mag_block.engage(height_from_base=6)
+            mag_block.engage(height_from_base=6)        # TODO: remove?
             protocol.comment('AIR DRY')
             protocol.delay(minutes=0.5)
 
             protocol.comment('MAGNET DISENGAGE')
-            mag_block.disengage()
+            mag_block.disengage()                       # TODO: remove?
 
         protocol.comment('--> Adding RSB')
         WASHNUM = 1
@@ -919,7 +922,7 @@ def run(protocol: protocol_api.ProtocolContext):
             p300.dispense(RSBVol/5, rate=0.75)
             reps = 5
             for x in range(reps):
-                p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag))
+                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
                 p300.aspirate(RSBVol, rate=0.5)
                 if X == 'A1': p300.move_to(A1_p300_bead_top)
                 if X == 'A3': p300.move_to(A3_p300_bead_top)
@@ -943,11 +946,11 @@ def run(protocol: protocol_api.ProtocolContext):
                 if X == 'A3': p300.move_to(A3_p300_loc3)
                 if X == 'A5': p300.move_to(A5_p300_loc3)
                 p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate_mag.wells_by_name()[X].bottom(z=p300_offset_Mag))
+            p300.move_to(sample_plate.wells_by_name()[X].bottom(z=p300_offset_Mag))
             p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate_mag.wells_by_name()[X].top())
+            p300.move_to(sample_plate.wells_by_name()[X].top())
             protocol.delay(seconds=0.5)
-            p300.move_to(sample_plate_mag.wells_by_name()[X].center())
+            p300.move_to(sample_plate.wells_by_name()[X].center())
             p300.default_speed = 400
             if TIPREUSE == 'NO':
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
@@ -987,7 +990,7 @@ def run(protocol: protocol_api.ProtocolContext):
             p300.dispense(RSBVol/5, rate=0.75)
             reps = 5
             for x in range(reps):
-                p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag))
+                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
                 p300.aspirate(RSBVol, rate=0.5)
                 if X == 'A1': p300.move_to(A1_p300_bead_top)
                 if X == 'A3': p300.move_to(A3_p300_bead_top)
@@ -1011,11 +1014,11 @@ def run(protocol: protocol_api.ProtocolContext):
                 if X == 'A3': p300.move_to(A3_p300_loc3)
                 if X == 'A5': p300.move_to(A5_p300_loc3)
                 p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate_mag.wells_by_name()[X].bottom(z=p300_offset_Mag))
+            p300.move_to(sample_plate.wells_by_name()[X].bottom(z=p300_offset_Mag))
             p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate_mag.wells_by_name()[X].top())
+            p300.move_to(sample_plate.wells_by_name()[X].top())
             protocol.delay(seconds=0.5)
-            p300.move_to(sample_plate_mag.wells_by_name()[X].center())
+            p300.move_to(sample_plate.wells_by_name()[X].center())
             p300.default_speed = 400
             if TIPREUSE == 'NO':
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
@@ -1055,7 +1058,7 @@ def run(protocol: protocol_api.ProtocolContext):
             p300.dispense(RSBVol/5, rate=0.75)
             reps = 5
             for x in range(reps):
-                p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag))
+                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
                 p300.aspirate(RSBVol, rate=0.5)
                 if X == 'A1': p300.move_to(A1_p300_bead_top)
                 if X == 'A3': p300.move_to(A3_p300_bead_top)
@@ -1079,11 +1082,11 @@ def run(protocol: protocol_api.ProtocolContext):
                 if X == 'A3': p300.move_to(A3_p300_loc3)
                 if X == 'A5': p300.move_to(A5_p300_loc3)
                 p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate_mag.wells_by_name()[X].bottom(z=p300_offset_Mag))
+            p300.move_to(sample_plate.wells_by_name()[X].bottom(z=p300_offset_Mag))
             p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate_mag.wells_by_name()[X].top())
+            p300.move_to(sample_plate.wells_by_name()[X].top())
             protocol.delay(seconds=0.5)
-            p300.move_to(sample_plate_mag.wells_by_name()[X].center())
+            p300.move_to(sample_plate.wells_by_name()[X].center())
             p300.default_speed = 400
             if TIPREUSE == 'NO':
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
@@ -1092,7 +1095,7 @@ def run(protocol: protocol_api.ProtocolContext):
 
         if DRYRUN == 'NO':
             protocol.comment('MAGNET ENGAGE')
-            mag_block.engage(height_from_base=5)
+            mag_block.engage(height_from_base=5)    # TODO: what to do about this? How does using mag plate change this?
             protocol.delay(minutes=4)
 
         protocol.comment('--> Transferring Supernatant')
@@ -1108,9 +1111,9 @@ def run(protocol: protocol_api.ProtocolContext):
                 p300.pick_up_tip(W2_ResusTrans_1)
             elif WASHNUM == 3:
                 p300.pick_up_tip(W3_ResusTrans_1)
-            p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag))
+            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
             p300.aspirate(TransferSup, rate=0.25)
-            p300.dispense(TransferSup+5, sample_plate_mag[Y].bottom(z=p300_offset_Mag))
+            p300.dispense(TransferSup+5, sample_plate[Y].bottom(z=p300_offset_Mag))
             p300.move_to(bypass)
             if TIPREUSE == 'NO':
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
@@ -1127,9 +1130,9 @@ def run(protocol: protocol_api.ProtocolContext):
                 p300.pick_up_tip(W2_ResusTrans_2)
             elif WASHNUM == 3:
                 p300.pick_up_tip(W3_ResusTrans_2)
-            p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag))
+            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
             p300.aspirate(TransferSup, rate=0.25)
-            p300.dispense(TransferSup+5, sample_plate_mag[Y].bottom(z=p300_offset_Mag))
+            p300.dispense(TransferSup+5, sample_plate[Y].bottom(z=p300_offset_Mag))
             p300.move_to(bypass)
             if TIPREUSE == 'NO':
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
@@ -1146,9 +1149,9 @@ def run(protocol: protocol_api.ProtocolContext):
                 p300.pick_up_tip(W2_ResusTrans_3)
             elif WASHNUM == 3:
                 p300.pick_up_tip(W3_ResusTrans_3)
-            p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag))
+            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
             p300.aspirate(TransferSup, rate=0.25)
-            p300.dispense(TransferSup+5, sample_plate_mag[Y].bottom(z=p300_offset_Mag))
+            p300.dispense(TransferSup+5, sample_plate[Y].bottom(z=p300_offset_Mag))
             p300.move_to(bypass)
             if TIPREUSE == 'NO':
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
@@ -1157,7 +1160,7 @@ def run(protocol: protocol_api.ProtocolContext):
 
         if DRYRUN == 'NO':
             protocol.comment('MAGNET DISENGAGE')
-            mag_block.disengage()
+            mag_block.disengage()               # TODO: remove?
 
     if STEP_PCR == 1:
         protocol.comment('==============================================')
@@ -1172,21 +1175,21 @@ def run(protocol: protocol_api.ProtocolContext):
             X = 'A7'
             p20.pick_up_tip()
             p20.aspirate(PrimerVol, Barcodes1.bottom(z=p20_offset_Temp), rate=0.25)
-            p20.dispense(PrimerVol, sample_plate_mag.wells_by_name()[X].bottom(z=p20_offset_Mag+1))
+            p20.dispense(PrimerVol, sample_plate.wells_by_name()[X].bottom(z=p20_offset_Mag+1))
             p20.mix(PrimerMixRep,PrimerMixVol)
             p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
         if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
             X = 'A9'
             p20.pick_up_tip()
             p20.aspirate(PrimerVol, Barcodes2.bottom(z=p20_offset_Temp), rate=0.25)
-            p20.dispense(PrimerVol, sample_plate_mag.wells_by_name()[X].bottom(z=p20_offset_Mag+1))
+            p20.dispense(PrimerVol, sample_plate.wells_by_name()[X].bottom(z=p20_offset_Mag+1))
             p20.mix(PrimerMixRep,PrimerMixVol)
             p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
         if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
             X = 'A11'
             p20.pick_up_tip()
             p20.aspirate(PrimerVol, Barcodes3.bottom(z=p20_offset_Temp), rate=0.25)
-            p20.dispense(PrimerVol, sample_plate_mag.wells_by_name()[X].bottom(z=p20_offset_Mag+1))
+            p20.dispense(PrimerVol, sample_plate.wells_by_name()[X].bottom(z=p20_offset_Mag+1))
             p20.mix(PrimerMixRep,PrimerMixVol)
             p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
 
@@ -1204,11 +1207,11 @@ def run(protocol: protocol_api.ProtocolContext):
             p300.pick_up_tip()
             p300.mix(2,PCRVol, PCR.bottom(z=p300_offset_Temp), rate=0.5)
             p300.aspirate(PCRVol, PCR.bottom(z=p300_offset_Temp), rate=0.25)
-            p300.dispense(PCRVol, sample_plate_mag[X].bottom(z=p300_offset_Mag), rate=0.25)
+            p300.dispense(PCRVol, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
             p300.mix(PCRMixRep, PCRMixVol, rate=0.5)
-            p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag))
+            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
             protocol.delay(minutes=0.1)
-            p300.blow_out(sample_plate_mag[X].top(z=-5))
+            p300.blow_out(sample_plate[X].top(z=-5))
             p300.move_to(bypass) 
             p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
         if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
@@ -1216,11 +1219,11 @@ def run(protocol: protocol_api.ProtocolContext):
             p300.pick_up_tip()
             p300.mix(2,PCRVol, PCR.bottom(z=p300_offset_Temp), rate=0.5)
             p300.aspirate(PCRVol, PCR.bottom(z=p300_offset_Temp), rate=0.25)
-            p300.dispense(PCRVol, sample_plate_mag[X].bottom(z=p300_offset_Mag), rate=0.25)
+            p300.dispense(PCRVol, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
             p300.mix(PCRMixRep, PCRMixVol, rate=0.5)
-            p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag))
+            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
             protocol.delay(minutes=0.1)
-            p300.blow_out(sample_plate_mag[X].top(z=-5))
+            p300.blow_out(sample_plate[X].top(z=-5))
             p300.move_to(bypass) 
             p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
         if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
@@ -1228,11 +1231,11 @@ def run(protocol: protocol_api.ProtocolContext):
             p300.pick_up_tip()
             p300.mix(2,PCRVol, PCR.bottom(z=p300_offset_Temp), rate=0.5)
             p300.aspirate(PCRVol, PCR.bottom(z=p300_offset_Temp), rate=0.25)
-            p300.dispense(PCRVol, sample_plate_mag[X].bottom(z=p300_offset_Mag), rate=0.25)
+            p300.dispense(PCRVol, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
             p300.mix(PCRMixRep, PCRMixVol, rate=0.5)
-            p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag))
+            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
             protocol.delay(minutes=0.1)
-            p300.blow_out(sample_plate_mag[X].top(z=-5))
+            p300.blow_out(sample_plate[X].top(z=-5))
             p300.move_to(bypass) 
             p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
 
@@ -1242,7 +1245,7 @@ def run(protocol: protocol_api.ProtocolContext):
             Plate = eppendorf skirted 96 well plate (containing 50ul of liquid)
             From  Magnetic Block (Pos 1) to Thermocycler (Pos 7)                  
             '''
-            protocol.move_labware(labware=sample_plate_thermo,
+            protocol.move_labware(labware=sample_plate,
                                   new_location=thermocycler,
                                   use_gripper=True)
     if STEP_PCRDECK == 1:
@@ -1269,7 +1272,7 @@ def run(protocol: protocol_api.ProtocolContext):
             ############################################################################################################################################
             thermocycler.open_lid()
             protocol.pause("Remove Seal")
-            protocol.pause("PLACE sample_plate_mag MAGNET")
+            protocol.pause("PLACE sample_plate MAGNET")
     else:
         protocol.pause('Seal, Run PCR (~30min)')
 
@@ -1280,8 +1283,8 @@ def run(protocol: protocol_api.ProtocolContext):
         From Thermocycler (Pos 7) to Magnetic Block (Pos 1)                        
 
         '''
-        protocol.move_labware(labware=sample_plate_thermo,
-                              new_location=1,
+        protocol.move_labware(labware=sample_plate,
+                              new_location=MAG_PLATE_SLOT,
                               use_gripper=True)
 
     Liquid_trash        = reservoir['A11']
@@ -1313,10 +1316,10 @@ def run(protocol: protocol_api.ProtocolContext):
                 p300.pick_up_tip(W3_AMPure_Bind_1)
             p300.mix(10,AMPureVol+10, AMPure.bottom(z=p300_offset_Res))
             p300.aspirate(AMPureVol, AMPure.bottom(z=p300_offset_Res), rate=0.25)
-            p300.dispense(AMPureVol, sample_plate_mag[X].bottom(z=p300_offset_Mag), rate=0.25)
-            p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag))
+            p300.dispense(AMPureVol, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
+            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
             p300.mix(AMPureMixRep,AMPureMixVol)
-            p300.blow_out(sample_plate_mag[X].top(z=-5))
+            p300.blow_out(sample_plate[X].top(z=-5))
             p300.move_to(bypass) 
             if TIPREUSE == 'NO':
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
@@ -1334,10 +1337,10 @@ def run(protocol: protocol_api.ProtocolContext):
                 p300.pick_up_tip(W3_AMPure_Bind_2)
             p300.mix(3,AMPureVol+10, AMPure.bottom(z=p300_offset_Res))
             p300.aspirate(AMPureVol, AMPure.bottom(z=p300_offset_Res), rate=0.25)
-            p300.dispense(AMPureVol, sample_plate_mag[X].bottom(z=p300_offset_Mag), rate=0.25)
-            p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag))
+            p300.dispense(AMPureVol, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
+            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
             p300.mix(AMPureMixRep,AMPureMixVol)
-            p300.blow_out(sample_plate_mag[X].top(z=-5))
+            p300.blow_out(sample_plate[X].top(z=-5))
             p300.move_to(bypass) 
             if TIPREUSE == 'NO':
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
@@ -1355,10 +1358,10 @@ def run(protocol: protocol_api.ProtocolContext):
                 p300.pick_up_tip(W3_AMPure_Bind_3)
             p300.mix(10,AMPureVol+10, AMPure.bottom(z=p300_offset_Res))
             p300.aspirate(AMPureVol, AMPure.bottom(z=p300_offset_Res), rate=0.25)
-            p300.dispense(AMPureVol, sample_plate_mag[X].bottom(z=p300_offset_Mag), rate=0.25)
-            p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag))
+            p300.dispense(AMPureVol, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
+            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
             p300.mix(AMPureMixRep,AMPureMixVol)
-            p300.blow_out(sample_plate_mag[X].top(z=-5))
+            p300.blow_out(sample_plate[X].top(z=-5))
             p300.move_to(bypass) 
             if TIPREUSE == 'NO':
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
@@ -1369,15 +1372,15 @@ def run(protocol: protocol_api.ProtocolContext):
             protocol.delay(minutes=5)
 
             protocol.comment('MAGNET ENGAGE')
-            mag_block.engage(height_from_base=8.5)
+            mag_block.engage(height_from_base=8.5)      # TODO: remove?
             protocol.delay(minutes=1)
-            mag_block.engage(height_from_base=7.5)
+            mag_block.engage(height_from_base=7.5)      # TODO: remove?
             protocol.delay(minutes=1)
-            mag_block.engage(height_from_base=7)
+            mag_block.engage(height_from_base=7)        # TODO: remove?
             protocol.delay(minutes=1)
-            mag_block.engage(height_from_base=6)
+            mag_block.engage(height_from_base=6)        # TODO: remove?
             protocol.delay(minutes=1)
-            mag_block.engage(height_from_base=5)
+            mag_block.engage(height_from_base=5)        # TODO: remove?
             protocol.delay(minutes=1)
 
         protocol.comment('--> Removing Supernatant')
@@ -1392,7 +1395,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 p300.pick_up_tip(W2_AMPure_Bind_1)
             elif WASHNUM == 3:
                 p300.pick_up_tip(W3_AMPure_Bind_1)
-            p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag+4))
+            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
             p300.aspirate(RemoveSup-30, rate=0.25)
             p300.default_speed = 5
             if X == 'A7': p300.move_to(A7_p300_bead_side)
@@ -1400,10 +1403,10 @@ def run(protocol: protocol_api.ProtocolContext):
             if X == 'A11': p300.move_to(A11_p300_bead_side)
             protocol.delay(minutes=0.1)
             p300.aspirate(20, rate=0.2)
-            p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag))
+            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
             protocol.delay(minutes=0.1)
             p300.aspirate(10, rate=0.1)
-            p300.move_to(sample_plate_mag[X].top(z=2))
+            p300.move_to(sample_plate[X].top(z=2))
             p300.default_speed = 400
             p300.dispense(200, Liquid_trash)
             p300.move_to(bypass)
@@ -1418,7 +1421,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 p300.pick_up_tip(W2_AMPure_Bind_2)
             elif WASHNUM == 3:
                 p300.pick_up_tip(W3_AMPure_Bind_2)
-            p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag+4))
+            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
             p300.aspirate(RemoveSup-30, rate=0.25)
             p300.default_speed = 5
             if X == 'A7': p300.move_to(A7_p300_bead_side)
@@ -1426,10 +1429,10 @@ def run(protocol: protocol_api.ProtocolContext):
             if X == 'A11': p300.move_to(A11_p300_bead_side)
             protocol.delay(minutes=0.1)
             p300.aspirate(20, rate=0.2)
-            p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag))
+            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
             protocol.delay(minutes=0.1)
             p300.aspirate(10, rate=0.1)
-            p300.move_to(sample_plate_mag[X].top(z=2))
+            p300.move_to(sample_plate[X].top(z=2))
             p300.default_speed = 400
             p300.dispense(200, Liquid_trash)
             p300.move_to(bypass)
@@ -1444,7 +1447,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 p300.pick_up_tip(W2_AMPure_Bind_3)
             elif WASHNUM == 3:
                 p300.pick_up_tip(W3_AMPure_Bind_3)
-            p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag+4))
+            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
             p300.aspirate(RemoveSup-30, rate=0.25)
             p300.default_speed = 5
             if X == 'A7': p300.move_to(A7_p300_bead_side)
@@ -1452,10 +1455,10 @@ def run(protocol: protocol_api.ProtocolContext):
             if X == 'A11': p300.move_to(A11_p300_bead_side)
             protocol.delay(minutes=0.1)
             p300.aspirate(20, rate=0.2)
-            p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag))
+            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
             protocol.delay(minutes=0.1)
             p300.aspirate(10, rate=0.1)
-            p300.move_to(sample_plate_mag[X].top(z=2))
+            p300.move_to(sample_plate[X].top(z=2))
             p300.default_speed = 400
             p300.dispense(200, Liquid_trash)
             p300.move_to(bypass)
@@ -1484,11 +1487,11 @@ def run(protocol: protocol_api.ProtocolContext):
                 if X == 'A9': p300.move_to(A9_p300_bead_side)
                 if X == 'A11': p300.move_to(A11_p300_bead_side)
                 p300.dispense(ETOHMaxVol-50, rate=0.5)
-                p300.move_to(sample_plate_mag[X].center())
+                p300.move_to(sample_plate[X].center())
                 p300.dispense(50, rate=0.5)
-                p300.move_to(sample_plate_mag[X].top(z=2))
+                p300.move_to(sample_plate[X].top(z=2))
                 p300.default_speed = 5
-                p300.move_to(sample_plate_mag[X].top(z=-2))
+                p300.move_to(sample_plate[X].top(z=-2))
                 protocol.delay(minutes=0.1)
                 p300.blow_out()
                 p300.default_speed = 400
@@ -1506,11 +1509,11 @@ def run(protocol: protocol_api.ProtocolContext):
                 if X == 'A9': p300.move_to(A9_p300_bead_side)
                 if X == 'A11': p300.move_to(A11_p300_bead_side)
                 p300.dispense(ETOHMaxVol-50, rate=0.5)
-                p300.move_to(sample_plate_mag[X].center())
+                p300.move_to(sample_plate[X].center())
                 p300.dispense(50, rate=0.5)
-                p300.move_to(sample_plate_mag[X].top(z=2))
+                p300.move_to(sample_plate[X].top(z=2))
                 p300.default_speed = 5
-                p300.move_to(sample_plate_mag[X].top(z=-2))
+                p300.move_to(sample_plate[X].top(z=-2))
                 protocol.delay(minutes=0.1)
                 p300.blow_out()
                 p300.default_speed = 400
@@ -1528,11 +1531,11 @@ def run(protocol: protocol_api.ProtocolContext):
                 if X == 'A9': p300.move_to(A9_p300_bead_side)
                 if X == 'A11': p300.move_to(A11_p300_bead_side)
                 p300.dispense(ETOHMaxVol-50, rate=0.5)
-                p300.move_to(sample_plate_mag[X].center())
+                p300.move_to(sample_plate[X].center())
                 p300.dispense(50, rate=0.5)
-                p300.move_to(sample_plate_mag[X].top(z=2))
+                p300.move_to(sample_plate[X].top(z=2))
                 p300.default_speed = 5
-                p300.move_to(sample_plate_mag[X].top(z=-2))
+                p300.move_to(sample_plate[X].top(z=-2))
                 protocol.delay(minutes=0.1)
                 p300.blow_out()
                 p300.default_speed = 400
@@ -1549,7 +1552,7 @@ def run(protocol: protocol_api.ProtocolContext):
                     p300.pick_up_tip(W1_ETOH_removetip_1)
                 elif WASHNUM == 2:
                     p300.pick_up_tip(W2_ETOH_removetip_1)
-                p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag+4))
+                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
                 p300.aspirate(ETOHMaxVol, rate=0.25)
                 p300.default_speed = 5
                 if X == 'A7': p300.move_to(A7_p300_bead_side)
@@ -1571,7 +1574,7 @@ def run(protocol: protocol_api.ProtocolContext):
                     p300.pick_up_tip(W1_ETOH_removetip_2)
                 elif WASHNUM == 2:
                     p300.pick_up_tip(W2_ETOH_removetip_2)
-                p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag+4))
+                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
                 p300.aspirate(ETOHMaxVol, rate=0.25)
                 p300.default_speed = 5
                 if X == 'A7': p300.move_to(A7_p300_bead_side)
@@ -1593,7 +1596,7 @@ def run(protocol: protocol_api.ProtocolContext):
                     p300.pick_up_tip(W1_ETOH_removetip_3)
                 elif WASHNUM == 2:
                     p300.pick_up_tip(W2_ETOH_removetip_3)
-                p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag+4))
+                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
                 p300.aspirate(ETOHMaxVol, rate=0.25)
                 p300.default_speed = 5
                 if X == 'A7': p300.move_to(A7_p300_bead_side)
@@ -1618,21 +1621,21 @@ def run(protocol: protocol_api.ProtocolContext):
             if samplecolumns >= 1:#-----------------------------------------------------------------------------------------
                 X = 'A7'
                 p20.pick_up_tip()
-                p20.move_to(sample_plate_mag[X].bottom(z=p20_offset_Mag+1))
+                p20.move_to(sample_plate[X].bottom(z=p20_offset_Mag+1))
                 p20.aspirate(20, rate=0.25)if NOMODULES == 'NO' else p20.aspirate(10, rate=0.25)
                 p20.move_to(bypass)
                 p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
             if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
                 X = 'A9'
                 p20.pick_up_tip()
-                p20.move_to(sample_plate_mag[X].bottom(z=p20_offset_Mag+1))
+                p20.move_to(sample_plate[X].bottom(z=p20_offset_Mag+1))
                 p20.aspirate(20, rate=0.25)if NOMODULES == 'NO' else p20.aspirate(10, rate=0.25)
                 p20.move_to(bypass)
                 p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
             if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
                 X = 'A11'
                 p20.pick_up_tip()
-                p20.move_to(sample_plate_mag[X].bottom(z=p20_offset_Mag+1))
+                p20.move_to(sample_plate[X].bottom(z=p20_offset_Mag+1))
                 p20.aspirate(20, rate=0.25)if NOMODULES == 'NO' else p20.aspirate(10, rate=0.25)
                 p20.move_to(bypass)
                 p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
@@ -1645,7 +1648,7 @@ def run(protocol: protocol_api.ProtocolContext):
                     p300.pick_up_tip(W1_ETOH_removetip_1)
                 elif WASHNUM == 2:
                     p300.pick_up_tip(W2_ETOH_removetip_1)
-                p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag+1))
+                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+1))
                 p300.aspirate(20, rate=0.25)
                 p300.move_to(bypass)
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
@@ -1657,7 +1660,7 @@ def run(protocol: protocol_api.ProtocolContext):
                     p300.pick_up_tip(W1_ETOH_removetip_2)
                 elif WASHNUM == 2:
                     p300.pick_up_tip(W2_ETOH_removetip_2)
-                p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag+1))
+                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+1))
                 p300.aspirate(20, rate=0.25)
                 p300.move_to(bypass)
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
@@ -1669,18 +1672,18 @@ def run(protocol: protocol_api.ProtocolContext):
                     p300.pick_up_tip(W1_ETOH_removetip_3)
                 elif WASHNUM == 2:
                     p300.pick_up_tip(W2_ETOH_removetip_3)
-                p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag+1))
+                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+1))
                 p300.aspirate(20, rate=0.25)
                 p300.move_to(bypass)
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
 
         if DRYRUN == 'NO':
-            mag_block.engage(height_from_base=6)
+            mag_block.engage(height_from_base=6)        # TODO: remove?
             protocol.comment('AIR DRY')
             protocol.delay(minutes=0.5)
 
             protocol.comment('MAGNET DISENGAGE')
-            mag_block.disengage()
+            mag_block.disengage()                       # TODO: remove?
 
         protocol.comment('--> Adding RSB')
         WASHNUM = 2
@@ -1721,7 +1724,7 @@ def run(protocol: protocol_api.ProtocolContext):
             p300.dispense(RSBVol/5, rate=0.75)
             reps = 5
             for x in range(reps):
-                p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag))
+                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
                 p300.aspirate(RSBVol, rate=0.5)
                 if X == 'A7': p300.move_to(A7_p300_bead_top)
                 if X == 'A9': p300.move_to(A9_p300_bead_top)
@@ -1745,11 +1748,11 @@ def run(protocol: protocol_api.ProtocolContext):
                 if X == 'A9': p300.move_to(A9_p300_loc3)
                 if X == 'A11': p300.move_to(A11_p300_loc3)
                 p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate_mag.wells_by_name()[X].bottom(z=p300_offset_Mag))
+            p300.move_to(sample_plate.wells_by_name()[X].bottom(z=p300_offset_Mag))
             p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate_mag.wells_by_name()[X].top())
+            p300.move_to(sample_plate.wells_by_name()[X].top())
             protocol.delay(seconds=0.5)
-            p300.move_to(sample_plate_mag.wells_by_name()[X].center())
+            p300.move_to(sample_plate.wells_by_name()[X].center())
             p300.default_speed = 400
             if TIPREUSE == 'NO':
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
@@ -1789,7 +1792,7 @@ def run(protocol: protocol_api.ProtocolContext):
             p300.dispense(RSBVol/5, rate=0.75)
             reps = 5
             for x in range(reps):
-                p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag))
+                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
                 p300.aspirate(RSBVol, rate=0.5)
                 if X == 'A7': p300.move_to(A7_p300_bead_top)
                 if X == 'A9': p300.move_to(A9_p300_bead_top)
@@ -1813,11 +1816,11 @@ def run(protocol: protocol_api.ProtocolContext):
                 if X == 'A9': p300.move_to(A9_p300_loc3)
                 if X == 'A11': p300.move_to(A11_p300_loc3)
                 p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate_mag.wells_by_name()[X].bottom(z=p300_offset_Mag))
+            p300.move_to(sample_plate.wells_by_name()[X].bottom(z=p300_offset_Mag))
             p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate_mag.wells_by_name()[X].top())
+            p300.move_to(sample_plate.wells_by_name()[X].top())
             protocol.delay(seconds=0.5)
-            p300.move_to(sample_plate_mag.wells_by_name()[X].center())
+            p300.move_to(sample_plate.wells_by_name()[X].center())
             p300.default_speed = 400
             if TIPREUSE == 'NO':
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
@@ -1857,7 +1860,7 @@ def run(protocol: protocol_api.ProtocolContext):
             p300.dispense(RSBVol/5, rate=0.75)
             reps = 5
             for x in range(reps):
-                p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag))
+                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
                 p300.aspirate(RSBVol, rate=0.5)
                 if X == 'A7': p300.move_to(A7_p300_bead_top)
                 if X == 'A9': p300.move_to(A9_p300_bead_top)
@@ -1881,11 +1884,11 @@ def run(protocol: protocol_api.ProtocolContext):
                 if X == 'A9': p300.move_to(A9_p300_loc3)
                 if X == 'A11': p300.move_to(A11_p300_loc3)
                 p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate_mag.wells_by_name()[X].bottom(z=p300_offset_Mag))
+            p300.move_to(sample_plate.wells_by_name()[X].bottom(z=p300_offset_Mag))
             p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate_mag.wells_by_name()[X].top())
+            p300.move_to(sample_plate.wells_by_name()[X].top())
             protocol.delay(seconds=0.5)
-            p300.move_to(sample_plate_mag.wells_by_name()[X].center())
+            p300.move_to(sample_plate.wells_by_name()[X].center())
             p300.default_speed = 400
             if TIPREUSE == 'NO':
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
@@ -1896,7 +1899,7 @@ def run(protocol: protocol_api.ProtocolContext):
             protocol.delay(minutes=2)
 
             protocol.comment('MAGNET ENGAGE')
-            mag_block.engage(height_from_base=5)
+            mag_block.engage(height_from_base=5)        # TODO: remove?
 
             protocol.delay(minutes=4)
 
@@ -1914,30 +1917,30 @@ def run(protocol: protocol_api.ProtocolContext):
                 X = 'A7'
                 Y = 'A2'
                 p20.pick_up_tip()
-                p20.aspirate(TransferSup/2, sample_plate_mag[X].bottom(z=p20_offset_Mag), rate=0.25)
-                p20.dispense(TransferSup/2, sample_plate_mag[Y].bottom(z=p20_offset_Mag))
-                p20.aspirate(TransferSup/2, sample_plate_mag[X].bottom(z=p20_offset_Mag), rate=0.25)
-                p20.dispense(TransferSup/2+5, sample_plate_mag[Y].bottom(z=p20_offset_Mag))
+                p20.aspirate(TransferSup/2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
+                p20.dispense(TransferSup/2, sample_plate[Y].bottom(z=p20_offset_Mag))
+                p20.aspirate(TransferSup/2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
+                p20.dispense(TransferSup/2+5, sample_plate[Y].bottom(z=p20_offset_Mag))
                 p20.move_to(bypass)
                 p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
             if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
                 X = 'A9'
                 Y = 'A4'
                 p20.pick_up_tip()
-                p20.aspirate(TransferSup/2, sample_plate_mag[X].bottom(z=p20_offset_Mag), rate=0.25)
-                p20.dispense(TransferSup/2, sample_plate_mag[Y].bottom(z=p20_offset_Mag))
-                p20.aspirate(TransferSup/2, sample_plate_mag[X].bottom(z=p20_offset_Mag), rate=0.25)
-                p20.dispense(TransferSup/2+5, sample_plate_mag[Y].bottom(z=p20_offset_Mag))
+                p20.aspirate(TransferSup/2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
+                p20.dispense(TransferSup/2, sample_plate[Y].bottom(z=p20_offset_Mag))
+                p20.aspirate(TransferSup/2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
+                p20.dispense(TransferSup/2+5, sample_plate[Y].bottom(z=p20_offset_Mag))
                 p20.move_to(bypass)
                 p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
             if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
                 X = 'A11'
                 Y = 'A6'
                 p20.pick_up_tip()
-                p20.aspirate(TransferSup/2, sample_plate_mag[X].bottom(z=p20_offset_Mag), rate=0.25)
-                p20.dispense(TransferSup/2, sample_plate_mag[Y].bottom(z=p20_offset_Mag))
-                p20.aspirate(TransferSup/2, sample_plate_mag[X].bottom(z=p20_offset_Mag), rate=0.25)
-                p20.dispense(TransferSup/2+5, sample_plate_mag[Y].bottom(z=p20_offset_Mag))
+                p20.aspirate(TransferSup/2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
+                p20.dispense(TransferSup/2, sample_plate[Y].bottom(z=p20_offset_Mag))
+                p20.aspirate(TransferSup/2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
+                p20.dispense(TransferSup/2+5, sample_plate[Y].bottom(z=p20_offset_Mag))
                 p20.move_to(bypass)
                 p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
         if TIPREUSE == 'YES':
@@ -1952,8 +1955,8 @@ def run(protocol: protocol_api.ProtocolContext):
                     p300.pick_up_tip(W2_ResusTrans_1)
                 elif WASHNUM == 3:
                     p300.pick_up_tip(W3_ResusTrans_1)
-                p300.aspirate(TransferSup, sample_plate_mag[X].bottom(z=p300_offset_Mag), rate=0.25)
-                p300.dispense(TransferSup+5, sample_plate_mag[Y].bottom(z=p300_offset_Mag))
+                p300.aspirate(TransferSup, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
+                p300.dispense(TransferSup+5, sample_plate[Y].bottom(z=p300_offset_Mag))
                 p300.move_to(bypass)
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
             if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
@@ -1967,8 +1970,8 @@ def run(protocol: protocol_api.ProtocolContext):
                     p300.pick_up_tip(W2_ResusTrans_2)
                 elif WASHNUM == 3:
                     p300.pick_up_tip(W3_ResusTrans_2)
-                p300.aspirate(TransferSup, sample_plate_mag[X].bottom(z=p300_offset_Mag), rate=0.25)
-                p300.dispense(TransferSup+5, sample_plate_mag[Y].bottom(z=p300_offset_Mag))
+                p300.aspirate(TransferSup, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
+                p300.dispense(TransferSup+5, sample_plate[Y].bottom(z=p300_offset_Mag))
                 p300.move_to(bypass)
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
             if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
@@ -1982,54 +1985,54 @@ def run(protocol: protocol_api.ProtocolContext):
                     p300.pick_up_tip(W2_ResusTrans_3)
                 elif WASHNUM == 3:
                     p300.pick_up_tip(W3_ResusTrans_3)
-                p300.aspirate(TransferSup, sample_plate_mag[X].bottom(z=p300_offset_Mag), rate=0.25)
-                p300.dispense(TransferSup+5, sample_plate_mag[Y].bottom(z=p300_offset_Mag))
+                p300.aspirate(TransferSup, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
+                p300.dispense(TransferSup+5, sample_plate[Y].bottom(z=p300_offset_Mag))
                 p300.move_to(bypass)
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
 
         if DRYRUN == 'NO':
             protocol.comment('MAGNET DISENGAGE')
-            mag_block.disengage()
+            mag_block.disengage()               # TODO: remove?
 
         # positions
     ############################################################################################################################################
-    #  sample_plate_mag on the Mag Block
-    A2_p20_bead_side  = sample_plate_mag['A2'].center().move(types.Point(x=1.8*0.50,y=0,         z=p20_offset_Mag-5))                #Beads to the Right
-    A2_p20_bead_top   = sample_plate_mag['A2'].center().move(types.Point(x=-1.5,y=0,               z=p20_offset_Mag+2))                #Beads to the Right
-    A2_p20_bead_mid   = sample_plate_mag['A2'].center().move(types.Point(x=-1,y=0,                 z=p20_offset_Mag-2))                #Beads to the Right
-    A2_p300_bead_side = sample_plate_mag['A2'].center().move(types.Point(x=0.50,y=0,             z=p300_offset_Mag-7.2))             #Beads to the Right
-    A2_p300_bead_top  = sample_plate_mag['A2'].center().move(types.Point(x=-1.30,y=0,              z=p300_offset_Mag-1))               #Beads to the Right
-    A2_p300_bead_mid  = sample_plate_mag['A2'].center().move(types.Point(x=-0.80,y=0,              z=p300_offset_Mag-4))               #Beads to the Right
-    A2_p300_loc1      = sample_plate_mag['A2'].center().move(types.Point(x=-1.3*0.8,y=1.3*0.8,     z=p300_offset_Mag-4))               #Beads to the Right
-    A2_p300_loc2      = sample_plate_mag['A2'].center().move(types.Point(x=-1.3,y=0,               z=p300_offset_Mag-4))               #Beads to the Right
-    A2_p300_loc3      = sample_plate_mag['A2'].center().move(types.Point(x=-1.3*0.8,y=-1.3*0.8,    z=p300_offset_Mag-4))               #Beads to the Right
-    A2_p20_loc1       = sample_plate_mag['A2'].center().move(types.Point(x=-1.3*0.8,y=1.3*0.8,     z=p20_offset_Mag-7))             #Beads to the Right
-    A2_p20_loc2       = sample_plate_mag['A2'].center().move(types.Point(x=-1.3,y=0,               z=p20_offset_Mag-7))             #Beads to the Right
-    A2_p20_loc3       = sample_plate_mag['A2'].center().move(types.Point(x=-1.3*0.8,y=-1.3*0.8,    z=p20_offset_Mag-7))             #Beads to the Right
-    A4_p20_bead_side  = sample_plate_mag['A4'].center().move(types.Point(x=1.8*0.50,y=0,         z=p20_offset_Mag-5))                #Beads to the Right
-    A4_p20_bead_top   = sample_plate_mag['A4'].center().move(types.Point(x=-1.5,y=0,               z=p20_offset_Mag+2))                #Beads to the Right
-    A4_p20_bead_mid   = sample_plate_mag['A4'].center().move(types.Point(x=-1,y=0,                 z=p20_offset_Mag-2))                #Beads to the Right
-    A4_p300_bead_side = sample_plate_mag['A4'].center().move(types.Point(x=0.50,y=0,             z=p300_offset_Mag-7.2))             #Beads to the Right
-    A4_p300_bead_top  = sample_plate_mag['A4'].center().move(types.Point(x=-1.30,y=0,              z=p300_offset_Mag-1))               #Beads to the Right
-    A4_p300_bead_mid  = sample_plate_mag['A4'].center().move(types.Point(x=-0.80,y=0,              z=p300_offset_Mag-4))               #Beads to the Right
-    A4_p300_loc1      = sample_plate_mag['A4'].center().move(types.Point(x=-1.3*0.8,y=1.3*0.8,     z=p300_offset_Mag-4))               #Beads to the Right
-    A4_p300_loc2      = sample_plate_mag['A4'].center().move(types.Point(x=-1.3,y=0,               z=p300_offset_Mag-4))               #Beads to the Right
-    A4_p300_loc3      = sample_plate_mag['A4'].center().move(types.Point(x=-1.3*0.8,y=-1.3*0.8,    z=p300_offset_Mag-4))               #Beads to the Right
-    A4_p20_loc1       = sample_plate_mag['A4'].center().move(types.Point(x=-1.3*0.8,y=1.3*0.8,     z=p20_offset_Mag-7))             #Beads to the Right
-    A4_p20_loc2       = sample_plate_mag['A4'].center().move(types.Point(x=-1.3,y=0,               z=p20_offset_Mag-7))             #Beads to the Right
-    A4_p20_loc3       = sample_plate_mag['A4'].center().move(types.Point(x=-1.3*0.8,y=-1.3*0.8,    z=p20_offset_Mag-7))             #Beads to the Right
-    A6_p20_bead_side  = sample_plate_mag['A6'].center().move(types.Point(x=1.8*0.50,y=0,         z=p20_offset_Mag-5))                #Beads to the Right
-    A6_p20_bead_top   = sample_plate_mag['A6'].center().move(types.Point(x=-1.5,y=0,               z=p20_offset_Mag+2))                #Beads to the Right
-    A6_p20_bead_mid   = sample_plate_mag['A6'].center().move(types.Point(x=-1,y=0,                 z=p20_offset_Mag-2))                #Beads to the Right
-    A6_p300_bead_side = sample_plate_mag['A6'].center().move(types.Point(x=0.50,y=0,             z=p300_offset_Mag-7.2))             #Beads to the Right
-    A6_p300_bead_top  = sample_plate_mag['A6'].center().move(types.Point(x=-1.30,y=0,              z=p300_offset_Mag-1))               #Beads to the Right
-    A6_p300_bead_mid  = sample_plate_mag['A6'].center().move(types.Point(x=-0.80,y=0,              z=p300_offset_Mag-4))               #Beads to the Right
-    A6_p300_loc1      = sample_plate_mag['A6'].center().move(types.Point(x=-1.3*0.8,y=1.3*0.8,     z=p300_offset_Mag-4))               #Beads to the Right
-    A6_p300_loc2      = sample_plate_mag['A6'].center().move(types.Point(x=-1.3,y=0,               z=p300_offset_Mag-4))               #Beads to the Right
-    A6_p300_loc3      = sample_plate_mag['A6'].center().move(types.Point(x=-1.3*0.8,y=-1.3*0.8,    z=p300_offset_Mag-4))               #Beads to the Right
-    A6_p20_loc1       = sample_plate_mag['A6'].center().move(types.Point(x=-1.3*0.8,y=1.3*0.8,     z=p20_offset_Mag-7))             #Beads to the Right
-    A6_p20_loc2       = sample_plate_mag['A6'].center().move(types.Point(x=-1.3,y=0,               z=p20_offset_Mag-7))             #Beads to the Right
-    A6_p20_loc3       = sample_plate_mag['A6'].center().move(types.Point(x=-1.3*0.8,y=-1.3*0.8,    z=p20_offset_Mag-7))             #Beads to the Right
+    #  sample_plate on the Mag Block
+    A2_p20_bead_side  = sample_plate['A2'].center().move(types.Point(x=1.8*0.50,y=0,         z=p20_offset_Mag-5))                #Beads to the Right
+    A2_p20_bead_top   = sample_plate['A2'].center().move(types.Point(x=-1.5,y=0,               z=p20_offset_Mag+2))                #Beads to the Right
+    A2_p20_bead_mid   = sample_plate['A2'].center().move(types.Point(x=-1,y=0,                 z=p20_offset_Mag-2))                #Beads to the Right
+    A2_p300_bead_side = sample_plate['A2'].center().move(types.Point(x=0.50,y=0,             z=p300_offset_Mag-7.2))             #Beads to the Right
+    A2_p300_bead_top  = sample_plate['A2'].center().move(types.Point(x=-1.30,y=0,              z=p300_offset_Mag-1))               #Beads to the Right
+    A2_p300_bead_mid  = sample_plate['A2'].center().move(types.Point(x=-0.80,y=0,              z=p300_offset_Mag-4))               #Beads to the Right
+    A2_p300_loc1      = sample_plate['A2'].center().move(types.Point(x=-1.3*0.8,y=1.3*0.8,     z=p300_offset_Mag-4))               #Beads to the Right
+    A2_p300_loc2      = sample_plate['A2'].center().move(types.Point(x=-1.3,y=0,               z=p300_offset_Mag-4))               #Beads to the Right
+    A2_p300_loc3      = sample_plate['A2'].center().move(types.Point(x=-1.3*0.8,y=-1.3*0.8,    z=p300_offset_Mag-4))               #Beads to the Right
+    A2_p20_loc1       = sample_plate['A2'].center().move(types.Point(x=-1.3*0.8,y=1.3*0.8,     z=p20_offset_Mag-7))             #Beads to the Right
+    A2_p20_loc2       = sample_plate['A2'].center().move(types.Point(x=-1.3,y=0,               z=p20_offset_Mag-7))             #Beads to the Right
+    A2_p20_loc3       = sample_plate['A2'].center().move(types.Point(x=-1.3*0.8,y=-1.3*0.8,    z=p20_offset_Mag-7))             #Beads to the Right
+    A4_p20_bead_side  = sample_plate['A4'].center().move(types.Point(x=1.8*0.50,y=0,         z=p20_offset_Mag-5))                #Beads to the Right
+    A4_p20_bead_top   = sample_plate['A4'].center().move(types.Point(x=-1.5,y=0,               z=p20_offset_Mag+2))                #Beads to the Right
+    A4_p20_bead_mid   = sample_plate['A4'].center().move(types.Point(x=-1,y=0,                 z=p20_offset_Mag-2))                #Beads to the Right
+    A4_p300_bead_side = sample_plate['A4'].center().move(types.Point(x=0.50,y=0,             z=p300_offset_Mag-7.2))             #Beads to the Right
+    A4_p300_bead_top  = sample_plate['A4'].center().move(types.Point(x=-1.30,y=0,              z=p300_offset_Mag-1))               #Beads to the Right
+    A4_p300_bead_mid  = sample_plate['A4'].center().move(types.Point(x=-0.80,y=0,              z=p300_offset_Mag-4))               #Beads to the Right
+    A4_p300_loc1      = sample_plate['A4'].center().move(types.Point(x=-1.3*0.8,y=1.3*0.8,     z=p300_offset_Mag-4))               #Beads to the Right
+    A4_p300_loc2      = sample_plate['A4'].center().move(types.Point(x=-1.3,y=0,               z=p300_offset_Mag-4))               #Beads to the Right
+    A4_p300_loc3      = sample_plate['A4'].center().move(types.Point(x=-1.3*0.8,y=-1.3*0.8,    z=p300_offset_Mag-4))               #Beads to the Right
+    A4_p20_loc1       = sample_plate['A4'].center().move(types.Point(x=-1.3*0.8,y=1.3*0.8,     z=p20_offset_Mag-7))             #Beads to the Right
+    A4_p20_loc2       = sample_plate['A4'].center().move(types.Point(x=-1.3,y=0,               z=p20_offset_Mag-7))             #Beads to the Right
+    A4_p20_loc3       = sample_plate['A4'].center().move(types.Point(x=-1.3*0.8,y=-1.3*0.8,    z=p20_offset_Mag-7))             #Beads to the Right
+    A6_p20_bead_side  = sample_plate['A6'].center().move(types.Point(x=1.8*0.50,y=0,         z=p20_offset_Mag-5))                #Beads to the Right
+    A6_p20_bead_top   = sample_plate['A6'].center().move(types.Point(x=-1.5,y=0,               z=p20_offset_Mag+2))                #Beads to the Right
+    A6_p20_bead_mid   = sample_plate['A6'].center().move(types.Point(x=-1,y=0,                 z=p20_offset_Mag-2))                #Beads to the Right
+    A6_p300_bead_side = sample_plate['A6'].center().move(types.Point(x=0.50,y=0,             z=p300_offset_Mag-7.2))             #Beads to the Right
+    A6_p300_bead_top  = sample_plate['A6'].center().move(types.Point(x=-1.30,y=0,              z=p300_offset_Mag-1))               #Beads to the Right
+    A6_p300_bead_mid  = sample_plate['A6'].center().move(types.Point(x=-0.80,y=0,              z=p300_offset_Mag-4))               #Beads to the Right
+    A6_p300_loc1      = sample_plate['A6'].center().move(types.Point(x=-1.3*0.8,y=1.3*0.8,     z=p300_offset_Mag-4))               #Beads to the Right
+    A6_p300_loc2      = sample_plate['A6'].center().move(types.Point(x=-1.3,y=0,               z=p300_offset_Mag-4))               #Beads to the Right
+    A6_p300_loc3      = sample_plate['A6'].center().move(types.Point(x=-1.3*0.8,y=-1.3*0.8,    z=p300_offset_Mag-4))               #Beads to the Right
+    A6_p20_loc1       = sample_plate['A6'].center().move(types.Point(x=-1.3*0.8,y=1.3*0.8,     z=p20_offset_Mag-7))             #Beads to the Right
+    A6_p20_loc2       = sample_plate['A6'].center().move(types.Point(x=-1.3,y=0,               z=p20_offset_Mag-7))             #Beads to the Right
+    A6_p20_loc3       = sample_plate['A6'].center().move(types.Point(x=-1.3*0.8,y=-1.3*0.8,    z=p20_offset_Mag-7))             #Beads to the Right
     ############################################################################################################################################
 
     if STEP_POSTPCR2 == 1:
@@ -2059,10 +2062,10 @@ def run(protocol: protocol_api.ProtocolContext):
                 p300.pick_up_tip(W3_AMPure_Bind_1)
             p300.mix(10,AMPureVol+10, AMPure.bottom(z=p300_offset_Res))
             p300.aspirate(AMPureVol, AMPure.bottom(z=p300_offset_Res), rate=0.25)
-            p300.dispense(AMPureVol, sample_plate_mag[X].bottom(z=p300_offset_Mag), rate=0.25)
-            p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag))
+            p300.dispense(AMPureVol, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
+            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
             p300.mix(AMPureMixRep,AMPureMixVol)
-            p300.blow_out(sample_plate_mag[X].top(z=-5))
+            p300.blow_out(sample_plate[X].top(z=-5))
             p300.move_to(bypass) 
             if TIPREUSE == 'NO':
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
@@ -2080,10 +2083,10 @@ def run(protocol: protocol_api.ProtocolContext):
                 p300.pick_up_tip(W3_AMPure_Bind_2)
             p300.mix(3,AMPureVol+10, AMPure.bottom(z=p300_offset_Res))
             p300.aspirate(AMPureVol, AMPure.bottom(z=p300_offset_Res), rate=0.25)
-            p300.dispense(AMPureVol, sample_plate_mag[X].bottom(z=p300_offset_Mag), rate=0.25)
-            p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag))
+            p300.dispense(AMPureVol, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
+            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
             p300.mix(AMPureMixRep,AMPureMixVol)
-            p300.blow_out(sample_plate_mag[X].top(z=-5))
+            p300.blow_out(sample_plate[X].top(z=-5))
             p300.move_to(bypass) 
             if TIPREUSE == 'NO':
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
@@ -2101,10 +2104,10 @@ def run(protocol: protocol_api.ProtocolContext):
                 p300.pick_up_tip(W3_AMPure_Bind_3)
             p300.mix(3,AMPureVol+10, AMPure.bottom(z=p300_offset_Res))
             p300.aspirate(AMPureVol, AMPure.bottom(z=p300_offset_Res), rate=0.25)
-            p300.dispense(AMPureVol, sample_plate_mag[X].bottom(z=p300_offset_Mag), rate=0.25)
-            p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag))
+            p300.dispense(AMPureVol, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
+            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
             p300.mix(AMPureMixRep,AMPureMixVol)
-            p300.blow_out(sample_plate_mag[X].top(z=-5))
+            p300.blow_out(sample_plate[X].top(z=-5))
             p300.move_to(bypass) 
             if TIPREUSE == 'NO':
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
@@ -2115,15 +2118,15 @@ def run(protocol: protocol_api.ProtocolContext):
             protocol.delay(minutes=5)
 
             protocol.comment('MAGNET ENGAGE')
-            mag_block.engage(height_from_base=8.5)
+            mag_block.engage(height_from_base=8.5)          # TODO: remove?
             protocol.delay(minutes=1)
-            mag_block.engage(height_from_base=7.5)
+            mag_block.engage(height_from_base=7.5)          # TODO: remove?
             protocol.delay(minutes=1)
-            mag_block.engage(height_from_base=7)
+            mag_block.engage(height_from_base=7)            # TODO: remove?
             protocol.delay(minutes=1)
-            mag_block.engage(height_from_base=6)
+            mag_block.engage(height_from_base=6)            # TODO: remove?
             protocol.delay(minutes=1)
-            mag_block.engage(height_from_base=5)
+            mag_block.engage(height_from_base=5)            # TODO: remove?
             protocol.delay(minutes=1)
 
         if samplecolumns == 2:
@@ -2142,7 +2145,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 p300.pick_up_tip(W2_AMPure_Bind_1)
             elif WASHNUM == 3:
                 p300.pick_up_tip(W3_AMPure_Bind_1)
-            p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag+4))
+            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
             p300.aspirate(RemoveSup-30, rate=0.25)
             p300.default_speed = 5
             if X == 'A2': p300.move_to(A2_p300_bead_side)
@@ -2150,10 +2153,10 @@ def run(protocol: protocol_api.ProtocolContext):
             if X == 'A6': p300.move_to(A6_p300_bead_side)
             protocol.delay(minutes=0.1)
             p300.aspirate(20, rate=0.2)
-            p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag))
+            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
             protocol.delay(minutes=0.1)
             p300.aspirate(10, rate=0.1)
-            p300.move_to(sample_plate_mag[X].top(z=2))
+            p300.move_to(sample_plate[X].top(z=2))
             p300.default_speed = 400
             p300.dispense(200, Liquid_trash)
             p300.move_to(bypass)
@@ -2168,7 +2171,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 p300.pick_up_tip(W2_AMPure_Bind_2)
             elif WASHNUM == 3:
                 p300.pick_up_tip(W3_AMPure_Bind_2)
-            p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag+4))
+            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
             p300.aspirate(RemoveSup-30, rate=0.25)
             p300.default_speed = 5
             if X == 'A2': p300.move_to(A2_p300_bead_side)
@@ -2176,10 +2179,10 @@ def run(protocol: protocol_api.ProtocolContext):
             if X == 'A6': p300.move_to(A6_p300_bead_side)
             protocol.delay(minutes=0.1)
             p300.aspirate(20, rate=0.2)
-            p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag))
+            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
             protocol.delay(minutes=0.1)
             p300.aspirate(10, rate=0.1)
-            p300.move_to(sample_plate_mag[X].top(z=2))
+            p300.move_to(sample_plate[X].top(z=2))
             p300.default_speed = 400
             p300.dispense(200, Liquid_trash)
             p300.move_to(bypass)
@@ -2194,7 +2197,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 p300.pick_up_tip(W2_AMPure_Bind_3)
             elif WASHNUM == 3:
                 p300.pick_up_tip(W3_AMPure_Bind_3)
-            p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag+4))
+            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
             p300.aspirate(RemoveSup-30, rate=0.25)
             p300.default_speed = 5
             if X == 'A2': p300.move_to(A2_p300_bead_side)
@@ -2202,10 +2205,10 @@ def run(protocol: protocol_api.ProtocolContext):
             if X == 'A6': p300.move_to(A6_p300_bead_side)
             protocol.delay(minutes=0.1)
             p300.aspirate(20, rate=0.2)
-            p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag))
+            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
             protocol.delay(minutes=0.1)
             p300.aspirate(10, rate=0.1)
-            p300.move_to(sample_plate_mag[X].top(z=2))
+            p300.move_to(sample_plate[X].top(z=2))
             p300.default_speed = 400
             p300.dispense(200, Liquid_trash)
             p300.move_to(bypass)
@@ -2230,11 +2233,11 @@ def run(protocol: protocol_api.ProtocolContext):
                 if X == 'A4': p300.move_to(A4_p300_bead_side)
                 if X == 'A6': p300.move_to(A6_p300_bead_side)
                 p300.dispense(ETOHMaxVol-50, rate=0.5)
-                p300.move_to(sample_plate_mag[X].center())
+                p300.move_to(sample_plate[X].center())
                 p300.dispense(50, rate=0.5)
-                p300.move_to(sample_plate_mag[X].top(z=2))
+                p300.move_to(sample_plate[X].top(z=2))
                 p300.default_speed = 5
-                p300.move_to(sample_plate_mag[X].top(z=-2))
+                p300.move_to(sample_plate[X].top(z=-2))
                 protocol.delay(minutes=0.1)
                 p300.blow_out()
                 p300.default_speed = 400
@@ -2252,11 +2255,11 @@ def run(protocol: protocol_api.ProtocolContext):
                 if X == 'A4': p300.move_to(A4_p300_bead_side)
                 if X == 'A6': p300.move_to(A6_p300_bead_side)
                 p300.dispense(ETOHMaxVol-50, rate=0.5)
-                p300.move_to(sample_plate_mag[X].center())
+                p300.move_to(sample_plate[X].center())
                 p300.dispense(50, rate=0.5)
-                p300.move_to(sample_plate_mag[X].top(z=2))
+                p300.move_to(sample_plate[X].top(z=2))
                 p300.default_speed = 5
-                p300.move_to(sample_plate_mag[X].top(z=-2))
+                p300.move_to(sample_plate[X].top(z=-2))
                 protocol.delay(minutes=0.1)
                 p300.blow_out()
                 p300.default_speed = 400
@@ -2274,11 +2277,11 @@ def run(protocol: protocol_api.ProtocolContext):
                 if X == 'A4': p300.move_to(A4_p300_bead_side)
                 if X == 'A6': p300.move_to(A6_p300_bead_side)
                 p300.dispense(ETOHMaxVol-50, rate=0.5)
-                p300.move_to(sample_plate_mag[X].center())
+                p300.move_to(sample_plate[X].center())
                 p300.dispense(50, rate=0.5)
-                p300.move_to(sample_plate_mag[X].top(z=2))
+                p300.move_to(sample_plate[X].top(z=2))
                 p300.default_speed = 5
-                p300.move_to(sample_plate_mag[X].top(z=-2))
+                p300.move_to(sample_plate[X].top(z=-2))
                 protocol.delay(minutes=0.1)
                 p300.blow_out()
                 p300.default_speed = 400
@@ -2295,7 +2298,7 @@ def run(protocol: protocol_api.ProtocolContext):
                     p300.pick_up_tip(W1_ETOH_removetip_1)
                 elif WASHNUM == 2:
                     p300.pick_up_tip(W2_ETOH_removetip_1)
-                p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag+4))
+                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
                 p300.aspirate(ETOHMaxVol, rate=0.25)
                 p300.default_speed = 5
                 if X == 'A2': p300.move_to(A2_p300_bead_side)
@@ -2317,7 +2320,7 @@ def run(protocol: protocol_api.ProtocolContext):
                     p300.pick_up_tip(W1_ETOH_removetip_2)
                 elif WASHNUM == 2:
                     p300.pick_up_tip(W2_ETOH_removetip_2)
-                p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag+4))
+                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
                 p300.aspirate(ETOHMaxVol, rate=0.25)
                 p300.default_speed = 5
                 if X == 'A2': p300.move_to(A2_p300_bead_side)
@@ -2339,7 +2342,7 @@ def run(protocol: protocol_api.ProtocolContext):
                     p300.pick_up_tip(W1_ETOH_removetip_3)
                 elif WASHNUM == 2:
                     p300.pick_up_tip(W2_ETOH_removetip_3)
-                p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag+4))
+                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
                 p300.aspirate(ETOHMaxVol, rate=0.25)
                 p300.default_speed = 5
                 if X == 'A2': p300.move_to(A2_p300_bead_side)
@@ -2364,21 +2367,21 @@ def run(protocol: protocol_api.ProtocolContext):
             if samplecolumns >= 1:#-----------------------------------------------------------------------------------------
                 X = 'A2'
                 p20.pick_up_tip()
-                p20.move_to(sample_plate_mag[X].bottom(z=p20_offset_Mag+1))
+                p20.move_to(sample_plate[X].bottom(z=p20_offset_Mag+1))
                 p20.aspirate(20, rate=0.25)if NOMODULES == 'NO' else p20.aspirate(10, rate=0.25)
                 p20.move_to(bypass)
                 p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
             if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
                 X = 'A4'
                 p20.pick_up_tip()
-                p20.move_to(sample_plate_mag[X].bottom(z=p20_offset_Mag+1))
+                p20.move_to(sample_plate[X].bottom(z=p20_offset_Mag+1))
                 p20.aspirate(20, rate=0.25)if NOMODULES == 'NO' else p20.aspirate(10, rate=0.25)
                 p20.move_to(bypass)
                 p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
             if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
                 X = 'A6'
                 p20.pick_up_tip()
-                p20.move_to(sample_plate_mag[X].bottom(z=p20_offset_Mag+1))
+                p20.move_to(sample_plate[X].bottom(z=p20_offset_Mag+1))
                 p20.aspirate(20, rate=0.25)if NOMODULES == 'NO' else p20.aspirate(10, rate=0.25)
                 p20.move_to(bypass)
                 p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
@@ -2391,7 +2394,7 @@ def run(protocol: protocol_api.ProtocolContext):
                     p300.pick_up_tip(W1_ETOH_removetip_1)
                 elif WASHNUM == 2:
                     p300.pick_up_tip(W2_ETOH_removetip_1)
-                p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag+1))
+                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+1))
                 p300.aspirate(20, rate=0.25)
                 p300.move_to(bypass)
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
@@ -2403,7 +2406,7 @@ def run(protocol: protocol_api.ProtocolContext):
                     p300.pick_up_tip(W1_ETOH_removetip_2)
                 elif WASHNUM == 2:
                     p300.pick_up_tip(W2_ETOH_removetip_2)
-                p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag+1))
+                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+1))
                 p300.aspirate(20, rate=0.25)
                 p300.move_to(bypass)
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
@@ -2415,18 +2418,18 @@ def run(protocol: protocol_api.ProtocolContext):
                     p300.pick_up_tip(W1_ETOH_removetip_3)
                 elif WASHNUM == 2:
                     p300.pick_up_tip(W2_ETOH_removetip_3)
-                p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag+1))
+                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+1))
                 p300.aspirate(20, rate=0.25)
                 p300.move_to(bypass)
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
 
         if DRYRUN == 'NO':
-            mag_block.engage(height_from_base=6)
+            mag_block.engage(height_from_base=6)        # TODO: remove?
             protocol.comment('AIR DRY')
             protocol.delay(minutes=0.5)
 
             protocol.comment('MAGNET DISENGAGE')
-            mag_block.disengage()
+            mag_block.disengage()                       # TODO: remove?
 
         protocol.comment('--> Adding RSB')
         WASHNUM = 3
@@ -2467,7 +2470,7 @@ def run(protocol: protocol_api.ProtocolContext):
             p300.dispense(RSBVol/5, rate=0.75)
             reps = 5
             for x in range(reps):
-                p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag))
+                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
                 p300.aspirate(RSBVol, rate=0.5)
                 if X == 'A2': p300.move_to(A2_p300_loc1)
                 if X == 'A4': p300.move_to(A4_p300_loc1)
@@ -2491,11 +2494,11 @@ def run(protocol: protocol_api.ProtocolContext):
                 if X == 'A4': p300.move_to(A4_p300_loc1)
                 if X == 'A6': p300.move_to(A6_p300_loc1)
                 p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate_mag.wells_by_name()[X].bottom(z=p300_offset_Mag))
+            p300.move_to(sample_plate.wells_by_name()[X].bottom(z=p300_offset_Mag))
             p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate_mag.wells_by_name()[X].top())
+            p300.move_to(sample_plate.wells_by_name()[X].top())
             protocol.delay(seconds=0.5)
-            p300.move_to(sample_plate_mag.wells_by_name()[X].center())
+            p300.move_to(sample_plate.wells_by_name()[X].center())
             p300.default_speed = 400
             if TIPREUSE == 'NO':
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
@@ -2535,7 +2538,7 @@ def run(protocol: protocol_api.ProtocolContext):
             p300.dispense(RSBVol/5, rate=0.75)
             reps = 5
             for x in range(reps):
-                p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag))
+                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
                 p300.aspirate(RSBVol, rate=0.5)
                 if X == 'A2': p300.move_to(A2_p300_loc1)
                 if X == 'A4': p300.move_to(A4_p300_loc1)
@@ -2559,11 +2562,11 @@ def run(protocol: protocol_api.ProtocolContext):
                 if X == 'A4': p300.move_to(A4_p300_loc1)
                 if X == 'A6': p300.move_to(A6_p300_loc1)
                 p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate_mag.wells_by_name()[X].bottom(z=p300_offset_Mag))
+            p300.move_to(sample_plate.wells_by_name()[X].bottom(z=p300_offset_Mag))
             p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate_mag.wells_by_name()[X].top())
+            p300.move_to(sample_plate.wells_by_name()[X].top())
             protocol.delay(seconds=0.5)
-            p300.move_to(sample_plate_mag.wells_by_name()[X].center())
+            p300.move_to(sample_plate.wells_by_name()[X].center())
             p300.default_speed = 400
             if TIPREUSE == 'NO':
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
@@ -2603,7 +2606,7 @@ def run(protocol: protocol_api.ProtocolContext):
             p300.dispense(RSBVol/5, rate=0.75)
             reps = 5
             for x in range(reps):
-                p300.move_to(sample_plate_mag[X].bottom(z=p300_offset_Mag))
+                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
                 p300.aspirate(RSBVol, rate=0.5)
                 if X == 'A2': p300.move_to(A2_p300_loc1)
                 if X == 'A4': p300.move_to(A4_p300_loc1)
@@ -2627,11 +2630,11 @@ def run(protocol: protocol_api.ProtocolContext):
                 if X == 'A4': p300.move_to(A4_p300_loc1)
                 if X == 'A6': p300.move_to(A6_p300_loc1)
                 p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate_mag.wells_by_name()[X].bottom(z=p300_offset_Mag))
+            p300.move_to(sample_plate.wells_by_name()[X].bottom(z=p300_offset_Mag))
             p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate_mag.wells_by_name()[X].top())
+            p300.move_to(sample_plate.wells_by_name()[X].top())
             protocol.delay(seconds=0.5)
-            p300.move_to(sample_plate_mag.wells_by_name()[X].center())
+            p300.move_to(sample_plate.wells_by_name()[X].center())
             p300.default_speed = 400
             if TIPREUSE == 'NO':
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
@@ -2642,7 +2645,7 @@ def run(protocol: protocol_api.ProtocolContext):
             protocol.delay(minutes=2)
 
             protocol.comment('MAGNET ENGAGE')
-            mag_block.engage(height_from_base=5)
+            mag_block.engage(height_from_base=5)            # TODO: remove?
 
             protocol.delay(minutes=4)
 
@@ -2660,30 +2663,30 @@ def run(protocol: protocol_api.ProtocolContext):
                 X = 'A2'
                 Y = 'A8'
                 p20.pick_up_tip()
-                p20.aspirate(TransferSup/2, sample_plate_mag[X].bottom(z=p20_offset_Mag), rate=0.25)
-                p20.dispense(TransferSup/2, sample_plate_mag[Y].bottom(z=p20_offset_Mag))
-                p20.aspirate(TransferSup/2, sample_plate_mag[X].bottom(z=p20_offset_Mag), rate=0.25)
-                p20.dispense(TransferSup/2+5, sample_plate_mag[Y].bottom(z=p20_offset_Mag))
+                p20.aspirate(TransferSup/2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
+                p20.dispense(TransferSup/2, sample_plate[Y].bottom(z=p20_offset_Mag))
+                p20.aspirate(TransferSup/2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
+                p20.dispense(TransferSup/2+5, sample_plate[Y].bottom(z=p20_offset_Mag))
                 p20.move_to(bypass)
                 p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
             if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
                 X = 'A4'
                 Y = 'A10'
                 p20.pick_up_tip()
-                p20.aspirate(TransferSup/2, sample_plate_mag[X].bottom(z=p20_offset_Mag), rate=0.25)
-                p20.dispense(TransferSup/2, sample_plate_mag[Y].bottom(z=p20_offset_Mag))
-                p20.aspirate(TransferSup/2, sample_plate_mag[X].bottom(z=p20_offset_Mag), rate=0.25)
-                p20.dispense(TransferSup/2+5, sample_plate_mag[Y].bottom(z=p20_offset_Mag))
+                p20.aspirate(TransferSup/2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
+                p20.dispense(TransferSup/2, sample_plate[Y].bottom(z=p20_offset_Mag))
+                p20.aspirate(TransferSup/2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
+                p20.dispense(TransferSup/2+5, sample_plate[Y].bottom(z=p20_offset_Mag))
                 p20.move_to(bypass)
                 p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
             if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
                 X = 'A6'
                 Y = 'A12'
                 p20.pick_up_tip()
-                p20.aspirate(TransferSup/2, sample_plate_mag[X].bottom(z=p20_offset_Mag), rate=0.25)
-                p20.dispense(TransferSup/2, sample_plate_mag[Y].bottom(z=p20_offset_Mag))
-                p20.aspirate(TransferSup/2, sample_plate_mag[X].bottom(z=p20_offset_Mag), rate=0.25)
-                p20.dispense(TransferSup/2+5, sample_plate_mag[Y].bottom(z=p20_offset_Mag))
+                p20.aspirate(TransferSup/2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
+                p20.dispense(TransferSup/2, sample_plate[Y].bottom(z=p20_offset_Mag))
+                p20.aspirate(TransferSup/2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
+                p20.dispense(TransferSup/2+5, sample_plate[Y].bottom(z=p20_offset_Mag))
                 p20.move_to(bypass)
                 p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
         if TIPREUSE == 'YES':
@@ -2698,8 +2701,8 @@ def run(protocol: protocol_api.ProtocolContext):
                     p300.pick_up_tip(W2_ResusTrans_1)
                 elif WASHNUM == 3:
                     p300.pick_up_tip(W3_ResusTrans_1)
-                p300.aspirate(TransferSup, sample_plate_mag[X].bottom(z=p300_offset_Mag), rate=0.25)
-                p300.dispense(TransferSup+5, sample_plate_mag[Y].bottom(z=p300_offset_Mag))
+                p300.aspirate(TransferSup, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
+                p300.dispense(TransferSup+5, sample_plate[Y].bottom(z=p300_offset_Mag))
                 p300.move_to(bypass)
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
             if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
@@ -2713,8 +2716,8 @@ def run(protocol: protocol_api.ProtocolContext):
                     p300.pick_up_tip(W2_ResusTrans_2)
                 elif WASHNUM == 3:
                     p300.pick_up_tip(W3_ResusTrans_2)
-                p300.aspirate(TransferSup, sample_plate_mag[X].bottom(z=p300_offset_Mag), rate=0.25)
-                p300.dispense(TransferSup+5, sample_plate_mag[Y].bottom(z=p300_offset_Mag))
+                p300.aspirate(TransferSup, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
+                p300.dispense(TransferSup+5, sample_plate[Y].bottom(z=p300_offset_Mag))
                 p300.move_to(bypass)
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
             if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
@@ -2728,12 +2731,12 @@ def run(protocol: protocol_api.ProtocolContext):
                     p300.pick_up_tip(W2_ResusTrans_3)
                 elif WASHNUM == 3:
                     p300.pick_up_tip(W3_ResusTrans_3)
-                p300.aspirate(TransferSup, sample_plate_mag[X].bottom(z=p300_offset_Mag), rate=0.25)
-                p300.dispense(TransferSup+5, sample_plate_mag[Y].bottom(z=p300_offset_Mag))
+                p300.aspirate(TransferSup, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
+                p300.dispense(TransferSup+5, sample_plate[Y].bottom(z=p300_offset_Mag))
                 p300.move_to(bypass)
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
 
         if DRYRUN == 'NO':
             protocol.comment('MAGNET DISENGAGE')
-            mag_block.disengage()
+            mag_block.disengage()       # TODO: remove?
 
