@@ -31,34 +31,45 @@ def right(s, amount):
 
 # SCRIPT SETTINGS
 DRYRUN      = 'NO'          # YES or NO, DRYRUN = 'YES' will return tips, skip incubation times, shorten mix, for testing purposes
+
+# Changing to NOMODULES = Yes breaks this protocol so only run it with a `NO`
 NOMODULES   = 'NO'          # YES or NO, NOMODULES = 'YES' will not require modules on the deck and will skip module steps, for testing purposes, if DRYRUN = 'YES', then NOMODULES will automatically set itself to 'NO'
-TIPREUSE    = 'NO'          # NO, NYI format for reusing tips
-OFFSET      = 'YES'         # YES or NO, Sets whether to use protocol specific z offsets for each tip and labware or no offsets aside from defaults
+
+TIPREUSE    = 'YES'          # NO, NYI format for reusing tips
+OFFSET      = 'NO'         # YES or NO, Sets whether to use protocol specific z offsets for each tip and labware or no offsets aside from defaults
+MAG         = 'MAGPLATE'
 
 # PROTOCOL SETTINGS
-SAMPLES     = '8x'         # 8x, 16x, or 24x   
+SAMPLES     = '8x'          # 8x, 16x, or 24x
 FRAGTIME    = 30            # Minutes, Duration of the Fragmentation Step
 PCRCYCLES   = 4             # Amount of Cycles
 
 # PROTOCOL BLOCKS
-STEP_FRERAT         = 0
+STEP_FRERAT         = 1
 STEP_FRERATDECK     = 1
-STEP_LIG            = 0
-STEP_LIGDECK        = 0
-STEP_POSTLIG        = 0
-STEP_PCR            = 0
-STEP_PCRDECK        = 0
-STEP_POSTPCR1       = 0
+STEP_LIG            = 1
+STEP_LIGDECK        = 1
+STEP_POSTLIG        = 1
+STEP_PCR            = 1
+STEP_PCRDECK        = 1
+STEP_POSTPCR1       = 1
 STEP_POSTPCR2       = 0
 
 STEPS = {STEP_FRERAT, STEP_LIG, STEP_POSTLIG, STEP_PCR, STEP_POSTPCR1, STEP_POSTPCR2}
 
 MAG_PLATE_SLOT = 1
+EMPTY_SLOT = 8
+USE_GRIPPER = True
 
 
 def run(protocol: protocol_api.ProtocolContext):
     global TIPREUSE
- 
+    global DRYRUN
+    global p20_tips
+    global p300_tips
+    global MAG
+    global TIPMIX
+
     if DRYRUN == 'YES':
         protocol.comment("THIS IS A DRY RUN")
     else:
@@ -89,7 +100,7 @@ def run(protocol: protocol_api.ProtocolContext):
         tiprack_200_3       = protocol.load_labware('opentrons_96_filtertiprack_200ul', '9')
     else:
         protocol.comment("THIS IS A MODULE RUN")
-        # No loading mag plate. Don't load labware since the plate will be ,oved from TC to mag plate
+        # No loading mag plate. Don't load labware since the plate will be moved from TC to mag plate
         # mag_block           = protocol.load_module('magnetic module gen2','1')
         # sample_plate    = mag_block.load_labware('nest_96_wellplate_100ul_pcr_full_skirt') #<--- Actually an Eppendorf 96 well, same dimensions
 
@@ -103,7 +114,7 @@ def run(protocol: protocol_api.ProtocolContext):
         tiprack_200_1       = protocol.load_labware('opentrons_96_filtertiprack_200ul', '5')
         tiprack_200_2       = protocol.load_labware('opentrons_96_filtertiprack_200ul', '6')
         thermocycler        = protocol.load_module('thermocycler module')
-        sample_plate = thermocycler.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')
+        sample_plate        = thermocycler.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')
         tiprack_200_3       = protocol.load_labware('opentrons_96_filtertiprack_200ul', '9')
 
     if TIPREUSE == 'YES':
@@ -135,16 +146,10 @@ def run(protocol: protocol_api.ProtocolContext):
         Liquid_trash        = reservoir['A12']
 
     # pipette
-    if NOMODULES == 'NO':
-        p300    = protocol.load_instrument('p300_multi_gen2', 'left', tip_racks=[tiprack_200_1,tiprack_200_2,tiprack_200_3])
-        p20     = protocol.load_instrument('p20_multi_gen2', 'right', tip_racks=[tiprack_20])
-    else:
-        p300    = protocol.load_instrument('p300_multi', 'left', tip_racks=[tiprack_200_1,tiprack_200_2,tiprack_200_3])
-        p20     = protocol.load_instrument('p10_multi', 'right', tip_racks=[tiprack_20])
+    p300    = protocol.load_instrument('p1000_single_gen3', 'left', tip_racks=[tiprack_200_1,tiprack_200_2,tiprack_200_3])
+    p20     = protocol.load_instrument('p50_single_gen3', 'right', tip_racks=[tiprack_20])
 
     #samples
-    src_file_path = inspect.getfile(lambda: None)       # TODO: what is this?
-    protocol.comment(src_file_path)
 
     #tip and sample tracking
     if SAMPLES == '8x':
@@ -232,8 +237,10 @@ def run(protocol: protocol_api.ProtocolContext):
     A5_p300_loc3      = sample_plate['A5'].center().move(types.Point(x=1.3 * 0.8, y=-1.3 * 0.8, z=p300_offset_Thermo - 4))               #Beads to the Right
     ############################################################################################################################################
 
-    slot_11_position = types.Location(point=types.Point(x=164.0, y=321.0, z=0.0), labware=None)
+    slot_11_position = Location(point=types.Point(x=164.0, y=321.0, z=0.0),
+                                labware=None)
     bypass = slot_11_position.move(types.Point(x=70, y=80, z=130))
+    
     # commands
     if DRYRUN == 'NO':
         protocol.comment("SETTING THERMO and TEMP BLOCK Temperature")
@@ -375,16 +382,16 @@ def run(protocol: protocol_api.ProtocolContext):
             protocol.pause("Remove Seal")
     else:
         protocol.pause('Seal, Run LIG (20min)')
-        '''
-        GRIPPER
-        Move plate from Thermocycler to Magnet block
-        Plate = eppendorf skirted 96 well plate (containing 90ul of liquid)
-        From Thermocycler (Pos 7) to Magnetic Block (Pos 1)
-        '''
-        protocol.move_labware(labware=sample_plate,
-                              new_location=MAG_PLATE_SLOT,
-                              use_gripper=True)
 
+#       ============================================================================================
+#       GRIPPER MOVE PLATE FROM MAGNET PLATE TO DECK
+        if MAG == 'MAGPLATE':
+            protocol.move_labware(
+                labware=sample_plate,
+                new_location=EMPTY_SLOT,
+                use_gripper=USE_GRIPPER,
+            )
+#       ============================================================================================
 
     # positions
     ############################################################################################################################################
@@ -459,9 +466,6 @@ def run(protocol: protocol_api.ProtocolContext):
         protocol.comment('--> Cleanup 1')
         protocol.comment('==============================================')
             
-        if DRYRUN == 'NO':
-            protocol.pause("PLACE sample_plate MAGNET")
-
         protocol.comment('--> ADDING AMPure (0.8x)')
         WASHNUM = 1
         if DRYRUN == 'NO':
@@ -566,25 +570,25 @@ def run(protocol: protocol_api.ProtocolContext):
             else: 
                 p300.return_tip()
 
-        if DRYRUN == 'NO':
-            if samplecolumns == 1:
-                protocol.delay(minutes=4.2)
-            if samplecolumns == 2:
-                protocol.delay(minutes=2.5)
-            if samplecolumns == 3:
-                protocol.delay(minutes=1)
+        '''
+        GRIPPER
+        Move plate from Thermocycler to Magnet block
+        Plate = eppendorf skirted 96 well plate (containing 90ul of liquid)
+        From Thermocycler (Pos 7) to Magnetic Block (Pos 1)
+        '''
 
-            protocol.comment('MAGNET ENGAGE')
-            mag_block.engage(height_from_base=8.5)      # TODO: remove?
-            protocol.delay(minutes=1)
-            mag_block.engage(height_from_base=7.5)      # TODO: remove?
-            protocol.delay(minutes=1)
-            mag_block.engage(height_from_base=7)        # TODO: remove?
-            protocol.delay(minutes=1)
-            mag_block.engage(height_from_base=6)        # TODO: remove?
-            protocol.delay(minutes=1)
-            mag_block.engage(height_from_base=5)        # TODO: remove?
-            protocol.delay(minutes=1)
+#       ============================================================================================
+#       GRIPPER MOVE PLATE FROM DECK TO MAG PLATE
+        if MAG == 'MAGPLATE':
+            protocol.move_labware(
+                labware=sample_plate,
+                new_location=MAG_PLATE_SLOT,
+                use_gripper=USE_GRIPPER,
+            )
+#       ============================================================================================
+
+        if DRYRUN == 'NO':
+            protocol.delay(minutes=5)
 
         protocol.comment('--> Removing Supernatant')
         RemoveSup = 200
@@ -875,13 +879,19 @@ def run(protocol: protocol_api.ProtocolContext):
                 p300.move_to(bypass)
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
 
+#       ============================================================================================
+#       GRIPPER MOVE PLATE FROM MAGNET PLATE TO DECK
+        if MAG == 'MAGPLATE':
+            protocol.move_labware(
+                labware=sample_plate,
+                new_location=EMPTY_SLOT,
+                use_gripper=USE_GRIPPER,
+            )
+#       ============================================================================================
+
         if DRYRUN == 'NO':
-            mag_block.engage(height_from_base=6)        # TODO: remove?
             protocol.comment('AIR DRY')
             protocol.delay(minutes=0.5)
-
-            protocol.comment('MAGNET DISENGAGE')
-            mag_block.disengage()                       # TODO: remove?
 
         protocol.comment('--> Adding RSB')
         WASHNUM = 1
@@ -1093,9 +1103,17 @@ def run(protocol: protocol_api.ProtocolContext):
             else: 
                 p300.return_tip()
 
+#       ============================================================================================
+#       GRIPPER MOVE PLATE FROM DECK TO MAG PLATE
+        if MAG == 'MAGPLATE':
+            protocol.move_labware(
+                labware=sample_plate,
+                new_location=MAG_PLATE_SLOT,
+                use_gripper=USE_GRIPPER,
+            )
+#       ============================================================================================
+
         if DRYRUN == 'NO':
-            protocol.comment('MAGNET ENGAGE')
-            mag_block.engage(height_from_base=5)    # TODO: what to do about this? How does using mag plate change this?
             protocol.delay(minutes=4)
 
         protocol.comment('--> Transferring Supernatant')
@@ -1157,10 +1175,6 @@ def run(protocol: protocol_api.ProtocolContext):
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
             else: 
                 p300.return_tip()
-
-        if DRYRUN == 'NO':
-            protocol.comment('MAGNET DISENGAGE')
-            mag_block.disengage()               # TODO: remove?
 
     if STEP_PCR == 1:
         protocol.comment('==============================================')
@@ -1245,9 +1259,16 @@ def run(protocol: protocol_api.ProtocolContext):
             Plate = eppendorf skirted 96 well plate (containing 50ul of liquid)
             From  Magnetic Block (Pos 1) to Thermocycler (Pos 7)                  
             '''
-            protocol.move_labware(labware=sample_plate,
-                                  new_location=thermocycler,
-                                  use_gripper=True)
+#       ============================================================================================
+#       GRIPPER MOVE PLATE FROM MAGNET PLATE TO DECK
+        if MAG == 'MAGPLATE':
+            protocol.move_labware(
+                labware=sample_plate,
+                new_location=thermocycler,
+                use_gripper=USE_GRIPPER,
+            )
+#       ============================================================================================
+
     if STEP_PCRDECK == 1:
         if DRYRUN == 'NO':
             ############################################################################################################################################
@@ -1281,11 +1302,16 @@ def run(protocol: protocol_api.ProtocolContext):
         Move plate from Thermocycler to Magnet block
         Plate = eppendorf skirted 96 well plate (containing 50ul of liquid)
         From Thermocycler (Pos 7) to Magnetic Block (Pos 1)                        
-
         '''
-        protocol.move_labware(labware=sample_plate,
-                              new_location=MAG_PLATE_SLOT,
-                              use_gripper=True)
+#       ============================================================================================
+#       GRIPPER MOVE PLATE FROM MAGNET PLATE TO DECK
+        if MAG == 'MAGPLATE':
+            protocol.move_labware(
+                labware=sample_plate,
+                new_location=EMPTY_SLOT,
+                use_gripper=USE_GRIPPER,
+            )
+#       ============================================================================================
 
     Liquid_trash        = reservoir['A11']
 
@@ -1368,20 +1394,18 @@ def run(protocol: protocol_api.ProtocolContext):
             else: 
                 p300.return_tip()
 
+#       ============================================================================================
+#       GRIPPER MOVE PLATE FROM DECK TO MAG PLATE
+        if MAG == 'MAGPLATE':
+            protocol.move_labware(
+                labware=sample_plate,
+                new_location=MAG_PLATE_SLOT,
+                use_gripper=USE_GRIPPER,
+            )
+#       ============================================================================================
+
         if DRYRUN == 'NO':
             protocol.delay(minutes=5)
-
-            protocol.comment('MAGNET ENGAGE')
-            mag_block.engage(height_from_base=8.5)      # TODO: remove?
-            protocol.delay(minutes=1)
-            mag_block.engage(height_from_base=7.5)      # TODO: remove?
-            protocol.delay(minutes=1)
-            mag_block.engage(height_from_base=7)        # TODO: remove?
-            protocol.delay(minutes=1)
-            mag_block.engage(height_from_base=6)        # TODO: remove?
-            protocol.delay(minutes=1)
-            mag_block.engage(height_from_base=5)        # TODO: remove?
-            protocol.delay(minutes=1)
 
         protocol.comment('--> Removing Supernatant')
         RemoveSup = 100
@@ -1677,13 +1701,19 @@ def run(protocol: protocol_api.ProtocolContext):
                 p300.move_to(bypass)
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
 
+#       ============================================================================================
+#       GRIPPER MOVE PLATE FROM MAGNET PLATE TO DECK
+        if MAG == 'MAGPLATE':
+            protocol.move_labware(
+                labware=sample_plate,
+                new_location=EMPTY_SLOT,
+                use_gripper=USE_GRIPPER,
+            )
+#       ============================================================================================
+
         if DRYRUN == 'NO':
-            mag_block.engage(height_from_base=6)        # TODO: remove?
             protocol.comment('AIR DRY')
             protocol.delay(minutes=0.5)
-
-            protocol.comment('MAGNET DISENGAGE')
-            mag_block.disengage()                       # TODO: remove?
 
         protocol.comment('--> Adding RSB')
         WASHNUM = 2
@@ -1895,13 +1925,19 @@ def run(protocol: protocol_api.ProtocolContext):
             else: 
                 p300.return_tip()
 
+
+#       ============================================================================================
+#       GRIPPER MOVE PLATE FROM DECK TO MAG PLATE
+        if MAG == 'MAGPLATE':
+            protocol.move_labware(
+                labware=sample_plate,
+                new_location=MAG_PLATE_SLOT,
+                use_gripper=USE_GRIPPER,
+            )
+#       ============================================================================================
+
         if DRYRUN == 'NO':
-            protocol.delay(minutes=2)
-
-            protocol.comment('MAGNET ENGAGE')
-            mag_block.engage(height_from_base=5)        # TODO: remove?
-
-            protocol.delay(minutes=4)
+            protocol.delay(minutes=5)
 
         if samplecolumns == 3:
             protocol.pause('RESET TIPS')
@@ -1990,9 +2026,9 @@ def run(protocol: protocol_api.ProtocolContext):
                 p300.move_to(bypass)
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
 
-        if DRYRUN == 'NO':
-            protocol.comment('MAGNET DISENGAGE')
-            mag_block.disengage()               # TODO: remove?
+        # if DRYRUN == 'NO':
+        #     protocol.comment('MAGNET DISENGAGE')
+        #     mag_block.disengage()               # TODO: remove?
 
         # positions
     ############################################################################################################################################
@@ -2115,19 +2151,19 @@ def run(protocol: protocol_api.ProtocolContext):
                 p300.return_tip()
 
         if DRYRUN == 'NO':
-            protocol.delay(minutes=5)
+            protocol.delay(seconds=5)
 
-            protocol.comment('MAGNET ENGAGE')
-            mag_block.engage(height_from_base=8.5)          # TODO: remove?
-            protocol.delay(minutes=1)
-            mag_block.engage(height_from_base=7.5)          # TODO: remove?
-            protocol.delay(minutes=1)
-            mag_block.engage(height_from_base=7)            # TODO: remove?
-            protocol.delay(minutes=1)
-            mag_block.engage(height_from_base=6)            # TODO: remove?
-            protocol.delay(minutes=1)
-            mag_block.engage(height_from_base=5)            # TODO: remove?
-            protocol.delay(minutes=1)
+            # protocol.comment('MAGNET ENGAGE')
+            # mag_block.engage(height_from_base=8.5)          # TODO: remove?
+            # protocol.delay(minutes=1)
+            # mag_block.engage(height_from_base=7.5)          # TODO: remove?
+            # protocol.delay(minutes=1)
+            # mag_block.engage(height_from_base=7)            # TODO: remove?
+            # protocol.delay(minutes=1)
+            # mag_block.engage(height_from_base=6)            # TODO: remove?
+            # protocol.delay(minutes=1)
+            # mag_block.engage(height_from_base=5)            # TODO: remove?
+            # protocol.delay(minutes=1)
 
         if samplecolumns == 2:
             protocol.pause('RESET TIPS')
@@ -2423,13 +2459,13 @@ def run(protocol: protocol_api.ProtocolContext):
                 p300.move_to(bypass)
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
 
-        if DRYRUN == 'NO':
-            mag_block.engage(height_from_base=6)        # TODO: remove?
-            protocol.comment('AIR DRY')
-            protocol.delay(minutes=0.5)
-
-            protocol.comment('MAGNET DISENGAGE')
-            mag_block.disengage()                       # TODO: remove?
+        # if DRYRUN == 'NO':
+        #     mag_block.engage(height_from_base=6)        # TODO: remove?
+        #     protocol.comment('AIR DRY')
+        #     protocol.delay(minutes=0.5)
+        #
+        #     protocol.comment('MAGNET DISENGAGE')
+        #     mag_block.disengage()                       # TODO: remove?
 
         protocol.comment('--> Adding RSB')
         WASHNUM = 3
@@ -2641,13 +2677,13 @@ def run(protocol: protocol_api.ProtocolContext):
             else: 
                 p300.return_tip()
 
-        if DRYRUN == 'NO':
-            protocol.delay(minutes=2)
-
-            protocol.comment('MAGNET ENGAGE')
-            mag_block.engage(height_from_base=5)            # TODO: remove?
-
-            protocol.delay(minutes=4)
+        # if DRYRUN == 'NO':
+        #     protocol.delay(minutes=2)
+        #
+        #     protocol.comment('MAGNET ENGAGE')
+        #     mag_block.engage(height_from_base=5)            # TODO: remove?
+        #
+        #     protocol.delay(minutes=4)
 
         if samplecolumns == 2:
             protocol.pause('RESET TIPS')
@@ -2736,7 +2772,6 @@ def run(protocol: protocol_api.ProtocolContext):
                 p300.move_to(bypass)
                 p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
 
-        if DRYRUN == 'NO':
-            protocol.comment('MAGNET DISENGAGE')
-            mag_block.disengage()       # TODO: remove?
-
+        # if DRYRUN == 'NO':
+        #     protocol.comment('MAGNET DISENGAGE')
+        #     mag_block.disengage()       # TODO: remove?
