@@ -5,8 +5,12 @@ metadata = {
     'protocolName': 'Bead Cleanup OT3 Mag Plate w Mp1000',
     'author': 'Opentrons <protocols@opentrons.com>',
     'source': 'Protocol Library',
-    'apiLevel': '2.13'
     }
+
+requirements = {
+    "robotType": "OT-3",
+    "apiLevel": "2.13",
+}
 
 # SCRIPT SETTINGS
 DRYRUN      = 'NO'          # YES or NO, DRYRUN = 'YES' will return tips, skip incubation times, shorten mix, for testing purposes
@@ -29,6 +33,7 @@ p300_tips = 0
 MAG_PLATE_SLOT = 2
 USE_GRIPPER = True
 
+
 def run(protocol: protocol_api.ProtocolContext):
     global TIPREUSE
     global DRYRUN
@@ -43,7 +48,7 @@ def run(protocol: protocol_api.ProtocolContext):
     protocol.comment('THIS IS A MODULE RUN')
     sample_plate        = protocol.load_labware('nest_96_wellplate_100ul_pcr_full_skirt','1')
     reservoir           = protocol.load_labware('nest_12_reservoir_15ml','3')
-    tiprack_200_1       = protocol.load_labware('opentrons_ot3_96_tiprack_200ul', '5')
+    tiprack_200_1       = protocol.load_labware('opentrons_ot3_96_tiprack_1000ul', '5')
     if TIPREUSE == 'YES':
         protocol.comment("THIS PROTOCOL WILL REUSE TIPS FOR WASHES")
 
@@ -84,14 +89,12 @@ def run(protocol: protocol_api.ProtocolContext):
         column_4_list.append('A12')
         barcodes.append('A9')
 
-    bypass = protocol.deck.position_for('11').move(types.Point(x=70,y=80,z=130))
-
     def p300_pick_up_tip():
         global p300_tips
-        if p300_tips >= 3*12: 
+        if p300_tips >= 3*12:
             protocol.pause('RESET p300 TIPS')
             p300.reset_tipracks()
-            p300_tips = 0 
+            p300_tips = 0
         p300.pick_up_tip()
         p300_tips += 1
 
@@ -107,7 +110,7 @@ def run(protocol: protocol_api.ProtocolContext):
     def p20_reuse_tip(loop):
         global TIPREUSE
         if TIPREUSE == 'NO':
-            if p20_tips >= 12: 
+            if p20_tips >= 12:
                 protocol.pause('RESET p20 TIPS')
                 p20.reset_tipracks()
                 p20_tips = 0
@@ -131,7 +134,7 @@ def run(protocol: protocol_api.ProtocolContext):
         global TIPREUSE
         global p300_tips
         if TIPREUSE == 'NO':
-            if p300_tips >= 12*3: 
+            if p300_tips >= 12*3:
                 protocol.pause('RESET p300 TIPS')
                 p300.reset_tipracks()
                 p300_tips = 0
@@ -229,13 +232,13 @@ def run(protocol: protocol_api.ProtocolContext):
                 p20.move_to(sample_plate[X].center().move(types.Point(x=-1.3,y=0,z=-4)))
             if pos == 'p20_loc3':
                 p20.move_to(sample_plate[X].center().move(types.Point(x=-1.3,y=0,z=-4)))
-    
+
     # commands
     if STEP_AMPURE == 1:
         protocol.comment('==============================================')
         protocol.comment('--> Cleanup 1')
         protocol.comment('==============================================')
-        
+
         protocol.comment('--> ADDING AMPure (1.8x)')
         AMPureVol = 32.5
         AMPureMixRep = 20 if DRYRUN == 'NO' else 1
@@ -311,7 +314,7 @@ def run(protocol: protocol_api.ProtocolContext):
             p300_drop_tip(loop)
 
         protocol.delay(minutes=0.5)
-        
+
         protocol.comment('--> Remove ETOH Wash #1')
         for loop, X in enumerate(column_1_list):
             p300_reuse_tip(loop)
@@ -346,7 +349,7 @@ def run(protocol: protocol_api.ProtocolContext):
             p300_drop_tip(loop)
 
         protocol.delay(minutes=0.5)
-        
+
         protocol.comment('--> Remove ETOH Wash #2')
         for loop, X in enumerate(column_1_list):
             p300_reuse_tip(loop)
@@ -409,7 +412,7 @@ def run(protocol: protocol_api.ProtocolContext):
                     p300_move_to(X,'p300_bead_top')
                     p300.dispense(RSBVol, rate=1)
                 reps = 3
-                for x in range(reps):    
+                for x in range(reps):
                     p300_move_to(X,'p300_loc2')
                     p300.mix(RSBMixRep,RSBMixVol)
                     p300_move_to(X,'p300_loc1')
