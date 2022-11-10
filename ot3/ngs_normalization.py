@@ -3,11 +3,13 @@ from dataclasses import replace
 
 from opentrons import protocol_api, types
 
+requirements = {"robotType": "OT-3", "apiLevel": "2.13"}
+
 metadata = {
     "protocolName": "NGS NORMALIZE",
     "author": "Opentrons <protocols@opentrons.com>",
     "source": "Protocol Library",
-    "apiLevel": "2.9",
+    "apiLevel": "2.13",
 }
 
 
@@ -32,19 +34,22 @@ NOMODULES = "YES"  # YES or NO, NOMODULES = 'YES' will not require modules on th
 TIPREUSE = "NO"  # YES or NO, Reusing tips on wash steps reduces tips needed, no tip refill needed, suggested only for 24x run with all steps
 OFFSET = "NO"  # YES or NO, Sets whether to use protocol specific z offsets for each tip and labware or no offsets aside from defaults
 
-def pick_up_tip(instrument: protocol_api.InstrumentContext,
-                tip: protocol_api.Well):
+def pick_up_tip(
+    protocol: protocol_api.ProtocolContext,
+    instrument: protocol_api.InstrumentContext,
+    tip: protocol_api.Well
+):
     """
     This is a special pick up tip to drop the current for partial pickups.
 
     Once that's implemented, or we switch to a single, it should be removed.
     """
-    hw = instrument._implementation._protocol_interface.get_hardware()
-    hw_instr = hw.hardware_pipettes[instrument._implementation._mount]
+    hw = protocol._hw_manager.hardware
+    hw_instr = hw.hardware_pipettes[instrument._implementation.get_mount()]
     old_pickup = hw_instr._config.pick_up_current
     try:
         hw_instr._config = replace(hw_instr._config, pick_up_current=0.125)
-        instrument.pick_up_tip(tip, presses=1, increment=0.5)
+        instrument.pick_up_tip(tip)
     finally:
         hw_instr._config = replace(hw_instr._config, pick_up_current=old_pickup)
 
@@ -494,7 +499,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 + str(MaxTubeVol)
                 + "ul"
             )
-            pick_up_tip(p300, p300TIPS[p300TIPCOUNT])
+            pick_up_tip(protocol, p300, p300TIPS[p300TIPCOUNT])
             p300.aspirate(DilutionVol, RSB.bottom())
             p300.dispense(DilutionVol, sample_plate.wells_by_name()[CurrentWell])
             HighVolMix = 10
@@ -515,7 +520,7 @@ def run(protocol: protocol_api.ProtocolContext):
             p300TIPDROP += 1
         else:
             protocol.comment("Using p300 to add " + str(round(DilutionVol, 1)))
-            pick_up_tip(p300, p300TIPS[p300TIPCOUNT])
+            pick_up_tip(protocol,p300, p300TIPS[p300TIPCOUNT])
             p300.aspirate(DilutionVol, RSB.bottom())
             if DilutionVol + InitialVol >= 120:
                 HighVolMix = 10
