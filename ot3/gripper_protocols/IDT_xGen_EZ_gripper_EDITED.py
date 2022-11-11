@@ -1,8 +1,21 @@
 from opentrons import protocol_api
-
 from opentrons import types
 
 import inspect
+
+#####################################
+# ____ Initial Deck setup _____
+# Slot 1: Mag Plate
+# Slot 2: nest_12_reservoir_15ml (if not reusing tips)
+#         OR nest_96_wellplate_2ml_deep (if reusing tips)
+# Slot 3: opentrons_96_aluminumblock_biorad_wellplate_200ul
+# Slot 4: opentrons_96_filtertiprack_20ul
+# Slot 5: opentrons_96_filtertiprack_200ul
+# Slot 6: opentrons_96_filtertiprack_200ul
+# Slot 7: Thermocycler w/ nest_96_wellplate_100ul_pcr_full_skirt
+# Slot 8: Empty slot for moving labware later
+# Slot 9: opentrons_96_filtertiprack_200ul
+
 
 metadata = {
     'protocolName': 'IDT xGEN EZ with Gripper',
@@ -32,7 +45,7 @@ def right(s, amount):
 # SCRIPT SETTINGS
 DRYRUN      = 'NO'          # YES or NO, DRYRUN = 'YES' will return tips, skip incubation times, shorten mix, for testing purposes
 
-# Changing to NOMODULES = Yes breaks this protocol so only run it with a `NO`
+# !! DO NOT change this!! Changing to NOMODULES = Yes breaks this protocol.
 NOMODULES   = 'NO'          # YES or NO, NOMODULES = 'YES' will not require modules on the deck and will skip module steps, for testing purposes, if DRYRUN = 'YES', then NOMODULES will automatically set itself to 'NO'
 
 TIPREUSE    = 'YES'          # NO, NYI format for reusing tips
@@ -146,8 +159,8 @@ def run(protocol: protocol_api.ProtocolContext):
         Liquid_trash        = reservoir['A12']
 
     # pipette
-    p300    = protocol.load_instrument('p1000_single_gen3', 'left', tip_racks=[tiprack_200_1,tiprack_200_2,tiprack_200_3])
-    p20     = protocol.load_instrument('p50_single_gen3', 'right', tip_racks=[tiprack_20])
+    p1000    = protocol.load_instrument('p1000_single_gen3', 'left', tip_racks=[tiprack_200_1, tiprack_200_2, tiprack_200_3])
+    p50     = protocol.load_instrument('p50_single_gen3', 'right', tip_racks=[tiprack_20])
 
     #samples
 
@@ -237,8 +250,10 @@ def run(protocol: protocol_api.ProtocolContext):
     A5_p300_loc3      = sample_plate['A5'].center().move(types.Point(x=1.3 * 0.8, y=-1.3 * 0.8, z=p300_offset_Thermo - 4))               #Beads to the Right
     ############################################################################################################################################
 
-    slot_11_position = Location(point=types.Point(x=164.0, y=321.0, z=0.0),
-                                labware=None)
+    slot_11_position = types.Location(
+        point=types.Point(x=164.0, y=321.0, z=0.0),
+        labware=None
+    )
     bypass = slot_11_position.move(types.Point(x=70, y=80, z=130))
     
     # commands
@@ -266,28 +281,28 @@ def run(protocol: protocol_api.ProtocolContext):
             FRERATMixVol = 10
         if samplecolumns >= 1:#-----------------------------------------------------------------------------------------
             X = 'A1'
-            p20.pick_up_tip()
-            p20.aspirate(FRERATVol, FRERAT.bottom(z=p20_offset_Temp))
-            p20.dispense(FRERATVol, sample_plate.wells_by_name()[X].bottom(z=p20_offset_Thermo))
-            p20.move_to(sample_plate[X].bottom(z=p300_offset_Thermo))
-            p20.mix(FRERATMixRep,FRERATMixVol)
-            p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
+            p50.pick_up_tip()
+            p50.aspirate(FRERATVol, FRERAT.bottom(z=p20_offset_Temp))
+            p50.dispense(FRERATVol, sample_plate.wells_by_name()[X].bottom(z=p20_offset_Thermo))
+            p50.move_to(sample_plate[X].bottom(z=p300_offset_Thermo))
+            p50.mix(FRERATMixRep, FRERATMixVol)
+            p50.drop_tip() if DRYRUN == 'NO' else p50.return_tip()
         if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
             X = 'A3'
-            p20.pick_up_tip()
-            p20.aspirate(FRERATVol, FRERAT.bottom(z=p20_offset_Temp))
-            p20.dispense(FRERATVol, sample_plate.wells_by_name()[X].bottom(z=p20_offset_Thermo))
-            p20.move_to(sample_plate[X].bottom(z=p300_offset_Thermo))
-            p20.mix(FRERATMixRep,FRERATMixVol)
-            p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
+            p50.pick_up_tip()
+            p50.aspirate(FRERATVol, FRERAT.bottom(z=p20_offset_Temp))
+            p50.dispense(FRERATVol, sample_plate.wells_by_name()[X].bottom(z=p20_offset_Thermo))
+            p50.move_to(sample_plate[X].bottom(z=p300_offset_Thermo))
+            p50.mix(FRERATMixRep, FRERATMixVol)
+            p50.drop_tip() if DRYRUN == 'NO' else p50.return_tip()
         if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
             X = 'A5'
-            p20.pick_up_tip()
-            p20.aspirate(FRERATVol, FRERAT.bottom(z=p20_offset_Temp))
-            p20.dispense(FRERATVol, sample_plate.wells_by_name()[X].bottom(z=p20_offset_Thermo))
-            p20.move_to(sample_plate[X].bottom(z=p300_offset_Thermo))
-            p20.mix(FRERATMixRep,FRERATMixVol)
-            p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
+            p50.pick_up_tip()
+            p50.aspirate(FRERATVol, FRERAT.bottom(z=p20_offset_Temp))
+            p50.dispense(FRERATVol, sample_plate.wells_by_name()[X].bottom(z=p20_offset_Thermo))
+            p50.move_to(sample_plate[X].bottom(z=p300_offset_Thermo))
+            p50.mix(FRERATMixRep, FRERATMixVol)
+            p50.drop_tip() if DRYRUN == 'NO' else p50.return_tip()
 
     if STEP_FRERATDECK == 1:
         if DRYRUN == 'NO':
@@ -323,49 +338,49 @@ def run(protocol: protocol_api.ProtocolContext):
             LIGMixVol = 55
         if samplecolumns >= 1:#-----------------------------------------------------------------------------------------
             X = 'A1'
-            p300.pick_up_tip()
-            p300.mix(3,LIGVol, LIG.bottom(z=p300_offset_Temp+1), rate=0.5)
-            p300.aspirate(LIGVol, LIG.bottom(z=p300_offset_Temp+1), rate=0.2)
-            p300.default_speed = 5
-            p300.move_to(LIG.top(z=p300_offset_Temp+5))
+            p1000.pick_up_tip()
+            p1000.mix(3, LIGVol, LIG.bottom(z=p300_offset_Temp + 1), rate=0.5)
+            p1000.aspirate(LIGVol, LIG.bottom(z=p300_offset_Temp + 1), rate=0.2)
+            p1000.default_speed = 5
+            p1000.move_to(LIG.top(z=p300_offset_Temp + 5))
             protocol.delay(seconds=0.2)
-            p300.default_speed = 400
-            p300.dispense(LIGVol, sample_plate[X].bottom(z=p300_offset_Thermo), rate=0.25)
-            p300.move_to(sample_plate[X].bottom(z=p300_offset_Thermo))
-            p300.mix(LIGMixRep,LIGMixVol, rate=0.5)
-            p300.blow_out(sample_plate[X].top(z=-5))
-            p300.move_to(bypass) 
-            p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+            p1000.default_speed = 400
+            p1000.dispense(LIGVol, sample_plate[X].bottom(z=p300_offset_Thermo), rate=0.25)
+            p1000.move_to(sample_plate[X].bottom(z=p300_offset_Thermo))
+            p1000.mix(LIGMixRep, LIGMixVol, rate=0.5)
+            p1000.blow_out(sample_plate[X].top(z=-5))
+            p1000.move_to(bypass)
+            p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
         if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
             X = 'A3'
-            p300.pick_up_tip()
-            p300.mix(3,LIGVol, LIG.bottom(z=p300_offset_Temp+1), rate=0.5)
-            p300.aspirate(LIGVol, LIG.bottom(z=p300_offset_Temp+1), rate=0.2)
-            p300.default_speed = 5
-            p300.move_to(LIG.top(z=p300_offset_Temp+5))
+            p1000.pick_up_tip()
+            p1000.mix(3, LIGVol, LIG.bottom(z=p300_offset_Temp + 1), rate=0.5)
+            p1000.aspirate(LIGVol, LIG.bottom(z=p300_offset_Temp + 1), rate=0.2)
+            p1000.default_speed = 5
+            p1000.move_to(LIG.top(z=p300_offset_Temp + 5))
             protocol.delay(seconds=0.2)
-            p300.default_speed = 400
-            p300.dispense(LIGVol, sample_plate[X].bottom(z=p300_offset_Thermo), rate=0.25)
-            p300.move_to(sample_plate[X].bottom(z=p300_offset_Thermo))
-            p300.mix(LIGMixRep,LIGMixVol, rate=0.5)
-            p300.blow_out(sample_plate[X].top(z=-5))
-            p300.move_to(bypass) 
-            p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+            p1000.default_speed = 400
+            p1000.dispense(LIGVol, sample_plate[X].bottom(z=p300_offset_Thermo), rate=0.25)
+            p1000.move_to(sample_plate[X].bottom(z=p300_offset_Thermo))
+            p1000.mix(LIGMixRep, LIGMixVol, rate=0.5)
+            p1000.blow_out(sample_plate[X].top(z=-5))
+            p1000.move_to(bypass)
+            p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
         if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
             X = 'A5'
-            p300.pick_up_tip()
-            p300.mix(3,LIGVol, LIG.bottom(z=p300_offset_Temp+1), rate=0.5)
-            p300.aspirate(LIGVol, LIG.bottom(z=p300_offset_Temp+1), rate=0.2)
-            p300.default_speed = 5
-            p300.move_to(LIG.top(z=p300_offset_Temp+5))
+            p1000.pick_up_tip()
+            p1000.mix(3, LIGVol, LIG.bottom(z=p300_offset_Temp + 1), rate=0.5)
+            p1000.aspirate(LIGVol, LIG.bottom(z=p300_offset_Temp + 1), rate=0.2)
+            p1000.default_speed = 5
+            p1000.move_to(LIG.top(z=p300_offset_Temp + 5))
             protocol.delay(seconds=0.2)
-            p300.default_speed = 400
-            p300.dispense(LIGVol, sample_plate[X].bottom(z=p300_offset_Thermo), rate=0.25)
-            p300.move_to(sample_plate[X].bottom(z=p300_offset_Thermo))
-            p300.mix(LIGMixRep,LIGMixVol, rate=0.5)
-            p300.blow_out(sample_plate[X].top(z=-5))
-            p300.move_to(bypass) 
-            p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+            p1000.default_speed = 400
+            p1000.dispense(LIGVol, sample_plate[X].bottom(z=p300_offset_Thermo), rate=0.25)
+            p1000.move_to(sample_plate[X].bottom(z=p300_offset_Thermo))
+            p1000.mix(LIGMixRep, LIGMixVol, rate=0.5)
+            p1000.blow_out(sample_plate[X].top(z=-5))
+            p1000.move_to(bypass)
+            p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
 
     if STEP_LIGDECK == 1:
         if DRYRUN == 'NO':
@@ -384,7 +399,8 @@ def run(protocol: protocol_api.ProtocolContext):
         protocol.pause('Seal, Run LIG (20min)')
 
 #       ============================================================================================
-#       GRIPPER MOVE PLATE FROM MAGNET PLATE TO DECK
+        # TODO: Is this supposed to be move from thermocycler to slot?
+        # GRIPPER MOVE PLATE FROM MAGNET PLATE TO DECK
         if MAG == 'MAGPLATE':
             protocol.move_labware(
                 labware=sample_plate,
@@ -479,104 +495,103 @@ def run(protocol: protocol_api.ProtocolContext):
         if samplecolumns >= 1:#-----------------------------------------------------------------------------------------
             X = 'A1'
             if TIPREUSE == 'NO': 
-                p300.pick_up_tip()
+                p1000.pick_up_tip()
             elif WASHNUM == 1:
-                p300.pick_up_tip(W1_AMPure_Bind_1)
+                p1000.pick_up_tip(W1_AMPure_Bind_1)
             elif WASHNUM == 2:
-                p300.pick_up_tip(W2_AMPure_Bind_1)
+                p1000.pick_up_tip(W2_AMPure_Bind_1)
             elif WASHNUM == 3:
-                p300.pick_up_tip(W3_AMPure_Bind_1)
-            p300.mix(10,AMPureVol+10, AMPure.bottom(z=p300_offset_Res))
-            p300.aspirate(AMPureVol, AMPure.bottom(z=p300_offset_Res), rate=0.25)
-            p300.dispense(AMPureVol/2, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
-            p300.default_speed = 5
-            p300.dispense(AMPureVol/2, sample_plate[X].center(), rate=0.25)
-            p300.move_to(sample_plate[X].center())
+                p1000.pick_up_tip(W3_AMPure_Bind_1)
+            p1000.mix(10, AMPureVol + 10, AMPure.bottom(z=p300_offset_Res))
+            p1000.aspirate(AMPureVol, AMPure.bottom(z=p300_offset_Res), rate=0.25)
+            p1000.dispense(AMPureVol / 2, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
+            p1000.default_speed = 5
+            p1000.dispense(AMPureVol / 2, sample_plate[X].center(), rate=0.25)
+            p1000.move_to(sample_plate[X].center())
             for Mix in range(AMPureMixRep):
-                p300.aspirate(AMPureMixVol/2, rate=0.5)
-                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
-                p300.aspirate(AMPureMixVol/2, rate=0.5)
-                p300.dispense(AMPureMixVol/2, rate=0.5)
-                p300.move_to(sample_plate[X].center())
-                p300.dispense(AMPureMixVol/2, rate=0.5)
+                p1000.aspirate(AMPureMixVol / 2, rate=0.5)
+                p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
+                p1000.aspirate(AMPureMixVol / 2, rate=0.5)
+                p1000.dispense(AMPureMixVol / 2, rate=0.5)
+                p1000.move_to(sample_plate[X].center())
+                p1000.dispense(AMPureMixVol / 2, rate=0.5)
                 Mix += 1
-            p300.blow_out(sample_plate[X].top(z=1))
-            p300.default_speed = 400
-            p300.move_to(bypass)              
+            p1000.blow_out(sample_plate[X].top(z=1))
+            p1000.default_speed = 400
+            p1000.move_to(bypass)
             if TIPREUSE == 'NO':
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             else: 
-                p300.return_tip()
+                p1000.return_tip()
         if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
             X = 'A3'
             if TIPREUSE == 'NO': 
-                p300.pick_up_tip()
+                p1000.pick_up_tip()
             elif WASHNUM == 1:
-                p300.pick_up_tip(W1_AMPure_Bind_2)
+                p1000.pick_up_tip(W1_AMPure_Bind_2)
             elif WASHNUM == 2:
-                p300.pick_up_tip(W2_AMPure_Bind_2)
+                p1000.pick_up_tip(W2_AMPure_Bind_2)
             elif WASHNUM == 3:
-                p300.pick_up_tip(W3_AMPure_Bind_2)
-            p300.mix(3,AMPureVol+10, AMPure.bottom(z=p300_offset_Res))
-            p300.aspirate(AMPureVol, AMPure.bottom(z=p300_offset_Res), rate=0.25)
-            p300.dispense(AMPureVol/2, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
-            p300.default_speed = 5
-            p300.dispense(AMPureVol/2, sample_plate[X].center(), rate=0.25)
-            p300.move_to(sample_plate[X].center())
+                p1000.pick_up_tip(W3_AMPure_Bind_2)
+            p1000.mix(3, AMPureVol + 10, AMPure.bottom(z=p300_offset_Res))
+            p1000.aspirate(AMPureVol, AMPure.bottom(z=p300_offset_Res), rate=0.25)
+            p1000.dispense(AMPureVol / 2, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
+            p1000.default_speed = 5
+            p1000.dispense(AMPureVol / 2, sample_plate[X].center(), rate=0.25)
+            p1000.move_to(sample_plate[X].center())
             for Mix in range(AMPureMixRep):
-                p300.aspirate(AMPureMixVol/2, rate=0.5)
-                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
-                p300.aspirate(AMPureMixVol/2, rate=0.5)
-                p300.dispense(AMPureMixVol/2, rate=0.5)
-                p300.move_to(sample_plate[X].center())
-                p300.dispense(AMPureMixVol/2, rate=0.5)
+                p1000.aspirate(AMPureMixVol / 2, rate=0.5)
+                p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
+                p1000.aspirate(AMPureMixVol / 2, rate=0.5)
+                p1000.dispense(AMPureMixVol / 2, rate=0.5)
+                p1000.move_to(sample_plate[X].center())
+                p1000.dispense(AMPureMixVol / 2, rate=0.5)
                 Mix += 1
-            p300.blow_out(sample_plate[X].top(z=1))
-            p300.default_speed = 400
-            p300.move_to(bypass)              
+            p1000.blow_out(sample_plate[X].top(z=1))
+            p1000.default_speed = 400
+            p1000.move_to(bypass)
             if TIPREUSE == 'NO':
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             else: 
-                p300.return_tip()
+                p1000.return_tip()
         if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
             X = 'A5'
             if TIPREUSE == 'NO': 
-                p300.pick_up_tip()
+                p1000.pick_up_tip()
             elif WASHNUM == 1:
-                p300.pick_up_tip(W1_AMPure_Bind_3)
+                p1000.pick_up_tip(W1_AMPure_Bind_3)
             elif WASHNUM == 2:
-                p300.pick_up_tip(W2_AMPure_Bind_3)
+                p1000.pick_up_tip(W2_AMPure_Bind_3)
             elif WASHNUM == 3:
-                p300.pick_up_tip(W3_AMPure_Bind_3)
-            p300.mix(3,AMPureVol+10, AMPure.bottom(z=p300_offset_Res))
-            p300.aspirate(AMPureVol, AMPure.bottom(z=p300_offset_Res), rate=0.25)
-            p300.dispense(AMPureVol/2, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
-            p300.default_speed = 5
-            p300.dispense(AMPureVol/2, sample_plate[X].center(), rate=0.25)
-            p300.move_to(sample_plate[X].center())
+                p1000.pick_up_tip(W3_AMPure_Bind_3)
+            p1000.mix(3, AMPureVol + 10, AMPure.bottom(z=p300_offset_Res))
+            p1000.aspirate(AMPureVol, AMPure.bottom(z=p300_offset_Res), rate=0.25)
+            p1000.dispense(AMPureVol / 2, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
+            p1000.default_speed = 5
+            p1000.dispense(AMPureVol / 2, sample_plate[X].center(), rate=0.25)
+            p1000.move_to(sample_plate[X].center())
             for Mix in range(AMPureMixRep):
-                p300.aspirate(AMPureMixVol/2, rate=0.5)
-                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
-                p300.aspirate(AMPureMixVol/2, rate=0.5)
-                p300.dispense(AMPureMixVol/2, rate=0.5)
-                p300.move_to(sample_plate[X].center())
-                p300.dispense(AMPureMixVol/2, rate=0.5)
+                p1000.aspirate(AMPureMixVol / 2, rate=0.5)
+                p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
+                p1000.aspirate(AMPureMixVol / 2, rate=0.5)
+                p1000.dispense(AMPureMixVol / 2, rate=0.5)
+                p1000.move_to(sample_plate[X].center())
+                p1000.dispense(AMPureMixVol / 2, rate=0.5)
                 Mix += 1
-            p300.blow_out(sample_plate[X].top(z=1))
-            p300.default_speed = 400
-            p300.move_to(bypass)              
+            p1000.blow_out(sample_plate[X].top(z=1))
+            p1000.default_speed = 400
+            p1000.move_to(bypass)
             if TIPREUSE == 'NO':
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             else: 
-                p300.return_tip()
+                p1000.return_tip()
 
         '''
         GRIPPER
-        Move plate from Thermocycler to Magnet block
+        Move plate from Deck slot to Magnet block
         Plate = eppendorf skirted 96 well plate (containing 90ul of liquid)
-        From Thermocycler (Pos 7) to Magnetic Block (Pos 1)
+        From slot (Pos 8) to Magnetic Block (Pos 1)
         '''
-
 #       ============================================================================================
 #       GRIPPER MOVE PLATE FROM DECK TO MAG PLATE
         if MAG == 'MAGPLATE':
@@ -595,81 +610,81 @@ def run(protocol: protocol_api.ProtocolContext):
         if samplecolumns >= 1:#-----------------------------------------------------------------------------------------
             X = 'A1'
             if TIPREUSE == 'NO': 
-                p300.pick_up_tip()
+                p1000.pick_up_tip()
             elif WASHNUM == 1:
-                p300.pick_up_tip(W1_AMPure_Bind_1)
+                p1000.pick_up_tip(W1_AMPure_Bind_1)
             elif WASHNUM == 2:
-                p300.pick_up_tip(W2_AMPure_Bind_1)
+                p1000.pick_up_tip(W2_AMPure_Bind_1)
             elif WASHNUM == 3:
-                p300.pick_up_tip(W3_AMPure_Bind_1)
-            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
-            p300.aspirate(RemoveSup-20, rate=0.25)
-            p300.default_speed = 5
-            if X == 'A1': p300.move_to(A1_p300_bead_side)
-            if X == 'A3': p300.move_to(A3_p300_bead_side)
-            if X == 'A5': p300.move_to(A5_p300_bead_side)
+                p1000.pick_up_tip(W3_AMPure_Bind_1)
+            p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag + 4))
+            p1000.aspirate(RemoveSup - 20, rate=0.25)
+            p1000.default_speed = 5
+            if X == 'A1': p1000.move_to(A1_p300_bead_side)
+            if X == 'A3': p1000.move_to(A3_p300_bead_side)
+            if X == 'A5': p1000.move_to(A5_p300_bead_side)
             protocol.delay(minutes=0.1)
-            p300.aspirate(20, rate=0.2)
-            p300.move_to(sample_plate[X].top(z=2))
-            p300.default_speed = 400
-            p300.dispense(200, Liquid_trash)
-            p300.move_to(bypass)
+            p1000.aspirate(20, rate=0.2)
+            p1000.move_to(sample_plate[X].top(z=2))
+            p1000.default_speed = 400
+            p1000.dispense(200, Liquid_trash)
+            p1000.move_to(bypass)
             if TIPREUSE == 'NO':
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             else: 
-                p300.return_tip()
+                p1000.return_tip()
         if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
             X = 'A3'
             if TIPREUSE == 'NO': 
-                p300.pick_up_tip()
+                p1000.pick_up_tip()
             elif WASHNUM == 1:
-                p300.pick_up_tip(W1_AMPure_Bind_2)
+                p1000.pick_up_tip(W1_AMPure_Bind_2)
             elif WASHNUM == 2:
-                p300.pick_up_tip(W2_AMPure_Bind_2)
+                p1000.pick_up_tip(W2_AMPure_Bind_2)
             elif WASHNUM == 3:
-                p300.pick_up_tip(W3_AMPure_Bind_2)
-            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
-            p300.aspirate(RemoveSup-20, rate=0.25)
-            p300.default_speed = 5
-            if X == 'A1': p300.move_to(A1_p300_bead_side)
-            if X == 'A3': p300.move_to(A3_p300_bead_side)
-            if X == 'A5': p300.move_to(A5_p300_bead_side)
+                p1000.pick_up_tip(W3_AMPure_Bind_2)
+            p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag + 4))
+            p1000.aspirate(RemoveSup - 20, rate=0.25)
+            p1000.default_speed = 5
+            if X == 'A1': p1000.move_to(A1_p300_bead_side)
+            if X == 'A3': p1000.move_to(A3_p300_bead_side)
+            if X == 'A5': p1000.move_to(A5_p300_bead_side)
             protocol.delay(minutes=0.1)
-            p300.aspirate(20, rate=0.2)
-            p300.move_to(sample_plate[X].top(z=2))
-            p300.default_speed = 400
-            p300.dispense(200, Liquid_trash)
-            p300.move_to(bypass)
+            p1000.aspirate(20, rate=0.2)
+            p1000.move_to(sample_plate[X].top(z=2))
+            p1000.default_speed = 400
+            p1000.dispense(200, Liquid_trash)
+            p1000.move_to(bypass)
             if TIPREUSE == 'NO':
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             else: 
-                p300.return_tip()
+                p1000.return_tip()
         if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
             X = 'A5'
             if TIPREUSE == 'NO': 
-                p300.pick_up_tip()
+                p1000.pick_up_tip()
             elif WASHNUM == 1:
-                p300.pick_up_tip(W1_AMPure_Bind_3)
+                p1000.pick_up_tip(W1_AMPure_Bind_3)
             elif WASHNUM == 2:
-                p300.pick_up_tip(W2_AMPure_Bind_3)
+                p1000.pick_up_tip(W2_AMPure_Bind_3)
             elif WASHNUM == 3:
-                p300.pick_up_tip(W3_AMPure_Bind_3)
-            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
-            p300.aspirate(RemoveSup-20, rate=0.25)
-            p300.default_speed = 5
-            if X == 'A1': p300.move_to(A1_p300_bead_side)
-            if X == 'A3': p300.move_to(A3_p300_bead_side)
-            if X == 'A5': p300.move_to(A5_p300_bead_side)
+                p1000.pick_up_tip(W3_AMPure_Bind_3)
+            p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag + 4))
+            p1000.aspirate(RemoveSup - 20, rate=0.25)
+            p1000.default_speed = 5
+            if X == 'A1': p1000.move_to(A1_p300_bead_side)
+            if X == 'A3': p1000.move_to(A3_p300_bead_side)
+            if X == 'A5': p1000.move_to(A5_p300_bead_side)
             protocol.delay(minutes=0.1)
-            p300.aspirate(20, rate=0.2)
-            p300.move_to(sample_plate[X].top(z=2))
-            p300.default_speed = 400
-            p300.dispense(200, Liquid_trash)
-            p300.move_to(bypass)
+            p1000.aspirate(20, rate=0.2)
+            p1000.move_to(sample_plate[X].top(z=2))
+            p1000.default_speed = 400
+            p1000.dispense(200, Liquid_trash)
+            p1000.move_to(bypass)
             if TIPREUSE == 'NO':
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             else: 
-                p300.return_tip()
+                p1000.return_tip()
 
         protocol.comment('--> Repeating 2 washes')
         washreps = 2
@@ -680,69 +695,69 @@ def run(protocol: protocol_api.ProtocolContext):
             if samplecolumns >= 1:#-----------------------------------------------------------------------------------------
                 X = 'A1'
                 if TIPREUSE == 'NO': 
-                    p300.pick_up_tip()
+                    p1000.pick_up_tip()
                 elif WASHNUM == 1:
-                    p300.pick_up_tip(W1_ETOH_washtip_1)
+                    p1000.pick_up_tip(W1_ETOH_washtip_1)
                 elif WASHNUM == 2:
-                    p300.pick_up_tip(W2_ETOH_washtip_1)
-                p300.aspirate(ETOHMaxVol, EtOH_1.bottom(z=p300_offset_Res))
-                if X == 'A1': p300.move_to(A1_p300_bead_side)
-                if X == 'A3': p300.move_to(A3_p300_bead_side)
-                if X == 'A5': p300.move_to(A5_p300_bead_side)
-                p300.dispense(ETOHMaxVol-50, rate=0.5)
-                p300.move_to(sample_plate[X].center())
-                p300.dispense(50, rate=0.5)
-                p300.move_to(sample_plate[X].top(z=2))
-                p300.default_speed = 5
-                p300.move_to(sample_plate[X].top(z=-2))
+                    p1000.pick_up_tip(W2_ETOH_washtip_1)
+                p1000.aspirate(ETOHMaxVol, EtOH_1.bottom(z=p300_offset_Res))
+                if X == 'A1': p1000.move_to(A1_p300_bead_side)
+                if X == 'A3': p1000.move_to(A3_p300_bead_side)
+                if X == 'A5': p1000.move_to(A5_p300_bead_side)
+                p1000.dispense(ETOHMaxVol - 50, rate=0.5)
+                p1000.move_to(sample_plate[X].center())
+                p1000.dispense(50, rate=0.5)
+                p1000.move_to(sample_plate[X].top(z=2))
+                p1000.default_speed = 5
+                p1000.move_to(sample_plate[X].top(z=-2))
                 protocol.delay(minutes=0.1)
-                p300.blow_out()
-                p300.default_speed = 400
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.blow_out()
+                p1000.default_speed = 400
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
                 X = 'A3'
                 if TIPREUSE == 'NO': 
-                    p300.pick_up_tip()
+                    p1000.pick_up_tip()
                 elif WASHNUM == 1:
-                    p300.pick_up_tip(W1_ETOH_washtip_2)
+                    p1000.pick_up_tip(W1_ETOH_washtip_2)
                 elif WASHNUM == 2:
-                    p300.pick_up_tip(W2_ETOH_washtip_2)
-                p300.aspirate(ETOHMaxVol, EtOH_2.bottom(z=p300_offset_Res))
-                if X == 'A1': p300.move_to(A1_p300_bead_side)
-                if X == 'A3': p300.move_to(A3_p300_bead_side)
-                if X == 'A5': p300.move_to(A5_p300_bead_side)
-                p300.dispense(ETOHMaxVol-50, rate=0.5)
-                p300.move_to(sample_plate[X].center())
-                p300.dispense(50, rate=0.5)
-                p300.move_to(sample_plate[X].top(z=2))
-                p300.default_speed = 5
-                p300.move_to(sample_plate[X].top(z=-2))
+                    p1000.pick_up_tip(W2_ETOH_washtip_2)
+                p1000.aspirate(ETOHMaxVol, EtOH_2.bottom(z=p300_offset_Res))
+                if X == 'A1': p1000.move_to(A1_p300_bead_side)
+                if X == 'A3': p1000.move_to(A3_p300_bead_side)
+                if X == 'A5': p1000.move_to(A5_p300_bead_side)
+                p1000.dispense(ETOHMaxVol - 50, rate=0.5)
+                p1000.move_to(sample_plate[X].center())
+                p1000.dispense(50, rate=0.5)
+                p1000.move_to(sample_plate[X].top(z=2))
+                p1000.default_speed = 5
+                p1000.move_to(sample_plate[X].top(z=-2))
                 protocol.delay(minutes=0.1)
-                p300.blow_out()
-                p300.default_speed = 400
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.blow_out()
+                p1000.default_speed = 400
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
                 X = 'A5'
                 if TIPREUSE == 'NO': 
-                    p300.pick_up_tip()
+                    p1000.pick_up_tip()
                 elif WASHNUM == 1:
-                    p300.pick_up_tip(W1_ETOH_washtip_3)
+                    p1000.pick_up_tip(W1_ETOH_washtip_3)
                 elif WASHNUM == 2:
-                    p300.pick_up_tip(W2_ETOH_washtip_3)
-                p300.aspirate(ETOHMaxVol, EtOH_3.bottom(z=p300_offset_Res))
-                if X == 'A1': p300.move_to(A1_p300_bead_side)
-                if X == 'A3': p300.move_to(A3_p300_bead_side)
-                if X == 'A5': p300.move_to(A5_p300_bead_side)
-                p300.dispense(ETOHMaxVol-50, rate=0.5)
-                p300.move_to(sample_plate[X].center())
-                p300.dispense(50, rate=0.5)
-                p300.move_to(sample_plate[X].top(z=2))
-                p300.default_speed = 5
-                p300.move_to(sample_plate[X].top(z=-2))
+                    p1000.pick_up_tip(W2_ETOH_washtip_3)
+                p1000.aspirate(ETOHMaxVol, EtOH_3.bottom(z=p300_offset_Res))
+                if X == 'A1': p1000.move_to(A1_p300_bead_side)
+                if X == 'A3': p1000.move_to(A3_p300_bead_side)
+                if X == 'A5': p1000.move_to(A5_p300_bead_side)
+                p1000.dispense(ETOHMaxVol - 50, rate=0.5)
+                p1000.move_to(sample_plate[X].center())
+                p1000.dispense(50, rate=0.5)
+                p1000.move_to(sample_plate[X].top(z=2))
+                p1000.default_speed = 5
+                p1000.move_to(sample_plate[X].top(z=-2))
                 protocol.delay(minutes=0.1)
-                p300.blow_out()
-                p300.default_speed = 400
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.blow_out()
+                p1000.default_speed = 400
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
 
             protocol.delay(minutes=0.5)
             
@@ -750,69 +765,69 @@ def run(protocol: protocol_api.ProtocolContext):
             if samplecolumns >= 1:#-----------------------------------------------------------------------------------------
                 X = 'A1'
                 if TIPREUSE == 'NO': 
-                    p300.pick_up_tip()
+                    p1000.pick_up_tip()
                 elif WASHNUM == 1:
-                    p300.pick_up_tip(W1_ETOH_removetip_1)
+                    p1000.pick_up_tip(W1_ETOH_removetip_1)
                 elif WASHNUM == 2:
-                    p300.pick_up_tip(W2_ETOH_removetip_1)
-                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
-                p300.aspirate(ETOHMaxVol, rate=0.25)
-                p300.default_speed = 5
-                if X == 'A1': p300.move_to(A1_p300_bead_side)
-                if X == 'A3': p300.move_to(A3_p300_bead_side)
-                if X == 'A5': p300.move_to(A5_p300_bead_side)
+                    p1000.pick_up_tip(W2_ETOH_removetip_1)
+                p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag + 4))
+                p1000.aspirate(ETOHMaxVol, rate=0.25)
+                p1000.default_speed = 5
+                if X == 'A1': p1000.move_to(A1_p300_bead_side)
+                if X == 'A3': p1000.move_to(A3_p300_bead_side)
+                if X == 'A5': p1000.move_to(A5_p300_bead_side)
                 protocol.delay(minutes=0.1)
-                p300.aspirate(200-ETOHMaxVol, rate=0.25)
-                p300.default_speed = 400
-                p300.dispense(200, Liquid_trash)
-                p300.move_to(Liquid_trash.top(z=5))
+                p1000.aspirate(200 - ETOHMaxVol, rate=0.25)
+                p1000.default_speed = 400
+                p1000.dispense(200, Liquid_trash)
+                p1000.move_to(Liquid_trash.top(z=5))
                 protocol.delay(minutes=0.1)
-                p300.blow_out()
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.blow_out()
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
                 X = 'A3'
                 if TIPREUSE == 'NO': 
-                    p300.pick_up_tip()
+                    p1000.pick_up_tip()
                 elif WASHNUM == 1:
-                    p300.pick_up_tip(W1_ETOH_removetip_2)
+                    p1000.pick_up_tip(W1_ETOH_removetip_2)
                 elif WASHNUM == 2:
-                    p300.pick_up_tip(W2_ETOH_removetip_2)
-                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
-                p300.aspirate(ETOHMaxVol, rate=0.25)
-                p300.default_speed = 5
-                if X == 'A1': p300.move_to(A1_p300_bead_side)
-                if X == 'A3': p300.move_to(A3_p300_bead_side)
-                if X == 'A5': p300.move_to(A5_p300_bead_side)
+                    p1000.pick_up_tip(W2_ETOH_removetip_2)
+                p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag + 4))
+                p1000.aspirate(ETOHMaxVol, rate=0.25)
+                p1000.default_speed = 5
+                if X == 'A1': p1000.move_to(A1_p300_bead_side)
+                if X == 'A3': p1000.move_to(A3_p300_bead_side)
+                if X == 'A5': p1000.move_to(A5_p300_bead_side)
                 protocol.delay(minutes=0.1)
-                p300.aspirate(200-ETOHMaxVol, rate=0.25)
-                p300.default_speed = 400
-                p300.dispense(200, Liquid_trash)
-                p300.move_to(Liquid_trash.top(z=5))
+                p1000.aspirate(200 - ETOHMaxVol, rate=0.25)
+                p1000.default_speed = 400
+                p1000.dispense(200, Liquid_trash)
+                p1000.move_to(Liquid_trash.top(z=5))
                 protocol.delay(minutes=0.1)
-                p300.blow_out()
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.blow_out()
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
                 X = 'A5'
                 if TIPREUSE == 'NO': 
-                    p300.pick_up_tip()
+                    p1000.pick_up_tip()
                 elif WASHNUM == 1:
-                    p300.pick_up_tip(W1_ETOH_removetip_3)
+                    p1000.pick_up_tip(W1_ETOH_removetip_3)
                 elif WASHNUM == 2:
-                    p300.pick_up_tip(W2_ETOH_removetip_3)
-                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
-                p300.aspirate(ETOHMaxVol, rate=0.25)
-                p300.default_speed = 5
-                if X == 'A1': p300.move_to(A1_p300_bead_side)
-                if X == 'A3': p300.move_to(A3_p300_bead_side)
-                if X == 'A5': p300.move_to(A5_p300_bead_side)
+                    p1000.pick_up_tip(W2_ETOH_removetip_3)
+                p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag + 4))
+                p1000.aspirate(ETOHMaxVol, rate=0.25)
+                p1000.default_speed = 5
+                if X == 'A1': p1000.move_to(A1_p300_bead_side)
+                if X == 'A3': p1000.move_to(A3_p300_bead_side)
+                if X == 'A5': p1000.move_to(A5_p300_bead_side)
                 protocol.delay(minutes=0.1)
-                p300.aspirate(200-ETOHMaxVol, rate=0.25)
-                p300.default_speed = 400
-                p300.dispense(200, Liquid_trash)
-                p300.move_to(Liquid_trash.top(z=5))
+                p1000.aspirate(200 - ETOHMaxVol, rate=0.25)
+                p1000.default_speed = 400
+                p1000.dispense(200, Liquid_trash)
+                p1000.move_to(Liquid_trash.top(z=5))
                 protocol.delay(minutes=0.1)
-                p300.blow_out()
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.blow_out()
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             wash += 1
 
         if DRYRUN == 'NO':
@@ -822,62 +837,62 @@ def run(protocol: protocol_api.ProtocolContext):
         if TIPREUSE == 'NO':
             if samplecolumns >= 1:#-----------------------------------------------------------------------------------------
                 X = 'A1'
-                p20.pick_up_tip()
-                p20.move_to(sample_plate[X].bottom(z=p20_offset_Mag+1))
-                p20.aspirate(20, rate=0.25)if NOMODULES == 'NO' else p20.aspirate(10, rate=0.25)
-                p20.move_to(bypass)
-                p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
+                p50.pick_up_tip()
+                p50.move_to(sample_plate[X].bottom(z=p20_offset_Mag + 1))
+                p50.aspirate(20, rate=0.25)if NOMODULES == 'NO' else p50.aspirate(10, rate=0.25)
+                p50.move_to(bypass)
+                p50.drop_tip() if DRYRUN == 'NO' else p50.return_tip()
             if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
                 X = 'A3'
-                p20.pick_up_tip()
-                p20.move_to(sample_plate[X].bottom(z=p20_offset_Mag+1))
-                p20.aspirate(20, rate=0.25)if NOMODULES == 'NO' else p20.aspirate(10, rate=0.25)
-                p20.move_to(bypass)
-                p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
+                p50.pick_up_tip()
+                p50.move_to(sample_plate[X].bottom(z=p20_offset_Mag + 1))
+                p50.aspirate(20, rate=0.25)if NOMODULES == 'NO' else p50.aspirate(10, rate=0.25)
+                p50.move_to(bypass)
+                p50.drop_tip() if DRYRUN == 'NO' else p50.return_tip()
             if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
                 X = 'A5'
-                p20.pick_up_tip()
-                p20.move_to(sample_plate[X].bottom(z=p20_offset_Mag+1))
-                p20.aspirate(20, rate=0.25)if NOMODULES == 'NO' else p20.aspirate(10, rate=0.25)
-                p20.move_to(bypass)
-                p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
+                p50.pick_up_tip()
+                p50.move_to(sample_plate[X].bottom(z=p20_offset_Mag + 1))
+                p50.aspirate(20, rate=0.25)if NOMODULES == 'NO' else p50.aspirate(10, rate=0.25)
+                p50.move_to(bypass)
+                p50.drop_tip() if DRYRUN == 'NO' else p50.return_tip()
         if TIPREUSE == 'YES':
             if samplecolumns >= 1:#-----------------------------------------------------------------------------------------
                 X = 'A1'
                 if TIPREUSE == 'NO': 
-                    p300.pick_up_tip()
+                    p1000.pick_up_tip()
                 elif WASHNUM == 1:
-                    p300.pick_up_tip(W1_ETOH_removetip_1)
+                    p1000.pick_up_tip(W1_ETOH_removetip_1)
                 elif WASHNUM == 2:
-                    p300.pick_up_tip(W2_ETOH_removetip_1)
-                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+1))
-                p300.aspirate(20, rate=0.25)
-                p300.move_to(bypass)
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                    p1000.pick_up_tip(W2_ETOH_removetip_1)
+                p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag + 1))
+                p1000.aspirate(20, rate=0.25)
+                p1000.move_to(bypass)
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
                 X = 'A3'
                 if TIPREUSE == 'NO': 
-                    p300.pick_up_tip()
+                    p1000.pick_up_tip()
                 elif WASHNUM == 1:
-                    p300.pick_up_tip(W1_ETOH_removetip_2)
+                    p1000.pick_up_tip(W1_ETOH_removetip_2)
                 elif WASHNUM == 2:
-                    p300.pick_up_tip(W2_ETOH_removetip_2)
-                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+1))
-                p300.aspirate(20, rate=0.25)
-                p300.move_to(bypass)
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                    p1000.pick_up_tip(W2_ETOH_removetip_2)
+                p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag + 1))
+                p1000.aspirate(20, rate=0.25)
+                p1000.move_to(bypass)
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
                 X = 'A5'
                 if TIPREUSE == 'NO': 
-                    p300.pick_up_tip()
+                    p1000.pick_up_tip()
                 elif WASHNUM == 1:
-                    p300.pick_up_tip(W1_ETOH_removetip_3)
+                    p1000.pick_up_tip(W1_ETOH_removetip_3)
                 elif WASHNUM == 2:
-                    p300.pick_up_tip(W2_ETOH_removetip_3)
-                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+1))
-                p300.aspirate(20, rate=0.25)
-                p300.move_to(bypass)
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                    p1000.pick_up_tip(W2_ETOH_removetip_3)
+                p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag + 1))
+                p1000.aspirate(20, rate=0.25)
+                p1000.move_to(bypass)
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
 
 #       ============================================================================================
 #       GRIPPER MOVE PLATE FROM MAGNET PLATE TO DECK
@@ -901,207 +916,207 @@ def run(protocol: protocol_api.ProtocolContext):
         if samplecolumns >= 1:#-----------------------------------------------------------------------------------------
             X = 'A1'
             if TIPREUSE == 'NO': 
-                p300.pick_up_tip()
+                p1000.pick_up_tip()
             elif WASHNUM == 1:
-                p300.pick_up_tip(W1_ResusTrans_1)
+                p1000.pick_up_tip(W1_ResusTrans_1)
             elif WASHNUM == 2:
-                p300.pick_up_tip(W2_ResusTrans_1)
+                p1000.pick_up_tip(W2_ResusTrans_1)
             elif WASHNUM == 3:
-                p300.pick_up_tip(W3_ResusTrans_1)
-            p300.aspirate(RSBVol, RSB.bottom(p300_offset_Res))
-            if X == 'A1': p300.move_to(A1_p300_loc1)
-            if X == 'A3': p300.move_to(A3_p300_loc1)
-            if X == 'A5': p300.move_to(A5_p300_loc1)
-            p300.dispense(RSBVol/5, rate=0.75)
-            p300.default_speed = 5
-            if X == 'A1': p300.move_to(A1_p300_loc2)
-            if X == 'A3': p300.move_to(A3_p300_loc2)
-            if X == 'A5': p300.move_to(A5_p300_loc2)
-            p300.dispense(RSBVol/5, rate=0.75)
-            if X == 'A1': p300.move_to(A1_p300_loc3)
-            if X == 'A3': p300.move_to(A3_p300_loc3)
-            if X == 'A5': p300.move_to(A5_p300_loc3)
-            p300.dispense(RSBVol/5, rate=0.75)
-            if X == 'A1': p300.move_to(A1_p300_loc2)
-            if X == 'A3': p300.move_to(A3_p300_loc2)
-            if X == 'A5': p300.move_to(A5_p300_loc2)
-            p300.dispense(RSBVol/5, rate=0.75)
-            if X == 'A1': p300.move_to(A1_p300_loc1)
-            if X == 'A3': p300.move_to(A3_p300_loc1)
-            if X == 'A5': p300.move_to(A5_p300_loc1)
-            p300.dispense(RSBVol/5, rate=0.75)
+                p1000.pick_up_tip(W3_ResusTrans_1)
+            p1000.aspirate(RSBVol, RSB.bottom(p300_offset_Res))
+            if X == 'A1': p1000.move_to(A1_p300_loc1)
+            if X == 'A3': p1000.move_to(A3_p300_loc1)
+            if X == 'A5': p1000.move_to(A5_p300_loc1)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            p1000.default_speed = 5
+            if X == 'A1': p1000.move_to(A1_p300_loc2)
+            if X == 'A3': p1000.move_to(A3_p300_loc2)
+            if X == 'A5': p1000.move_to(A5_p300_loc2)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            if X == 'A1': p1000.move_to(A1_p300_loc3)
+            if X == 'A3': p1000.move_to(A3_p300_loc3)
+            if X == 'A5': p1000.move_to(A5_p300_loc3)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            if X == 'A1': p1000.move_to(A1_p300_loc2)
+            if X == 'A3': p1000.move_to(A3_p300_loc2)
+            if X == 'A5': p1000.move_to(A5_p300_loc2)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            if X == 'A1': p1000.move_to(A1_p300_loc1)
+            if X == 'A3': p1000.move_to(A3_p300_loc1)
+            if X == 'A5': p1000.move_to(A5_p300_loc1)
+            p1000.dispense(RSBVol / 5, rate=0.75)
             reps = 5
             for x in range(reps):
-                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
-                p300.aspirate(RSBVol, rate=0.5)
-                if X == 'A1': p300.move_to(A1_p300_bead_top)
-                if X == 'A3': p300.move_to(A3_p300_bead_top)
-                if X == 'A5': p300.move_to(A5_p300_bead_top)
-                p300.dispense(RSBVol, rate=1)
+                p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
+                p1000.aspirate(RSBVol, rate=0.5)
+                if X == 'A1': p1000.move_to(A1_p300_bead_top)
+                if X == 'A3': p1000.move_to(A3_p300_bead_top)
+                if X == 'A5': p1000.move_to(A5_p300_bead_top)
+                p1000.dispense(RSBVol, rate=1)
             reps = 3
             for x in range(reps):    
-                if X == 'A1': p300.move_to(A1_p300_loc2)
-                if X == 'A3': p300.move_to(A3_p300_loc2)
-                if X == 'A5': p300.move_to(A5_p300_loc2)
-                p300.mix(RSBMixRep,RSBMixVol)
-                if X == 'A1': p300.move_to(A1_p300_loc1)
-                if X == 'A3': p300.move_to(A3_p300_loc1)
-                if X == 'A5': p300.move_to(A5_p300_loc1)
-                p300.mix(RSBMixRep,RSBMixVol)
-                if X == 'A1': p300.move_to(A1_p300_loc2)
-                if X == 'A3': p300.move_to(A3_p300_loc2)
-                if X == 'A5': p300.move_to(A5_p300_loc2)
-                p300.mix(RSBMixRep,RSBMixVol)
-                if X == 'A1': p300.move_to(A1_p300_loc3)
-                if X == 'A3': p300.move_to(A3_p300_loc3)
-                if X == 'A5': p300.move_to(A5_p300_loc3)
-                p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate.wells_by_name()[X].bottom(z=p300_offset_Mag))
-            p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate.wells_by_name()[X].top())
+                if X == 'A1': p1000.move_to(A1_p300_loc2)
+                if X == 'A3': p1000.move_to(A3_p300_loc2)
+                if X == 'A5': p1000.move_to(A5_p300_loc2)
+                p1000.mix(RSBMixRep, RSBMixVol)
+                if X == 'A1': p1000.move_to(A1_p300_loc1)
+                if X == 'A3': p1000.move_to(A3_p300_loc1)
+                if X == 'A5': p1000.move_to(A5_p300_loc1)
+                p1000.mix(RSBMixRep, RSBMixVol)
+                if X == 'A1': p1000.move_to(A1_p300_loc2)
+                if X == 'A3': p1000.move_to(A3_p300_loc2)
+                if X == 'A5': p1000.move_to(A5_p300_loc2)
+                p1000.mix(RSBMixRep, RSBMixVol)
+                if X == 'A1': p1000.move_to(A1_p300_loc3)
+                if X == 'A3': p1000.move_to(A3_p300_loc3)
+                if X == 'A5': p1000.move_to(A5_p300_loc3)
+                p1000.mix(RSBMixRep, RSBMixVol)
+            p1000.move_to(sample_plate.wells_by_name()[X].bottom(z=p300_offset_Mag))
+            p1000.mix(RSBMixRep, RSBMixVol)
+            p1000.move_to(sample_plate.wells_by_name()[X].top())
             protocol.delay(seconds=0.5)
-            p300.move_to(sample_plate.wells_by_name()[X].center())
-            p300.default_speed = 400
+            p1000.move_to(sample_plate.wells_by_name()[X].center())
+            p1000.default_speed = 400
             if TIPREUSE == 'NO':
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             else: 
-                p300.return_tip()
+                p1000.return_tip()
         if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
             X = 'A3'
             if TIPREUSE == 'NO': 
-                p300.pick_up_tip()
+                p1000.pick_up_tip()
             elif WASHNUM == 1:
-                p300.pick_up_tip(W1_ResusTrans_2)
+                p1000.pick_up_tip(W1_ResusTrans_2)
             elif WASHNUM == 2:
-                p300.pick_up_tip(W2_ResusTrans_2)
+                p1000.pick_up_tip(W2_ResusTrans_2)
             elif WASHNUM == 3:
-                p300.pick_up_tip(W3_ResusTrans_2)
-            p300.aspirate(RSBVol, RSB.bottom(p300_offset_Res))
-            if X == 'A1': p300.move_to(A1_p300_loc1)
-            if X == 'A3': p300.move_to(A3_p300_loc1)
-            if X == 'A5': p300.move_to(A5_p300_loc1)
-            p300.dispense(RSBVol/5, rate=0.75)
-            p300.default_speed = 5
-            if X == 'A1': p300.move_to(A1_p300_loc2)
-            if X == 'A3': p300.move_to(A3_p300_loc2)
-            if X == 'A5': p300.move_to(A5_p300_loc2)
-            p300.dispense(RSBVol/5, rate=0.75)
-            if X == 'A1': p300.move_to(A1_p300_loc3)
-            if X == 'A3': p300.move_to(A3_p300_loc3)
-            if X == 'A5': p300.move_to(A5_p300_loc3)
-            p300.dispense(RSBVol/5, rate=0.75)
-            if X == 'A1': p300.move_to(A1_p300_loc2)
-            if X == 'A3': p300.move_to(A3_p300_loc2)
-            if X == 'A5': p300.move_to(A5_p300_loc2)
-            p300.dispense(RSBVol/5, rate=0.75)
-            if X == 'A1': p300.move_to(A1_p300_loc1)
-            if X == 'A3': p300.move_to(A3_p300_loc1)
-            if X == 'A5': p300.move_to(A5_p300_loc1)
-            p300.dispense(RSBVol/5, rate=0.75)
+                p1000.pick_up_tip(W3_ResusTrans_2)
+            p1000.aspirate(RSBVol, RSB.bottom(p300_offset_Res))
+            if X == 'A1': p1000.move_to(A1_p300_loc1)
+            if X == 'A3': p1000.move_to(A3_p300_loc1)
+            if X == 'A5': p1000.move_to(A5_p300_loc1)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            p1000.default_speed = 5
+            if X == 'A1': p1000.move_to(A1_p300_loc2)
+            if X == 'A3': p1000.move_to(A3_p300_loc2)
+            if X == 'A5': p1000.move_to(A5_p300_loc2)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            if X == 'A1': p1000.move_to(A1_p300_loc3)
+            if X == 'A3': p1000.move_to(A3_p300_loc3)
+            if X == 'A5': p1000.move_to(A5_p300_loc3)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            if X == 'A1': p1000.move_to(A1_p300_loc2)
+            if X == 'A3': p1000.move_to(A3_p300_loc2)
+            if X == 'A5': p1000.move_to(A5_p300_loc2)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            if X == 'A1': p1000.move_to(A1_p300_loc1)
+            if X == 'A3': p1000.move_to(A3_p300_loc1)
+            if X == 'A5': p1000.move_to(A5_p300_loc1)
+            p1000.dispense(RSBVol / 5, rate=0.75)
             reps = 5
             for x in range(reps):
-                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
-                p300.aspirate(RSBVol, rate=0.5)
-                if X == 'A1': p300.move_to(A1_p300_bead_top)
-                if X == 'A3': p300.move_to(A3_p300_bead_top)
-                if X == 'A5': p300.move_to(A5_p300_bead_top)
-                p300.dispense(RSBVol, rate=1)
+                p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
+                p1000.aspirate(RSBVol, rate=0.5)
+                if X == 'A1': p1000.move_to(A1_p300_bead_top)
+                if X == 'A3': p1000.move_to(A3_p300_bead_top)
+                if X == 'A5': p1000.move_to(A5_p300_bead_top)
+                p1000.dispense(RSBVol, rate=1)
             reps = 3
             for x in range(reps):    
-                if X == 'A1': p300.move_to(A1_p300_loc2)
-                if X == 'A3': p300.move_to(A3_p300_loc2)
-                if X == 'A5': p300.move_to(A5_p300_loc2)
-                p300.mix(RSBMixRep,RSBMixVol)
-                if X == 'A1': p300.move_to(A1_p300_loc1)
-                if X == 'A3': p300.move_to(A3_p300_loc1)
-                if X == 'A5': p300.move_to(A5_p300_loc1)
-                p300.mix(RSBMixRep,RSBMixVol)
-                if X == 'A1': p300.move_to(A1_p300_loc2)
-                if X == 'A3': p300.move_to(A3_p300_loc2)
-                if X == 'A5': p300.move_to(A5_p300_loc2)
-                p300.mix(RSBMixRep,RSBMixVol)
-                if X == 'A1': p300.move_to(A1_p300_loc3)
-                if X == 'A3': p300.move_to(A3_p300_loc3)
-                if X == 'A5': p300.move_to(A5_p300_loc3)
-                p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate.wells_by_name()[X].bottom(z=p300_offset_Mag))
-            p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate.wells_by_name()[X].top())
+                if X == 'A1': p1000.move_to(A1_p300_loc2)
+                if X == 'A3': p1000.move_to(A3_p300_loc2)
+                if X == 'A5': p1000.move_to(A5_p300_loc2)
+                p1000.mix(RSBMixRep, RSBMixVol)
+                if X == 'A1': p1000.move_to(A1_p300_loc1)
+                if X == 'A3': p1000.move_to(A3_p300_loc1)
+                if X == 'A5': p1000.move_to(A5_p300_loc1)
+                p1000.mix(RSBMixRep, RSBMixVol)
+                if X == 'A1': p1000.move_to(A1_p300_loc2)
+                if X == 'A3': p1000.move_to(A3_p300_loc2)
+                if X == 'A5': p1000.move_to(A5_p300_loc2)
+                p1000.mix(RSBMixRep, RSBMixVol)
+                if X == 'A1': p1000.move_to(A1_p300_loc3)
+                if X == 'A3': p1000.move_to(A3_p300_loc3)
+                if X == 'A5': p1000.move_to(A5_p300_loc3)
+                p1000.mix(RSBMixRep, RSBMixVol)
+            p1000.move_to(sample_plate.wells_by_name()[X].bottom(z=p300_offset_Mag))
+            p1000.mix(RSBMixRep, RSBMixVol)
+            p1000.move_to(sample_plate.wells_by_name()[X].top())
             protocol.delay(seconds=0.5)
-            p300.move_to(sample_plate.wells_by_name()[X].center())
-            p300.default_speed = 400
+            p1000.move_to(sample_plate.wells_by_name()[X].center())
+            p1000.default_speed = 400
             if TIPREUSE == 'NO':
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             else: 
-                p300.return_tip()
+                p1000.return_tip()
         if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
             X = 'A5'
             if TIPREUSE == 'NO': 
-                p300.pick_up_tip()
+                p1000.pick_up_tip()
             elif WASHNUM == 1:
-                p300.pick_up_tip(W1_ResusTrans_3)
+                p1000.pick_up_tip(W1_ResusTrans_3)
             elif WASHNUM == 2:
-                p300.pick_up_tip(W2_ResusTrans_3)
+                p1000.pick_up_tip(W2_ResusTrans_3)
             elif WASHNUM == 3:
-                p300.pick_up_tip(W3_ResusTrans_3)
-            p300.aspirate(RSBVol, RSB.bottom(p300_offset_Res))
-            if X == 'A1': p300.move_to(A1_p300_loc1)
-            if X == 'A3': p300.move_to(A3_p300_loc1)
-            if X == 'A5': p300.move_to(A5_p300_loc1)
-            p300.dispense(RSBVol/5, rate=0.75)
-            p300.default_speed = 5
-            if X == 'A1': p300.move_to(A1_p300_loc2)
-            if X == 'A3': p300.move_to(A3_p300_loc2)
-            if X == 'A5': p300.move_to(A5_p300_loc2)
-            p300.dispense(RSBVol/5, rate=0.75)
-            if X == 'A1': p300.move_to(A1_p300_loc3)
-            if X == 'A3': p300.move_to(A3_p300_loc3)
-            if X == 'A5': p300.move_to(A5_p300_loc3)
-            p300.dispense(RSBVol/5, rate=0.75)
-            if X == 'A1': p300.move_to(A1_p300_loc2)
-            if X == 'A3': p300.move_to(A3_p300_loc2)
-            if X == 'A5': p300.move_to(A5_p300_loc2)
-            p300.dispense(RSBVol/5, rate=0.75)
-            if X == 'A1': p300.move_to(A1_p300_loc1)
-            if X == 'A3': p300.move_to(A3_p300_loc1)
-            if X == 'A5': p300.move_to(A5_p300_loc1)
-            p300.dispense(RSBVol/5, rate=0.75)
+                p1000.pick_up_tip(W3_ResusTrans_3)
+            p1000.aspirate(RSBVol, RSB.bottom(p300_offset_Res))
+            if X == 'A1': p1000.move_to(A1_p300_loc1)
+            if X == 'A3': p1000.move_to(A3_p300_loc1)
+            if X == 'A5': p1000.move_to(A5_p300_loc1)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            p1000.default_speed = 5
+            if X == 'A1': p1000.move_to(A1_p300_loc2)
+            if X == 'A3': p1000.move_to(A3_p300_loc2)
+            if X == 'A5': p1000.move_to(A5_p300_loc2)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            if X == 'A1': p1000.move_to(A1_p300_loc3)
+            if X == 'A3': p1000.move_to(A3_p300_loc3)
+            if X == 'A5': p1000.move_to(A5_p300_loc3)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            if X == 'A1': p1000.move_to(A1_p300_loc2)
+            if X == 'A3': p1000.move_to(A3_p300_loc2)
+            if X == 'A5': p1000.move_to(A5_p300_loc2)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            if X == 'A1': p1000.move_to(A1_p300_loc1)
+            if X == 'A3': p1000.move_to(A3_p300_loc1)
+            if X == 'A5': p1000.move_to(A5_p300_loc1)
+            p1000.dispense(RSBVol / 5, rate=0.75)
             reps = 5
             for x in range(reps):
-                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
-                p300.aspirate(RSBVol, rate=0.5)
-                if X == 'A1': p300.move_to(A1_p300_bead_top)
-                if X == 'A3': p300.move_to(A3_p300_bead_top)
-                if X == 'A5': p300.move_to(A5_p300_bead_top)
-                p300.dispense(RSBVol, rate=1)
+                p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
+                p1000.aspirate(RSBVol, rate=0.5)
+                if X == 'A1': p1000.move_to(A1_p300_bead_top)
+                if X == 'A3': p1000.move_to(A3_p300_bead_top)
+                if X == 'A5': p1000.move_to(A5_p300_bead_top)
+                p1000.dispense(RSBVol, rate=1)
             reps = 3
             for x in range(reps):    
-                if X == 'A1': p300.move_to(A1_p300_loc2)
-                if X == 'A3': p300.move_to(A3_p300_loc2)
-                if X == 'A5': p300.move_to(A5_p300_loc2)
-                p300.mix(RSBMixRep,RSBMixVol)
-                if X == 'A1': p300.move_to(A1_p300_loc1)
-                if X == 'A3': p300.move_to(A3_p300_loc1)
-                if X == 'A5': p300.move_to(A5_p300_loc1)
-                p300.mix(RSBMixRep,RSBMixVol)
-                if X == 'A1': p300.move_to(A1_p300_loc2)
-                if X == 'A3': p300.move_to(A3_p300_loc2)
-                if X == 'A5': p300.move_to(A5_p300_loc2)
-                p300.mix(RSBMixRep,RSBMixVol)
-                if X == 'A1': p300.move_to(A1_p300_loc3)
-                if X == 'A3': p300.move_to(A3_p300_loc3)
-                if X == 'A5': p300.move_to(A5_p300_loc3)
-                p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate.wells_by_name()[X].bottom(z=p300_offset_Mag))
-            p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate.wells_by_name()[X].top())
+                if X == 'A1': p1000.move_to(A1_p300_loc2)
+                if X == 'A3': p1000.move_to(A3_p300_loc2)
+                if X == 'A5': p1000.move_to(A5_p300_loc2)
+                p1000.mix(RSBMixRep, RSBMixVol)
+                if X == 'A1': p1000.move_to(A1_p300_loc1)
+                if X == 'A3': p1000.move_to(A3_p300_loc1)
+                if X == 'A5': p1000.move_to(A5_p300_loc1)
+                p1000.mix(RSBMixRep, RSBMixVol)
+                if X == 'A1': p1000.move_to(A1_p300_loc2)
+                if X == 'A3': p1000.move_to(A3_p300_loc2)
+                if X == 'A5': p1000.move_to(A5_p300_loc2)
+                p1000.mix(RSBMixRep, RSBMixVol)
+                if X == 'A1': p1000.move_to(A1_p300_loc3)
+                if X == 'A3': p1000.move_to(A3_p300_loc3)
+                if X == 'A5': p1000.move_to(A5_p300_loc3)
+                p1000.mix(RSBMixRep, RSBMixVol)
+            p1000.move_to(sample_plate.wells_by_name()[X].bottom(z=p300_offset_Mag))
+            p1000.mix(RSBMixRep, RSBMixVol)
+            p1000.move_to(sample_plate.wells_by_name()[X].top())
             protocol.delay(seconds=0.5)
-            p300.move_to(sample_plate.wells_by_name()[X].center())
-            p300.default_speed = 400
+            p1000.move_to(sample_plate.wells_by_name()[X].center())
+            p1000.default_speed = 400
             if TIPREUSE == 'NO':
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             else: 
-                p300.return_tip()
+                p1000.return_tip()
 
 #       ============================================================================================
 #       GRIPPER MOVE PLATE FROM DECK TO MAG PLATE
@@ -1122,59 +1137,59 @@ def run(protocol: protocol_api.ProtocolContext):
             X = 'A1'
             Y = 'A7'
             if TIPREUSE == 'NO': 
-                p300.pick_up_tip()
+                p1000.pick_up_tip()
             elif WASHNUM == 1:
-                p300.pick_up_tip(W1_ResusTrans_1)
+                p1000.pick_up_tip(W1_ResusTrans_1)
             elif WASHNUM == 2:
-                p300.pick_up_tip(W2_ResusTrans_1)
+                p1000.pick_up_tip(W2_ResusTrans_1)
             elif WASHNUM == 3:
-                p300.pick_up_tip(W3_ResusTrans_1)
-            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
-            p300.aspirate(TransferSup, rate=0.25)
-            p300.dispense(TransferSup+5, sample_plate[Y].bottom(z=p300_offset_Mag))
-            p300.move_to(bypass)
+                p1000.pick_up_tip(W3_ResusTrans_1)
+            p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
+            p1000.aspirate(TransferSup, rate=0.25)
+            p1000.dispense(TransferSup + 5, sample_plate[Y].bottom(z=p300_offset_Mag))
+            p1000.move_to(bypass)
             if TIPREUSE == 'NO':
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             else: 
-                p300.return_tip()
+                p1000.return_tip()
         if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
             X = 'A3'
             Y = 'A9'
             if TIPREUSE == 'NO': 
-                p300.pick_up_tip()
+                p1000.pick_up_tip()
             elif WASHNUM == 1:
-                p300.pick_up_tip(W1_ResusTrans_2)
+                p1000.pick_up_tip(W1_ResusTrans_2)
             elif WASHNUM == 2:
-                p300.pick_up_tip(W2_ResusTrans_2)
+                p1000.pick_up_tip(W2_ResusTrans_2)
             elif WASHNUM == 3:
-                p300.pick_up_tip(W3_ResusTrans_2)
-            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
-            p300.aspirate(TransferSup, rate=0.25)
-            p300.dispense(TransferSup+5, sample_plate[Y].bottom(z=p300_offset_Mag))
-            p300.move_to(bypass)
+                p1000.pick_up_tip(W3_ResusTrans_2)
+            p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
+            p1000.aspirate(TransferSup, rate=0.25)
+            p1000.dispense(TransferSup + 5, sample_plate[Y].bottom(z=p300_offset_Mag))
+            p1000.move_to(bypass)
             if TIPREUSE == 'NO':
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             else: 
-                p300.return_tip()
+                p1000.return_tip()
         if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
             X = 'A5'
             Y = 'A11'
             if TIPREUSE == 'NO': 
-                p300.pick_up_tip()
+                p1000.pick_up_tip()
             elif WASHNUM == 1:
-                p300.pick_up_tip(W1_ResusTrans_3)
+                p1000.pick_up_tip(W1_ResusTrans_3)
             elif WASHNUM == 2:
-                p300.pick_up_tip(W2_ResusTrans_3)
+                p1000.pick_up_tip(W2_ResusTrans_3)
             elif WASHNUM == 3:
-                p300.pick_up_tip(W3_ResusTrans_3)
-            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
-            p300.aspirate(TransferSup, rate=0.25)
-            p300.dispense(TransferSup+5, sample_plate[Y].bottom(z=p300_offset_Mag))
-            p300.move_to(bypass)
+                p1000.pick_up_tip(W3_ResusTrans_3)
+            p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
+            p1000.aspirate(TransferSup, rate=0.25)
+            p1000.dispense(TransferSup + 5, sample_plate[Y].bottom(z=p300_offset_Mag))
+            p1000.move_to(bypass)
             if TIPREUSE == 'NO':
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             else: 
-                p300.return_tip()
+                p1000.return_tip()
 
     if STEP_PCR == 1:
         protocol.comment('==============================================')
@@ -1187,25 +1202,25 @@ def run(protocol: protocol_api.ProtocolContext):
         PrimerMixVol = 10
         if samplecolumns >= 1:#-----------------------------------------------------------------------------------------
             X = 'A7'
-            p20.pick_up_tip()
-            p20.aspirate(PrimerVol, Barcodes1.bottom(z=p20_offset_Temp), rate=0.25)
-            p20.dispense(PrimerVol, sample_plate.wells_by_name()[X].bottom(z=p20_offset_Mag+1))
-            p20.mix(PrimerMixRep,PrimerMixVol)
-            p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
+            p50.pick_up_tip()
+            p50.aspirate(PrimerVol, Barcodes1.bottom(z=p20_offset_Temp), rate=0.25)
+            p50.dispense(PrimerVol, sample_plate.wells_by_name()[X].bottom(z=p20_offset_Mag + 1))
+            p50.mix(PrimerMixRep, PrimerMixVol)
+            p50.drop_tip() if DRYRUN == 'NO' else p50.return_tip()
         if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
             X = 'A9'
-            p20.pick_up_tip()
-            p20.aspirate(PrimerVol, Barcodes2.bottom(z=p20_offset_Temp), rate=0.25)
-            p20.dispense(PrimerVol, sample_plate.wells_by_name()[X].bottom(z=p20_offset_Mag+1))
-            p20.mix(PrimerMixRep,PrimerMixVol)
-            p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
+            p50.pick_up_tip()
+            p50.aspirate(PrimerVol, Barcodes2.bottom(z=p20_offset_Temp), rate=0.25)
+            p50.dispense(PrimerVol, sample_plate.wells_by_name()[X].bottom(z=p20_offset_Mag + 1))
+            p50.mix(PrimerMixRep, PrimerMixVol)
+            p50.drop_tip() if DRYRUN == 'NO' else p50.return_tip()
         if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
             X = 'A11'
-            p20.pick_up_tip()
-            p20.aspirate(PrimerVol, Barcodes3.bottom(z=p20_offset_Temp), rate=0.25)
-            p20.dispense(PrimerVol, sample_plate.wells_by_name()[X].bottom(z=p20_offset_Mag+1))
-            p20.mix(PrimerMixRep,PrimerMixVol)
-            p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
+            p50.pick_up_tip()
+            p50.aspirate(PrimerVol, Barcodes3.bottom(z=p20_offset_Temp), rate=0.25)
+            p50.dispense(PrimerVol, sample_plate.wells_by_name()[X].bottom(z=p20_offset_Mag + 1))
+            p50.mix(PrimerMixRep, PrimerMixVol)
+            p50.drop_tip() if DRYRUN == 'NO' else p50.return_tip()
 
         protocol.comment('--> Adding PCR')
         if DRYRUN == 'NO':
@@ -1218,40 +1233,40 @@ def run(protocol: protocol_api.ProtocolContext):
             PCRMixVol = 50
         if samplecolumns >= 1:#-----------------------------------------------------------------------------------------
             X = 'A7'
-            p300.pick_up_tip()
-            p300.mix(2,PCRVol, PCR.bottom(z=p300_offset_Temp), rate=0.5)
-            p300.aspirate(PCRVol, PCR.bottom(z=p300_offset_Temp), rate=0.25)
-            p300.dispense(PCRVol, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
-            p300.mix(PCRMixRep, PCRMixVol, rate=0.5)
-            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
+            p1000.pick_up_tip()
+            p1000.mix(2, PCRVol, PCR.bottom(z=p300_offset_Temp), rate=0.5)
+            p1000.aspirate(PCRVol, PCR.bottom(z=p300_offset_Temp), rate=0.25)
+            p1000.dispense(PCRVol, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
+            p1000.mix(PCRMixRep, PCRMixVol, rate=0.5)
+            p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
             protocol.delay(minutes=0.1)
-            p300.blow_out(sample_plate[X].top(z=-5))
-            p300.move_to(bypass) 
-            p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+            p1000.blow_out(sample_plate[X].top(z=-5))
+            p1000.move_to(bypass)
+            p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
         if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
             X = 'A9'
-            p300.pick_up_tip()
-            p300.mix(2,PCRVol, PCR.bottom(z=p300_offset_Temp), rate=0.5)
-            p300.aspirate(PCRVol, PCR.bottom(z=p300_offset_Temp), rate=0.25)
-            p300.dispense(PCRVol, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
-            p300.mix(PCRMixRep, PCRMixVol, rate=0.5)
-            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
+            p1000.pick_up_tip()
+            p1000.mix(2, PCRVol, PCR.bottom(z=p300_offset_Temp), rate=0.5)
+            p1000.aspirate(PCRVol, PCR.bottom(z=p300_offset_Temp), rate=0.25)
+            p1000.dispense(PCRVol, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
+            p1000.mix(PCRMixRep, PCRMixVol, rate=0.5)
+            p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
             protocol.delay(minutes=0.1)
-            p300.blow_out(sample_plate[X].top(z=-5))
-            p300.move_to(bypass) 
-            p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+            p1000.blow_out(sample_plate[X].top(z=-5))
+            p1000.move_to(bypass)
+            p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
         if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
             X = 'A11'
-            p300.pick_up_tip()
-            p300.mix(2,PCRVol, PCR.bottom(z=p300_offset_Temp), rate=0.5)
-            p300.aspirate(PCRVol, PCR.bottom(z=p300_offset_Temp), rate=0.25)
-            p300.dispense(PCRVol, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
-            p300.mix(PCRMixRep, PCRMixVol, rate=0.5)
-            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
+            p1000.pick_up_tip()
+            p1000.mix(2, PCRVol, PCR.bottom(z=p300_offset_Temp), rate=0.5)
+            p1000.aspirate(PCRVol, PCR.bottom(z=p300_offset_Temp), rate=0.25)
+            p1000.dispense(PCRVol, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
+            p1000.mix(PCRMixRep, PCRMixVol, rate=0.5)
+            p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
             protocol.delay(minutes=0.1)
-            p300.blow_out(sample_plate[X].top(z=-5))
-            p300.move_to(bypass) 
-            p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+            p1000.blow_out(sample_plate[X].top(z=-5))
+            p1000.move_to(bypass)
+            p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
 
             '''
             GRIPPER
@@ -1260,7 +1275,8 @@ def run(protocol: protocol_api.ProtocolContext):
             From  Magnetic Block (Pos 1) to Thermocycler (Pos 7)                  
             '''
 #       ============================================================================================
-#       GRIPPER MOVE PLATE FROM MAGNET PLATE TO DECK
+        # TODO: Should this be Mag plate to thermocycler?
+        # GRIPPER MOVE PLATE FROM MAGNET PLATE TO DECK
         if MAG == 'MAGPLATE':
             protocol.move_labware(
                 labware=sample_plate,
@@ -1305,6 +1321,7 @@ def run(protocol: protocol_api.ProtocolContext):
         '''
 #       ============================================================================================
 #       GRIPPER MOVE PLATE FROM MAGNET PLATE TO DECK
+        # TODO: should this say TC to deck slot?
         if MAG == 'MAGPLATE':
             protocol.move_labware(
                 labware=sample_plate,
@@ -1333,66 +1350,66 @@ def run(protocol: protocol_api.ProtocolContext):
         if samplecolumns >= 1:#-----------------------------------------------------------------------------------------
             X = 'A7'
             if TIPREUSE == 'NO': 
-                p300.pick_up_tip()
+                p1000.pick_up_tip()
             elif WASHNUM == 1:
-                p300.pick_up_tip(W1_AMPure_Bind_1)
+                p1000.pick_up_tip(W1_AMPure_Bind_1)
             elif WASHNUM == 2:
-                p300.pick_up_tip(W2_AMPure_Bind_1)
+                p1000.pick_up_tip(W2_AMPure_Bind_1)
             elif WASHNUM == 3:
-                p300.pick_up_tip(W3_AMPure_Bind_1)
-            p300.mix(10,AMPureVol+10, AMPure.bottom(z=p300_offset_Res))
-            p300.aspirate(AMPureVol, AMPure.bottom(z=p300_offset_Res), rate=0.25)
-            p300.dispense(AMPureVol, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
-            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
-            p300.mix(AMPureMixRep,AMPureMixVol)
-            p300.blow_out(sample_plate[X].top(z=-5))
-            p300.move_to(bypass) 
+                p1000.pick_up_tip(W3_AMPure_Bind_1)
+            p1000.mix(10, AMPureVol + 10, AMPure.bottom(z=p300_offset_Res))
+            p1000.aspirate(AMPureVol, AMPure.bottom(z=p300_offset_Res), rate=0.25)
+            p1000.dispense(AMPureVol, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
+            p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
+            p1000.mix(AMPureMixRep, AMPureMixVol)
+            p1000.blow_out(sample_plate[X].top(z=-5))
+            p1000.move_to(bypass)
             if TIPREUSE == 'NO':
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             else: 
-                p300.return_tip()
+                p1000.return_tip()
         if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
             X = 'A9'
             if TIPREUSE == 'NO': 
-                p300.pick_up_tip()
+                p1000.pick_up_tip()
             elif WASHNUM == 1:
-                p300.pick_up_tip(W1_AMPure_Bind_2)
+                p1000.pick_up_tip(W1_AMPure_Bind_2)
             elif WASHNUM == 2:
-                p300.pick_up_tip(W2_AMPure_Bind_2)
+                p1000.pick_up_tip(W2_AMPure_Bind_2)
             elif WASHNUM == 3:
-                p300.pick_up_tip(W3_AMPure_Bind_2)
-            p300.mix(3,AMPureVol+10, AMPure.bottom(z=p300_offset_Res))
-            p300.aspirate(AMPureVol, AMPure.bottom(z=p300_offset_Res), rate=0.25)
-            p300.dispense(AMPureVol, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
-            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
-            p300.mix(AMPureMixRep,AMPureMixVol)
-            p300.blow_out(sample_plate[X].top(z=-5))
-            p300.move_to(bypass) 
+                p1000.pick_up_tip(W3_AMPure_Bind_2)
+            p1000.mix(3, AMPureVol + 10, AMPure.bottom(z=p300_offset_Res))
+            p1000.aspirate(AMPureVol, AMPure.bottom(z=p300_offset_Res), rate=0.25)
+            p1000.dispense(AMPureVol, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
+            p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
+            p1000.mix(AMPureMixRep, AMPureMixVol)
+            p1000.blow_out(sample_plate[X].top(z=-5))
+            p1000.move_to(bypass)
             if TIPREUSE == 'NO':
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             else: 
-                p300.return_tip()
+                p1000.return_tip()
         if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
             X = 'A11'
             if TIPREUSE == 'NO': 
-                p300.pick_up_tip()
+                p1000.pick_up_tip()
             elif WASHNUM == 1:
-                p300.pick_up_tip(W1_AMPure_Bind_3)
+                p1000.pick_up_tip(W1_AMPure_Bind_3)
             elif WASHNUM == 2:
-                p300.pick_up_tip(W2_AMPure_Bind_3)
+                p1000.pick_up_tip(W2_AMPure_Bind_3)
             elif WASHNUM == 3:
-                p300.pick_up_tip(W3_AMPure_Bind_3)
-            p300.mix(10,AMPureVol+10, AMPure.bottom(z=p300_offset_Res))
-            p300.aspirate(AMPureVol, AMPure.bottom(z=p300_offset_Res), rate=0.25)
-            p300.dispense(AMPureVol, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
-            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
-            p300.mix(AMPureMixRep,AMPureMixVol)
-            p300.blow_out(sample_plate[X].top(z=-5))
-            p300.move_to(bypass) 
+                p1000.pick_up_tip(W3_AMPure_Bind_3)
+            p1000.mix(10, AMPureVol + 10, AMPure.bottom(z=p300_offset_Res))
+            p1000.aspirate(AMPureVol, AMPure.bottom(z=p300_offset_Res), rate=0.25)
+            p1000.dispense(AMPureVol, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
+            p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
+            p1000.mix(AMPureMixRep, AMPureMixVol)
+            p1000.blow_out(sample_plate[X].top(z=-5))
+            p1000.move_to(bypass)
             if TIPREUSE == 'NO':
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             else: 
-                p300.return_tip()
+                p1000.return_tip()
 
 #       ============================================================================================
 #       GRIPPER MOVE PLATE FROM DECK TO MAG PLATE
@@ -1412,85 +1429,85 @@ def run(protocol: protocol_api.ProtocolContext):
         if samplecolumns >= 1:#-----------------------------------------------------------------------------------------
             X = 'A7'
             if TIPREUSE == 'NO': 
-                p300.pick_up_tip()
+                p1000.pick_up_tip()
             elif WASHNUM == 1:
-                p300.pick_up_tip(W1_AMPure_Bind_1)
+                p1000.pick_up_tip(W1_AMPure_Bind_1)
             elif WASHNUM == 2:
-                p300.pick_up_tip(W2_AMPure_Bind_1)
+                p1000.pick_up_tip(W2_AMPure_Bind_1)
             elif WASHNUM == 3:
-                p300.pick_up_tip(W3_AMPure_Bind_1)
-            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
-            p300.aspirate(RemoveSup-30, rate=0.25)
-            p300.default_speed = 5
-            if X == 'A7': p300.move_to(A7_p300_bead_side)
-            if X == 'A9': p300.move_to(A9_p300_bead_side)
-            if X == 'A11': p300.move_to(A11_p300_bead_side)
+                p1000.pick_up_tip(W3_AMPure_Bind_1)
+            p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag + 4))
+            p1000.aspirate(RemoveSup - 30, rate=0.25)
+            p1000.default_speed = 5
+            if X == 'A7': p1000.move_to(A7_p300_bead_side)
+            if X == 'A9': p1000.move_to(A9_p300_bead_side)
+            if X == 'A11': p1000.move_to(A11_p300_bead_side)
             protocol.delay(minutes=0.1)
-            p300.aspirate(20, rate=0.2)
-            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
+            p1000.aspirate(20, rate=0.2)
+            p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
             protocol.delay(minutes=0.1)
-            p300.aspirate(10, rate=0.1)
-            p300.move_to(sample_plate[X].top(z=2))
-            p300.default_speed = 400
-            p300.dispense(200, Liquid_trash)
-            p300.move_to(bypass)
-            p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+            p1000.aspirate(10, rate=0.1)
+            p1000.move_to(sample_plate[X].top(z=2))
+            p1000.default_speed = 400
+            p1000.dispense(200, Liquid_trash)
+            p1000.move_to(bypass)
+            p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
         if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
             X = 'A9'
             if TIPREUSE == 'NO': 
-                p300.pick_up_tip()
+                p1000.pick_up_tip()
             elif WASHNUM == 1:
-                p300.pick_up_tip(W1_AMPure_Bind_2)
+                p1000.pick_up_tip(W1_AMPure_Bind_2)
             elif WASHNUM == 2:
-                p300.pick_up_tip(W2_AMPure_Bind_2)
+                p1000.pick_up_tip(W2_AMPure_Bind_2)
             elif WASHNUM == 3:
-                p300.pick_up_tip(W3_AMPure_Bind_2)
-            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
-            p300.aspirate(RemoveSup-30, rate=0.25)
-            p300.default_speed = 5
-            if X == 'A7': p300.move_to(A7_p300_bead_side)
-            if X == 'A9': p300.move_to(A9_p300_bead_side)
-            if X == 'A11': p300.move_to(A11_p300_bead_side)
+                p1000.pick_up_tip(W3_AMPure_Bind_2)
+            p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag + 4))
+            p1000.aspirate(RemoveSup - 30, rate=0.25)
+            p1000.default_speed = 5
+            if X == 'A7': p1000.move_to(A7_p300_bead_side)
+            if X == 'A9': p1000.move_to(A9_p300_bead_side)
+            if X == 'A11': p1000.move_to(A11_p300_bead_side)
             protocol.delay(minutes=0.1)
-            p300.aspirate(20, rate=0.2)
-            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
+            p1000.aspirate(20, rate=0.2)
+            p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
             protocol.delay(minutes=0.1)
-            p300.aspirate(10, rate=0.1)
-            p300.move_to(sample_plate[X].top(z=2))
-            p300.default_speed = 400
-            p300.dispense(200, Liquid_trash)
-            p300.move_to(bypass)
-            p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+            p1000.aspirate(10, rate=0.1)
+            p1000.move_to(sample_plate[X].top(z=2))
+            p1000.default_speed = 400
+            p1000.dispense(200, Liquid_trash)
+            p1000.move_to(bypass)
+            p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
         if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
             X = 'A11'
             if TIPREUSE == 'NO': 
-                p300.pick_up_tip()
+                p1000.pick_up_tip()
             elif WASHNUM == 1:
-                p300.pick_up_tip(W1_AMPure_Bind_3)
+                p1000.pick_up_tip(W1_AMPure_Bind_3)
             elif WASHNUM == 2:
-                p300.pick_up_tip(W2_AMPure_Bind_3)
+                p1000.pick_up_tip(W2_AMPure_Bind_3)
             elif WASHNUM == 3:
-                p300.pick_up_tip(W3_AMPure_Bind_3)
-            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
-            p300.aspirate(RemoveSup-30, rate=0.25)
-            p300.default_speed = 5
-            if X == 'A7': p300.move_to(A7_p300_bead_side)
-            if X == 'A9': p300.move_to(A9_p300_bead_side)
-            if X == 'A11': p300.move_to(A11_p300_bead_side)
+                p1000.pick_up_tip(W3_AMPure_Bind_3)
+            p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag + 4))
+            p1000.aspirate(RemoveSup - 30, rate=0.25)
+            p1000.default_speed = 5
+            if X == 'A7': p1000.move_to(A7_p300_bead_side)
+            if X == 'A9': p1000.move_to(A9_p300_bead_side)
+            if X == 'A11': p1000.move_to(A11_p300_bead_side)
             protocol.delay(minutes=0.1)
-            p300.aspirate(20, rate=0.2)
-            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
+            p1000.aspirate(20, rate=0.2)
+            p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
             protocol.delay(minutes=0.1)
-            p300.aspirate(10, rate=0.1)
-            p300.move_to(sample_plate[X].top(z=2))
-            p300.default_speed = 400
-            p300.dispense(200, Liquid_trash)
-            p300.move_to(bypass)
-            p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+            p1000.aspirate(10, rate=0.1)
+            p1000.move_to(sample_plate[X].top(z=2))
+            p1000.default_speed = 400
+            p1000.dispense(200, Liquid_trash)
+            p1000.move_to(bypass)
+            p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
 
         if samplecolumns == 3:
             protocol.pause('RESET TIPS')
-            p300.reset_tipracks()
+            p1000.reset_tipracks()
 
         protocol.comment('--> Repeating 2 washes')
         washreps = 2
@@ -1501,69 +1518,69 @@ def run(protocol: protocol_api.ProtocolContext):
             if samplecolumns >= 1:#-----------------------------------------------------------------------------------------
                 X = 'A7'
                 if TIPREUSE == 'NO': 
-                    p300.pick_up_tip()
+                    p1000.pick_up_tip()
                 elif WASHNUM == 1:
-                    p300.pick_up_tip(W1_ETOH_washtip_1)
+                    p1000.pick_up_tip(W1_ETOH_washtip_1)
                 elif WASHNUM == 2:
-                    p300.pick_up_tip(W2_ETOH_washtip_1)
-                p300.aspirate(ETOHMaxVol, EtOH_1.bottom(z=p300_offset_Res))
-                if X == 'A7': p300.move_to(A7_p300_bead_side)
-                if X == 'A9': p300.move_to(A9_p300_bead_side)
-                if X == 'A11': p300.move_to(A11_p300_bead_side)
-                p300.dispense(ETOHMaxVol-50, rate=0.5)
-                p300.move_to(sample_plate[X].center())
-                p300.dispense(50, rate=0.5)
-                p300.move_to(sample_plate[X].top(z=2))
-                p300.default_speed = 5
-                p300.move_to(sample_plate[X].top(z=-2))
+                    p1000.pick_up_tip(W2_ETOH_washtip_1)
+                p1000.aspirate(ETOHMaxVol, EtOH_1.bottom(z=p300_offset_Res))
+                if X == 'A7': p1000.move_to(A7_p300_bead_side)
+                if X == 'A9': p1000.move_to(A9_p300_bead_side)
+                if X == 'A11': p1000.move_to(A11_p300_bead_side)
+                p1000.dispense(ETOHMaxVol - 50, rate=0.5)
+                p1000.move_to(sample_plate[X].center())
+                p1000.dispense(50, rate=0.5)
+                p1000.move_to(sample_plate[X].top(z=2))
+                p1000.default_speed = 5
+                p1000.move_to(sample_plate[X].top(z=-2))
                 protocol.delay(minutes=0.1)
-                p300.blow_out()
-                p300.default_speed = 400
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.blow_out()
+                p1000.default_speed = 400
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
                 X = 'A9'
                 if TIPREUSE == 'NO': 
-                    p300.pick_up_tip()
+                    p1000.pick_up_tip()
                 elif WASHNUM == 1:
-                    p300.pick_up_tip(W1_ETOH_washtip_2)
+                    p1000.pick_up_tip(W1_ETOH_washtip_2)
                 elif WASHNUM == 2:
-                    p300.pick_up_tip(W2_ETOH_washtip_2)
-                p300.aspirate(ETOHMaxVol, EtOH_2.bottom(z=p300_offset_Res))
-                if X == 'A7': p300.move_to(A7_p300_bead_side)
-                if X == 'A9': p300.move_to(A9_p300_bead_side)
-                if X == 'A11': p300.move_to(A11_p300_bead_side)
-                p300.dispense(ETOHMaxVol-50, rate=0.5)
-                p300.move_to(sample_plate[X].center())
-                p300.dispense(50, rate=0.5)
-                p300.move_to(sample_plate[X].top(z=2))
-                p300.default_speed = 5
-                p300.move_to(sample_plate[X].top(z=-2))
+                    p1000.pick_up_tip(W2_ETOH_washtip_2)
+                p1000.aspirate(ETOHMaxVol, EtOH_2.bottom(z=p300_offset_Res))
+                if X == 'A7': p1000.move_to(A7_p300_bead_side)
+                if X == 'A9': p1000.move_to(A9_p300_bead_side)
+                if X == 'A11': p1000.move_to(A11_p300_bead_side)
+                p1000.dispense(ETOHMaxVol - 50, rate=0.5)
+                p1000.move_to(sample_plate[X].center())
+                p1000.dispense(50, rate=0.5)
+                p1000.move_to(sample_plate[X].top(z=2))
+                p1000.default_speed = 5
+                p1000.move_to(sample_plate[X].top(z=-2))
                 protocol.delay(minutes=0.1)
-                p300.blow_out()
-                p300.default_speed = 400
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.blow_out()
+                p1000.default_speed = 400
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
                 X = 'A11'
                 if TIPREUSE == 'NO': 
-                    p300.pick_up_tip()
+                    p1000.pick_up_tip()
                 elif WASHNUM == 1:
-                    p300.pick_up_tip(W1_ETOH_washtip_3)
+                    p1000.pick_up_tip(W1_ETOH_washtip_3)
                 elif WASHNUM == 2:
-                    p300.pick_up_tip(W2_ETOH_washtip_3)
-                p300.aspirate(ETOHMaxVol, EtOH_3.bottom(z=p300_offset_Res))
-                if X == 'A7': p300.move_to(A7_p300_bead_side)
-                if X == 'A9': p300.move_to(A9_p300_bead_side)
-                if X == 'A11': p300.move_to(A11_p300_bead_side)
-                p300.dispense(ETOHMaxVol-50, rate=0.5)
-                p300.move_to(sample_plate[X].center())
-                p300.dispense(50, rate=0.5)
-                p300.move_to(sample_plate[X].top(z=2))
-                p300.default_speed = 5
-                p300.move_to(sample_plate[X].top(z=-2))
+                    p1000.pick_up_tip(W2_ETOH_washtip_3)
+                p1000.aspirate(ETOHMaxVol, EtOH_3.bottom(z=p300_offset_Res))
+                if X == 'A7': p1000.move_to(A7_p300_bead_side)
+                if X == 'A9': p1000.move_to(A9_p300_bead_side)
+                if X == 'A11': p1000.move_to(A11_p300_bead_side)
+                p1000.dispense(ETOHMaxVol - 50, rate=0.5)
+                p1000.move_to(sample_plate[X].center())
+                p1000.dispense(50, rate=0.5)
+                p1000.move_to(sample_plate[X].top(z=2))
+                p1000.default_speed = 5
+                p1000.move_to(sample_plate[X].top(z=-2))
                 protocol.delay(minutes=0.1)
-                p300.blow_out()
-                p300.default_speed = 400
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.blow_out()
+                p1000.default_speed = 400
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
 
             protocol.delay(minutes=0.5)
 
@@ -1571,69 +1588,69 @@ def run(protocol: protocol_api.ProtocolContext):
             if samplecolumns >= 1:#-----------------------------------------------------------------------------------------
                 X = 'A7'
                 if TIPREUSE == 'NO': 
-                    p300.pick_up_tip()
+                    p1000.pick_up_tip()
                 elif WASHNUM == 1:
-                    p300.pick_up_tip(W1_ETOH_removetip_1)
+                    p1000.pick_up_tip(W1_ETOH_removetip_1)
                 elif WASHNUM == 2:
-                    p300.pick_up_tip(W2_ETOH_removetip_1)
-                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
-                p300.aspirate(ETOHMaxVol, rate=0.25)
-                p300.default_speed = 5
-                if X == 'A7': p300.move_to(A7_p300_bead_side)
-                if X == 'A9': p300.move_to(A9_p300_bead_side)
-                if X == 'A11': p300.move_to(A11_p300_bead_side)
+                    p1000.pick_up_tip(W2_ETOH_removetip_1)
+                p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag + 4))
+                p1000.aspirate(ETOHMaxVol, rate=0.25)
+                p1000.default_speed = 5
+                if X == 'A7': p1000.move_to(A7_p300_bead_side)
+                if X == 'A9': p1000.move_to(A9_p300_bead_side)
+                if X == 'A11': p1000.move_to(A11_p300_bead_side)
                 protocol.delay(minutes=0.1)
-                p300.aspirate(200-ETOHMaxVol, rate=0.25)
-                p300.default_speed = 400
-                p300.dispense(200, Liquid_trash)
-                p300.move_to(Liquid_trash.top(z=5))
+                p1000.aspirate(200 - ETOHMaxVol, rate=0.25)
+                p1000.default_speed = 400
+                p1000.dispense(200, Liquid_trash)
+                p1000.move_to(Liquid_trash.top(z=5))
                 protocol.delay(minutes=0.1)
-                p300.blow_out()
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.blow_out()
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
                 X = 'A9'
                 if TIPREUSE == 'NO': 
-                    p300.pick_up_tip()
+                    p1000.pick_up_tip()
                 elif WASHNUM == 1:
-                    p300.pick_up_tip(W1_ETOH_removetip_2)
+                    p1000.pick_up_tip(W1_ETOH_removetip_2)
                 elif WASHNUM == 2:
-                    p300.pick_up_tip(W2_ETOH_removetip_2)
-                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
-                p300.aspirate(ETOHMaxVol, rate=0.25)
-                p300.default_speed = 5
-                if X == 'A7': p300.move_to(A7_p300_bead_side)
-                if X == 'A9': p300.move_to(A9_p300_bead_side)
-                if X == 'A11': p300.move_to(A11_p300_bead_side)
+                    p1000.pick_up_tip(W2_ETOH_removetip_2)
+                p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag + 4))
+                p1000.aspirate(ETOHMaxVol, rate=0.25)
+                p1000.default_speed = 5
+                if X == 'A7': p1000.move_to(A7_p300_bead_side)
+                if X == 'A9': p1000.move_to(A9_p300_bead_side)
+                if X == 'A11': p1000.move_to(A11_p300_bead_side)
                 protocol.delay(minutes=0.1)
-                p300.aspirate(200-ETOHMaxVol, rate=0.25)
-                p300.default_speed = 400
-                p300.dispense(200, Liquid_trash)
-                p300.move_to(Liquid_trash.top(z=5))
+                p1000.aspirate(200 - ETOHMaxVol, rate=0.25)
+                p1000.default_speed = 400
+                p1000.dispense(200, Liquid_trash)
+                p1000.move_to(Liquid_trash.top(z=5))
                 protocol.delay(minutes=0.1)
-                p300.blow_out()
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.blow_out()
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
                 X = 'A11'
                 if TIPREUSE == 'NO': 
-                    p300.pick_up_tip()
+                    p1000.pick_up_tip()
                 elif WASHNUM == 1:
-                    p300.pick_up_tip(W1_ETOH_removetip_3)
+                    p1000.pick_up_tip(W1_ETOH_removetip_3)
                 elif WASHNUM == 2:
-                    p300.pick_up_tip(W2_ETOH_removetip_3)
-                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
-                p300.aspirate(ETOHMaxVol, rate=0.25)
-                p300.default_speed = 5
-                if X == 'A7': p300.move_to(A7_p300_bead_side)
-                if X == 'A9': p300.move_to(A9_p300_bead_side)
-                if X == 'A11': p300.move_to(A11_p300_bead_side)
+                    p1000.pick_up_tip(W2_ETOH_removetip_3)
+                p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag + 4))
+                p1000.aspirate(ETOHMaxVol, rate=0.25)
+                p1000.default_speed = 5
+                if X == 'A7': p1000.move_to(A7_p300_bead_side)
+                if X == 'A9': p1000.move_to(A9_p300_bead_side)
+                if X == 'A11': p1000.move_to(A11_p300_bead_side)
                 protocol.delay(minutes=0.1)
-                p300.aspirate(200-ETOHMaxVol, rate=0.25)
-                p300.default_speed = 400
-                p300.dispense(200, Liquid_trash)
-                p300.move_to(Liquid_trash.top(z=5))
+                p1000.aspirate(200 - ETOHMaxVol, rate=0.25)
+                p1000.default_speed = 400
+                p1000.dispense(200, Liquid_trash)
+                p1000.move_to(Liquid_trash.top(z=5))
                 protocol.delay(minutes=0.1)
-                p300.blow_out()
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.blow_out()
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
 
             wash += 1
 
@@ -1644,62 +1661,62 @@ def run(protocol: protocol_api.ProtocolContext):
         if TIPREUSE == 'NO':
             if samplecolumns >= 1:#-----------------------------------------------------------------------------------------
                 X = 'A7'
-                p20.pick_up_tip()
-                p20.move_to(sample_plate[X].bottom(z=p20_offset_Mag+1))
-                p20.aspirate(20, rate=0.25)if NOMODULES == 'NO' else p20.aspirate(10, rate=0.25)
-                p20.move_to(bypass)
-                p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
+                p50.pick_up_tip()
+                p50.move_to(sample_plate[X].bottom(z=p20_offset_Mag + 1))
+                p50.aspirate(20, rate=0.25)if NOMODULES == 'NO' else p50.aspirate(10, rate=0.25)
+                p50.move_to(bypass)
+                p50.drop_tip() if DRYRUN == 'NO' else p50.return_tip()
             if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
                 X = 'A9'
-                p20.pick_up_tip()
-                p20.move_to(sample_plate[X].bottom(z=p20_offset_Mag+1))
-                p20.aspirate(20, rate=0.25)if NOMODULES == 'NO' else p20.aspirate(10, rate=0.25)
-                p20.move_to(bypass)
-                p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
+                p50.pick_up_tip()
+                p50.move_to(sample_plate[X].bottom(z=p20_offset_Mag + 1))
+                p50.aspirate(20, rate=0.25)if NOMODULES == 'NO' else p50.aspirate(10, rate=0.25)
+                p50.move_to(bypass)
+                p50.drop_tip() if DRYRUN == 'NO' else p50.return_tip()
             if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
                 X = 'A11'
-                p20.pick_up_tip()
-                p20.move_to(sample_plate[X].bottom(z=p20_offset_Mag+1))
-                p20.aspirate(20, rate=0.25)if NOMODULES == 'NO' else p20.aspirate(10, rate=0.25)
-                p20.move_to(bypass)
-                p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
+                p50.pick_up_tip()
+                p50.move_to(sample_plate[X].bottom(z=p20_offset_Mag + 1))
+                p50.aspirate(20, rate=0.25)if NOMODULES == 'NO' else p50.aspirate(10, rate=0.25)
+                p50.move_to(bypass)
+                p50.drop_tip() if DRYRUN == 'NO' else p50.return_tip()
         if TIPREUSE == 'YES':
             if samplecolumns >= 1:#-----------------------------------------------------------------------------------------
                 X = 'A7'
                 if TIPREUSE == 'NO': 
-                    p300.pick_up_tip()
+                    p1000.pick_up_tip()
                 elif WASHNUM == 1:
-                    p300.pick_up_tip(W1_ETOH_removetip_1)
+                    p1000.pick_up_tip(W1_ETOH_removetip_1)
                 elif WASHNUM == 2:
-                    p300.pick_up_tip(W2_ETOH_removetip_1)
-                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+1))
-                p300.aspirate(20, rate=0.25)
-                p300.move_to(bypass)
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                    p1000.pick_up_tip(W2_ETOH_removetip_1)
+                p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag + 1))
+                p1000.aspirate(20, rate=0.25)
+                p1000.move_to(bypass)
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
                 X = 'A9'
                 if TIPREUSE == 'NO': 
-                    p300.pick_up_tip()
+                    p1000.pick_up_tip()
                 elif WASHNUM == 1:
-                    p300.pick_up_tip(W1_ETOH_removetip_2)
+                    p1000.pick_up_tip(W1_ETOH_removetip_2)
                 elif WASHNUM == 2:
-                    p300.pick_up_tip(W2_ETOH_removetip_2)
-                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+1))
-                p300.aspirate(20, rate=0.25)
-                p300.move_to(bypass)
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                    p1000.pick_up_tip(W2_ETOH_removetip_2)
+                p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag + 1))
+                p1000.aspirate(20, rate=0.25)
+                p1000.move_to(bypass)
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
                 X = 'A11'
                 if TIPREUSE == 'NO': 
-                    p300.pick_up_tip()
+                    p1000.pick_up_tip()
                 elif WASHNUM == 1:
-                    p300.pick_up_tip(W1_ETOH_removetip_3)
+                    p1000.pick_up_tip(W1_ETOH_removetip_3)
                 elif WASHNUM == 2:
-                    p300.pick_up_tip(W2_ETOH_removetip_3)
-                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+1))
-                p300.aspirate(20, rate=0.25)
-                p300.move_to(bypass)
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                    p1000.pick_up_tip(W2_ETOH_removetip_3)
+                p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag + 1))
+                p1000.aspirate(20, rate=0.25)
+                p1000.move_to(bypass)
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
 
 #       ============================================================================================
 #       GRIPPER MOVE PLATE FROM MAGNET PLATE TO DECK
@@ -1723,207 +1740,207 @@ def run(protocol: protocol_api.ProtocolContext):
         if samplecolumns >= 1:#-----------------------------------------------------------------------------------------
             X = 'A7'
             if TIPREUSE == 'NO': 
-                p300.pick_up_tip()
+                p1000.pick_up_tip()
             elif WASHNUM == 1:
-                p300.pick_up_tip(W1_ResusTrans_1)
+                p1000.pick_up_tip(W1_ResusTrans_1)
             elif WASHNUM == 2:
-                p300.pick_up_tip(W2_ResusTrans_1)
+                p1000.pick_up_tip(W2_ResusTrans_1)
             elif WASHNUM == 3:
-                p300.pick_up_tip(W3_ResusTrans_1)
-            p300.aspirate(RSBVol, RSB.bottom(p300_offset_Res))
-            if X == 'A7': p300.move_to(A7_p300_loc1)
-            if X == 'A9': p300.move_to(A9_p300_loc1)
-            if X == 'A11': p300.move_to(A11_p300_loc1)
-            p300.dispense(RSBVol/5, rate=0.75)
-            p300.default_speed = 5
-            if X == 'A7': p300.move_to(A7_p300_loc2)
-            if X == 'A9': p300.move_to(A9_p300_loc2)
-            if X == 'A11': p300.move_to(A11_p300_loc2)
-            p300.dispense(RSBVol/5, rate=0.75)
-            if X == 'A7': p300.move_to(A7_p300_loc3)
-            if X == 'A9': p300.move_to(A9_p300_loc3)
-            if X == 'A11': p300.move_to(A11_p300_loc3)
-            p300.dispense(RSBVol/5, rate=0.75)
-            if X == 'A7': p300.move_to(A7_p300_loc2)
-            if X == 'A9': p300.move_to(A9_p300_loc2)
-            if X == 'A11': p300.move_to(A11_p300_loc2)
-            p300.dispense(RSBVol/5, rate=0.75)
-            if X == 'A7': p300.move_to(A7_p300_loc1)
-            if X == 'A9': p300.move_to(A9_p300_loc1)
-            if X == 'A11': p300.move_to(A11_p300_loc1)
-            p300.dispense(RSBVol/5, rate=0.75)
+                p1000.pick_up_tip(W3_ResusTrans_1)
+            p1000.aspirate(RSBVol, RSB.bottom(p300_offset_Res))
+            if X == 'A7': p1000.move_to(A7_p300_loc1)
+            if X == 'A9': p1000.move_to(A9_p300_loc1)
+            if X == 'A11': p1000.move_to(A11_p300_loc1)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            p1000.default_speed = 5
+            if X == 'A7': p1000.move_to(A7_p300_loc2)
+            if X == 'A9': p1000.move_to(A9_p300_loc2)
+            if X == 'A11': p1000.move_to(A11_p300_loc2)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            if X == 'A7': p1000.move_to(A7_p300_loc3)
+            if X == 'A9': p1000.move_to(A9_p300_loc3)
+            if X == 'A11': p1000.move_to(A11_p300_loc3)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            if X == 'A7': p1000.move_to(A7_p300_loc2)
+            if X == 'A9': p1000.move_to(A9_p300_loc2)
+            if X == 'A11': p1000.move_to(A11_p300_loc2)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            if X == 'A7': p1000.move_to(A7_p300_loc1)
+            if X == 'A9': p1000.move_to(A9_p300_loc1)
+            if X == 'A11': p1000.move_to(A11_p300_loc1)
+            p1000.dispense(RSBVol / 5, rate=0.75)
             reps = 5
             for x in range(reps):
-                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
-                p300.aspirate(RSBVol, rate=0.5)
-                if X == 'A7': p300.move_to(A7_p300_bead_top)
-                if X == 'A9': p300.move_to(A9_p300_bead_top)
-                if X == 'A11': p300.move_to(A11_p300_bead_top)
-                p300.dispense(RSBVol, rate=1)
+                p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
+                p1000.aspirate(RSBVol, rate=0.5)
+                if X == 'A7': p1000.move_to(A7_p300_bead_top)
+                if X == 'A9': p1000.move_to(A9_p300_bead_top)
+                if X == 'A11': p1000.move_to(A11_p300_bead_top)
+                p1000.dispense(RSBVol, rate=1)
             reps = 3
             for x in range(reps):    
-                if X == 'A7': p300.move_to(A7_p300_loc2)
-                if X == 'A9': p300.move_to(A9_p300_loc2)
-                if X == 'A11': p300.move_to(A11_p300_loc2)
-                p300.mix(RSBMixRep,RSBMixVol)
-                if X == 'A7': p300.move_to(A7_p300_loc1)
-                if X == 'A9': p300.move_to(A9_p300_loc1)
-                if X == 'A11': p300.move_to(A11_p300_loc1)
-                p300.mix(RSBMixRep,RSBMixVol)
-                if X == 'A7': p300.move_to(A7_p300_loc2)
-                if X == 'A9': p300.move_to(A9_p300_loc2)
-                if X == 'A11': p300.move_to(A11_p300_loc2)
-                p300.mix(RSBMixRep,RSBMixVol)
-                if X == 'A7': p300.move_to(A7_p300_loc3)
-                if X == 'A9': p300.move_to(A9_p300_loc3)
-                if X == 'A11': p300.move_to(A11_p300_loc3)
-                p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate.wells_by_name()[X].bottom(z=p300_offset_Mag))
-            p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate.wells_by_name()[X].top())
+                if X == 'A7': p1000.move_to(A7_p300_loc2)
+                if X == 'A9': p1000.move_to(A9_p300_loc2)
+                if X == 'A11': p1000.move_to(A11_p300_loc2)
+                p1000.mix(RSBMixRep, RSBMixVol)
+                if X == 'A7': p1000.move_to(A7_p300_loc1)
+                if X == 'A9': p1000.move_to(A9_p300_loc1)
+                if X == 'A11': p1000.move_to(A11_p300_loc1)
+                p1000.mix(RSBMixRep, RSBMixVol)
+                if X == 'A7': p1000.move_to(A7_p300_loc2)
+                if X == 'A9': p1000.move_to(A9_p300_loc2)
+                if X == 'A11': p1000.move_to(A11_p300_loc2)
+                p1000.mix(RSBMixRep, RSBMixVol)
+                if X == 'A7': p1000.move_to(A7_p300_loc3)
+                if X == 'A9': p1000.move_to(A9_p300_loc3)
+                if X == 'A11': p1000.move_to(A11_p300_loc3)
+                p1000.mix(RSBMixRep, RSBMixVol)
+            p1000.move_to(sample_plate.wells_by_name()[X].bottom(z=p300_offset_Mag))
+            p1000.mix(RSBMixRep, RSBMixVol)
+            p1000.move_to(sample_plate.wells_by_name()[X].top())
             protocol.delay(seconds=0.5)
-            p300.move_to(sample_plate.wells_by_name()[X].center())
-            p300.default_speed = 400
+            p1000.move_to(sample_plate.wells_by_name()[X].center())
+            p1000.default_speed = 400
             if TIPREUSE == 'NO':
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             else: 
-                p300.return_tip()
+                p1000.return_tip()
         if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
             X = 'A9'
             if TIPREUSE == 'NO': 
-                p300.pick_up_tip()
+                p1000.pick_up_tip()
             elif WASHNUM == 1:
-                p300.pick_up_tip(W1_ResusTrans_2)
+                p1000.pick_up_tip(W1_ResusTrans_2)
             elif WASHNUM == 2:
-                p300.pick_up_tip(W2_ResusTrans_2)
+                p1000.pick_up_tip(W2_ResusTrans_2)
             elif WASHNUM == 3:
-                p300.pick_up_tip(W3_ResusTrans_2)
-            p300.aspirate(RSBVol, RSB.bottom(p300_offset_Res))
-            if X == 'A7': p300.move_to(A7_p300_loc1)
-            if X == 'A9': p300.move_to(A9_p300_loc1)
-            if X == 'A11': p300.move_to(A11_p300_loc1)
-            p300.dispense(RSBVol/5, rate=0.75)
-            p300.default_speed = 5
-            if X == 'A7': p300.move_to(A7_p300_loc2)
-            if X == 'A9': p300.move_to(A9_p300_loc2)
-            if X == 'A11': p300.move_to(A11_p300_loc2)
-            p300.dispense(RSBVol/5, rate=0.75)
-            if X == 'A7': p300.move_to(A7_p300_loc3)
-            if X == 'A9': p300.move_to(A9_p300_loc3)
-            if X == 'A11': p300.move_to(A11_p300_loc3)
-            p300.dispense(RSBVol/5, rate=0.75)
-            if X == 'A7': p300.move_to(A7_p300_loc2)
-            if X == 'A9': p300.move_to(A9_p300_loc2)
-            if X == 'A11': p300.move_to(A11_p300_loc2)
-            p300.dispense(RSBVol/5, rate=0.75)
-            if X == 'A7': p300.move_to(A7_p300_loc1)
-            if X == 'A9': p300.move_to(A9_p300_loc1)
-            if X == 'A11': p300.move_to(A11_p300_loc1)
-            p300.dispense(RSBVol/5, rate=0.75)
+                p1000.pick_up_tip(W3_ResusTrans_2)
+            p1000.aspirate(RSBVol, RSB.bottom(p300_offset_Res))
+            if X == 'A7': p1000.move_to(A7_p300_loc1)
+            if X == 'A9': p1000.move_to(A9_p300_loc1)
+            if X == 'A11': p1000.move_to(A11_p300_loc1)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            p1000.default_speed = 5
+            if X == 'A7': p1000.move_to(A7_p300_loc2)
+            if X == 'A9': p1000.move_to(A9_p300_loc2)
+            if X == 'A11': p1000.move_to(A11_p300_loc2)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            if X == 'A7': p1000.move_to(A7_p300_loc3)
+            if X == 'A9': p1000.move_to(A9_p300_loc3)
+            if X == 'A11': p1000.move_to(A11_p300_loc3)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            if X == 'A7': p1000.move_to(A7_p300_loc2)
+            if X == 'A9': p1000.move_to(A9_p300_loc2)
+            if X == 'A11': p1000.move_to(A11_p300_loc2)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            if X == 'A7': p1000.move_to(A7_p300_loc1)
+            if X == 'A9': p1000.move_to(A9_p300_loc1)
+            if X == 'A11': p1000.move_to(A11_p300_loc1)
+            p1000.dispense(RSBVol / 5, rate=0.75)
             reps = 5
             for x in range(reps):
-                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
-                p300.aspirate(RSBVol, rate=0.5)
-                if X == 'A7': p300.move_to(A7_p300_bead_top)
-                if X == 'A9': p300.move_to(A9_p300_bead_top)
-                if X == 'A11': p300.move_to(A11_p300_bead_top)
-                p300.dispense(RSBVol, rate=1)
+                p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
+                p1000.aspirate(RSBVol, rate=0.5)
+                if X == 'A7': p1000.move_to(A7_p300_bead_top)
+                if X == 'A9': p1000.move_to(A9_p300_bead_top)
+                if X == 'A11': p1000.move_to(A11_p300_bead_top)
+                p1000.dispense(RSBVol, rate=1)
             reps = 3
             for x in range(reps):    
-                if X == 'A7': p300.move_to(A7_p300_loc2)
-                if X == 'A9': p300.move_to(A9_p300_loc2)
-                if X == 'A11': p300.move_to(A11_p300_loc2)
-                p300.mix(RSBMixRep,RSBMixVol)
-                if X == 'A7': p300.move_to(A7_p300_loc1)
-                if X == 'A9': p300.move_to(A9_p300_loc1)
-                if X == 'A11': p300.move_to(A11_p300_loc1)
-                p300.mix(RSBMixRep,RSBMixVol)
-                if X == 'A7': p300.move_to(A7_p300_loc2)
-                if X == 'A9': p300.move_to(A9_p300_loc2)
-                if X == 'A11': p300.move_to(A11_p300_loc2)
-                p300.mix(RSBMixRep,RSBMixVol)
-                if X == 'A7': p300.move_to(A7_p300_loc3)
-                if X == 'A9': p300.move_to(A9_p300_loc3)
-                if X == 'A11': p300.move_to(A11_p300_loc3)
-                p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate.wells_by_name()[X].bottom(z=p300_offset_Mag))
-            p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate.wells_by_name()[X].top())
+                if X == 'A7': p1000.move_to(A7_p300_loc2)
+                if X == 'A9': p1000.move_to(A9_p300_loc2)
+                if X == 'A11': p1000.move_to(A11_p300_loc2)
+                p1000.mix(RSBMixRep, RSBMixVol)
+                if X == 'A7': p1000.move_to(A7_p300_loc1)
+                if X == 'A9': p1000.move_to(A9_p300_loc1)
+                if X == 'A11': p1000.move_to(A11_p300_loc1)
+                p1000.mix(RSBMixRep, RSBMixVol)
+                if X == 'A7': p1000.move_to(A7_p300_loc2)
+                if X == 'A9': p1000.move_to(A9_p300_loc2)
+                if X == 'A11': p1000.move_to(A11_p300_loc2)
+                p1000.mix(RSBMixRep, RSBMixVol)
+                if X == 'A7': p1000.move_to(A7_p300_loc3)
+                if X == 'A9': p1000.move_to(A9_p300_loc3)
+                if X == 'A11': p1000.move_to(A11_p300_loc3)
+                p1000.mix(RSBMixRep, RSBMixVol)
+            p1000.move_to(sample_plate.wells_by_name()[X].bottom(z=p300_offset_Mag))
+            p1000.mix(RSBMixRep, RSBMixVol)
+            p1000.move_to(sample_plate.wells_by_name()[X].top())
             protocol.delay(seconds=0.5)
-            p300.move_to(sample_plate.wells_by_name()[X].center())
-            p300.default_speed = 400
+            p1000.move_to(sample_plate.wells_by_name()[X].center())
+            p1000.default_speed = 400
             if TIPREUSE == 'NO':
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             else: 
-                p300.return_tip()
+                p1000.return_tip()
         if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
             X = 'A11'
             if TIPREUSE == 'NO': 
-                p300.pick_up_tip()
+                p1000.pick_up_tip()
             elif WASHNUM == 1:
-                p300.pick_up_tip(W1_ResusTrans_3)
+                p1000.pick_up_tip(W1_ResusTrans_3)
             elif WASHNUM == 2:
-                p300.pick_up_tip(W2_ResusTrans_3)
+                p1000.pick_up_tip(W2_ResusTrans_3)
             elif WASHNUM == 3:
-                p300.pick_up_tip(W3_ResusTrans_3)
-            p300.aspirate(RSBVol, RSB.bottom(p300_offset_Res))
-            if X == 'A7': p300.move_to(A7_p300_loc1)
-            if X == 'A9': p300.move_to(A9_p300_loc1)
-            if X == 'A11': p300.move_to(A11_p300_loc1)
-            p300.dispense(RSBVol/5, rate=0.75)
-            p300.default_speed = 5
-            if X == 'A7': p300.move_to(A7_p300_loc2)
-            if X == 'A9': p300.move_to(A9_p300_loc2)
-            if X == 'A11': p300.move_to(A11_p300_loc2)
-            p300.dispense(RSBVol/5, rate=0.75)
-            if X == 'A7': p300.move_to(A7_p300_loc3)
-            if X == 'A9': p300.move_to(A9_p300_loc3)
-            if X == 'A11': p300.move_to(A11_p300_loc3)
-            p300.dispense(RSBVol/5, rate=0.75)
-            if X == 'A7': p300.move_to(A7_p300_loc2)
-            if X == 'A9': p300.move_to(A9_p300_loc2)
-            if X == 'A11': p300.move_to(A11_p300_loc2)
-            p300.dispense(RSBVol/5, rate=0.75)
-            if X == 'A7': p300.move_to(A7_p300_loc1)
-            if X == 'A9': p300.move_to(A9_p300_loc1)
-            if X == 'A11': p300.move_to(A11_p300_loc1)
-            p300.dispense(RSBVol/5, rate=0.75)
+                p1000.pick_up_tip(W3_ResusTrans_3)
+            p1000.aspirate(RSBVol, RSB.bottom(p300_offset_Res))
+            if X == 'A7': p1000.move_to(A7_p300_loc1)
+            if X == 'A9': p1000.move_to(A9_p300_loc1)
+            if X == 'A11': p1000.move_to(A11_p300_loc1)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            p1000.default_speed = 5
+            if X == 'A7': p1000.move_to(A7_p300_loc2)
+            if X == 'A9': p1000.move_to(A9_p300_loc2)
+            if X == 'A11': p1000.move_to(A11_p300_loc2)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            if X == 'A7': p1000.move_to(A7_p300_loc3)
+            if X == 'A9': p1000.move_to(A9_p300_loc3)
+            if X == 'A11': p1000.move_to(A11_p300_loc3)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            if X == 'A7': p1000.move_to(A7_p300_loc2)
+            if X == 'A9': p1000.move_to(A9_p300_loc2)
+            if X == 'A11': p1000.move_to(A11_p300_loc2)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            if X == 'A7': p1000.move_to(A7_p300_loc1)
+            if X == 'A9': p1000.move_to(A9_p300_loc1)
+            if X == 'A11': p1000.move_to(A11_p300_loc1)
+            p1000.dispense(RSBVol / 5, rate=0.75)
             reps = 5
             for x in range(reps):
-                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
-                p300.aspirate(RSBVol, rate=0.5)
-                if X == 'A7': p300.move_to(A7_p300_bead_top)
-                if X == 'A9': p300.move_to(A9_p300_bead_top)
-                if X == 'A11': p300.move_to(A11_p300_bead_top)
-                p300.dispense(RSBVol, rate=1)
+                p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
+                p1000.aspirate(RSBVol, rate=0.5)
+                if X == 'A7': p1000.move_to(A7_p300_bead_top)
+                if X == 'A9': p1000.move_to(A9_p300_bead_top)
+                if X == 'A11': p1000.move_to(A11_p300_bead_top)
+                p1000.dispense(RSBVol, rate=1)
             reps = 3
             for x in range(reps):    
-                if X == 'A7': p300.move_to(A7_p300_loc2)
-                if X == 'A9': p300.move_to(A9_p300_loc2)
-                if X == 'A11': p300.move_to(A11_p300_loc2)
-                p300.mix(RSBMixRep,RSBMixVol)
-                if X == 'A7': p300.move_to(A7_p300_loc1)
-                if X == 'A9': p300.move_to(A9_p300_loc1)
-                if X == 'A11': p300.move_to(A11_p300_loc1)
-                p300.mix(RSBMixRep,RSBMixVol)
-                if X == 'A7': p300.move_to(A7_p300_loc2)
-                if X == 'A9': p300.move_to(A9_p300_loc2)
-                if X == 'A11': p300.move_to(A11_p300_loc2)
-                p300.mix(RSBMixRep,RSBMixVol)
-                if X == 'A7': p300.move_to(A7_p300_loc3)
-                if X == 'A9': p300.move_to(A9_p300_loc3)
-                if X == 'A11': p300.move_to(A11_p300_loc3)
-                p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate.wells_by_name()[X].bottom(z=p300_offset_Mag))
-            p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate.wells_by_name()[X].top())
+                if X == 'A7': p1000.move_to(A7_p300_loc2)
+                if X == 'A9': p1000.move_to(A9_p300_loc2)
+                if X == 'A11': p1000.move_to(A11_p300_loc2)
+                p1000.mix(RSBMixRep, RSBMixVol)
+                if X == 'A7': p1000.move_to(A7_p300_loc1)
+                if X == 'A9': p1000.move_to(A9_p300_loc1)
+                if X == 'A11': p1000.move_to(A11_p300_loc1)
+                p1000.mix(RSBMixRep, RSBMixVol)
+                if X == 'A7': p1000.move_to(A7_p300_loc2)
+                if X == 'A9': p1000.move_to(A9_p300_loc2)
+                if X == 'A11': p1000.move_to(A11_p300_loc2)
+                p1000.mix(RSBMixRep, RSBMixVol)
+                if X == 'A7': p1000.move_to(A7_p300_loc3)
+                if X == 'A9': p1000.move_to(A9_p300_loc3)
+                if X == 'A11': p1000.move_to(A11_p300_loc3)
+                p1000.mix(RSBMixRep, RSBMixVol)
+            p1000.move_to(sample_plate.wells_by_name()[X].bottom(z=p300_offset_Mag))
+            p1000.mix(RSBMixRep, RSBMixVol)
+            p1000.move_to(sample_plate.wells_by_name()[X].top())
             protocol.delay(seconds=0.5)
-            p300.move_to(sample_plate.wells_by_name()[X].center())
-            p300.default_speed = 400
+            p1000.move_to(sample_plate.wells_by_name()[X].center())
+            p1000.default_speed = 400
             if TIPREUSE == 'NO':
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             else: 
-                p300.return_tip()
+                p1000.return_tip()
 
 
 #       ============================================================================================
@@ -1941,7 +1958,7 @@ def run(protocol: protocol_api.ProtocolContext):
 
         if samplecolumns == 3:
             protocol.pause('RESET TIPS')
-            p20.reset_tipracks()
+            p50.reset_tipracks()
 
         protocol.comment('--> Transferring Supernatant')        
         if NOMODULES == 'NO':
@@ -1952,79 +1969,79 @@ def run(protocol: protocol_api.ProtocolContext):
             if samplecolumns >= 1:#-----------------------------------------------------------------------------------------
                 X = 'A7'
                 Y = 'A2'
-                p20.pick_up_tip()
-                p20.aspirate(TransferSup/2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
-                p20.dispense(TransferSup/2, sample_plate[Y].bottom(z=p20_offset_Mag))
-                p20.aspirate(TransferSup/2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
-                p20.dispense(TransferSup/2+5, sample_plate[Y].bottom(z=p20_offset_Mag))
-                p20.move_to(bypass)
-                p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
+                p50.pick_up_tip()
+                p50.aspirate(TransferSup / 2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
+                p50.dispense(TransferSup / 2, sample_plate[Y].bottom(z=p20_offset_Mag))
+                p50.aspirate(TransferSup / 2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
+                p50.dispense(TransferSup / 2 + 5, sample_plate[Y].bottom(z=p20_offset_Mag))
+                p50.move_to(bypass)
+                p50.drop_tip() if DRYRUN == 'NO' else p50.return_tip()
             if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
                 X = 'A9'
                 Y = 'A4'
-                p20.pick_up_tip()
-                p20.aspirate(TransferSup/2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
-                p20.dispense(TransferSup/2, sample_plate[Y].bottom(z=p20_offset_Mag))
-                p20.aspirate(TransferSup/2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
-                p20.dispense(TransferSup/2+5, sample_plate[Y].bottom(z=p20_offset_Mag))
-                p20.move_to(bypass)
-                p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
+                p50.pick_up_tip()
+                p50.aspirate(TransferSup / 2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
+                p50.dispense(TransferSup / 2, sample_plate[Y].bottom(z=p20_offset_Mag))
+                p50.aspirate(TransferSup / 2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
+                p50.dispense(TransferSup / 2 + 5, sample_plate[Y].bottom(z=p20_offset_Mag))
+                p50.move_to(bypass)
+                p50.drop_tip() if DRYRUN == 'NO' else p50.return_tip()
             if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
                 X = 'A11'
                 Y = 'A6'
-                p20.pick_up_tip()
-                p20.aspirate(TransferSup/2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
-                p20.dispense(TransferSup/2, sample_plate[Y].bottom(z=p20_offset_Mag))
-                p20.aspirate(TransferSup/2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
-                p20.dispense(TransferSup/2+5, sample_plate[Y].bottom(z=p20_offset_Mag))
-                p20.move_to(bypass)
-                p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
+                p50.pick_up_tip()
+                p50.aspirate(TransferSup / 2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
+                p50.dispense(TransferSup / 2, sample_plate[Y].bottom(z=p20_offset_Mag))
+                p50.aspirate(TransferSup / 2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
+                p50.dispense(TransferSup / 2 + 5, sample_plate[Y].bottom(z=p20_offset_Mag))
+                p50.move_to(bypass)
+                p50.drop_tip() if DRYRUN == 'NO' else p50.return_tip()
         if TIPREUSE == 'YES':
             if samplecolumns >= 1:#-----------------------------------------------------------------------------------------
                 X = 'A7'
                 Y = 'A2'
                 if TIPREUSE == 'NO': 
-                    p300.pick_up_tip()
+                    p1000.pick_up_tip()
                 elif WASHNUM == 1:
-                    p300.pick_up_tip(W1_ResusTrans_1)
+                    p1000.pick_up_tip(W1_ResusTrans_1)
                 elif WASHNUM == 2:
-                    p300.pick_up_tip(W2_ResusTrans_1)
+                    p1000.pick_up_tip(W2_ResusTrans_1)
                 elif WASHNUM == 3:
-                    p300.pick_up_tip(W3_ResusTrans_1)
-                p300.aspirate(TransferSup, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
-                p300.dispense(TransferSup+5, sample_plate[Y].bottom(z=p300_offset_Mag))
-                p300.move_to(bypass)
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                    p1000.pick_up_tip(W3_ResusTrans_1)
+                p1000.aspirate(TransferSup, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
+                p1000.dispense(TransferSup + 5, sample_plate[Y].bottom(z=p300_offset_Mag))
+                p1000.move_to(bypass)
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
                 X = 'A9'
                 Y = 'A4'
                 if TIPREUSE == 'NO': 
-                    p300.pick_up_tip()
+                    p1000.pick_up_tip()
                 elif WASHNUM == 1:
-                    p300.pick_up_tip(W1_ResusTrans_2)
+                    p1000.pick_up_tip(W1_ResusTrans_2)
                 elif WASHNUM == 2:
-                    p300.pick_up_tip(W2_ResusTrans_2)
+                    p1000.pick_up_tip(W2_ResusTrans_2)
                 elif WASHNUM == 3:
-                    p300.pick_up_tip(W3_ResusTrans_2)
-                p300.aspirate(TransferSup, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
-                p300.dispense(TransferSup+5, sample_plate[Y].bottom(z=p300_offset_Mag))
-                p300.move_to(bypass)
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                    p1000.pick_up_tip(W3_ResusTrans_2)
+                p1000.aspirate(TransferSup, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
+                p1000.dispense(TransferSup + 5, sample_plate[Y].bottom(z=p300_offset_Mag))
+                p1000.move_to(bypass)
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
                 X = 'A11'
                 Y = 'A6'
                 if TIPREUSE == 'NO': 
-                    p300.pick_up_tip()
+                    p1000.pick_up_tip()
                 elif WASHNUM == 1:
-                    p300.pick_up_tip(W1_ResusTrans_3)
+                    p1000.pick_up_tip(W1_ResusTrans_3)
                 elif WASHNUM == 2:
-                    p300.pick_up_tip(W2_ResusTrans_3)
+                    p1000.pick_up_tip(W2_ResusTrans_3)
                 elif WASHNUM == 3:
-                    p300.pick_up_tip(W3_ResusTrans_3)
-                p300.aspirate(TransferSup, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
-                p300.dispense(TransferSup+5, sample_plate[Y].bottom(z=p300_offset_Mag))
-                p300.move_to(bypass)
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                    p1000.pick_up_tip(W3_ResusTrans_3)
+                p1000.aspirate(TransferSup, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
+                p1000.dispense(TransferSup + 5, sample_plate[Y].bottom(z=p300_offset_Mag))
+                p1000.move_to(bypass)
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
 
         # if DRYRUN == 'NO':
         #     protocol.comment('MAGNET DISENGAGE')
@@ -2089,66 +2106,66 @@ def run(protocol: protocol_api.ProtocolContext):
         if samplecolumns >= 1:#-----------------------------------------------------------------------------------------
             X = 'A2'
             if TIPREUSE == 'NO': 
-                p300.pick_up_tip()
+                p1000.pick_up_tip()
             elif WASHNUM == 1:
-                p300.pick_up_tip(W1_AMPure_Bind_1)
+                p1000.pick_up_tip(W1_AMPure_Bind_1)
             elif WASHNUM == 2:
-                p300.pick_up_tip(W2_AMPure_Bind_1)
+                p1000.pick_up_tip(W2_AMPure_Bind_1)
             elif WASHNUM == 3:
-                p300.pick_up_tip(W3_AMPure_Bind_1)
-            p300.mix(10,AMPureVol+10, AMPure.bottom(z=p300_offset_Res))
-            p300.aspirate(AMPureVol, AMPure.bottom(z=p300_offset_Res), rate=0.25)
-            p300.dispense(AMPureVol, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
-            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
-            p300.mix(AMPureMixRep,AMPureMixVol)
-            p300.blow_out(sample_plate[X].top(z=-5))
-            p300.move_to(bypass) 
+                p1000.pick_up_tip(W3_AMPure_Bind_1)
+            p1000.mix(10, AMPureVol + 10, AMPure.bottom(z=p300_offset_Res))
+            p1000.aspirate(AMPureVol, AMPure.bottom(z=p300_offset_Res), rate=0.25)
+            p1000.dispense(AMPureVol, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
+            p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
+            p1000.mix(AMPureMixRep, AMPureMixVol)
+            p1000.blow_out(sample_plate[X].top(z=-5))
+            p1000.move_to(bypass)
             if TIPREUSE == 'NO':
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             else: 
-                p300.return_tip()
+                p1000.return_tip()
         if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
             X = 'A4'
             if TIPREUSE == 'NO': 
-                p300.pick_up_tip()
+                p1000.pick_up_tip()
             elif WASHNUM == 1:
-                p300.pick_up_tip(W1_AMPure_Bind_2)
+                p1000.pick_up_tip(W1_AMPure_Bind_2)
             elif WASHNUM == 2:
-                p300.pick_up_tip(W2_AMPure_Bind_2)
+                p1000.pick_up_tip(W2_AMPure_Bind_2)
             elif WASHNUM == 3:
-                p300.pick_up_tip(W3_AMPure_Bind_2)
-            p300.mix(3,AMPureVol+10, AMPure.bottom(z=p300_offset_Res))
-            p300.aspirate(AMPureVol, AMPure.bottom(z=p300_offset_Res), rate=0.25)
-            p300.dispense(AMPureVol, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
-            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
-            p300.mix(AMPureMixRep,AMPureMixVol)
-            p300.blow_out(sample_plate[X].top(z=-5))
-            p300.move_to(bypass) 
+                p1000.pick_up_tip(W3_AMPure_Bind_2)
+            p1000.mix(3, AMPureVol + 10, AMPure.bottom(z=p300_offset_Res))
+            p1000.aspirate(AMPureVol, AMPure.bottom(z=p300_offset_Res), rate=0.25)
+            p1000.dispense(AMPureVol, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
+            p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
+            p1000.mix(AMPureMixRep, AMPureMixVol)
+            p1000.blow_out(sample_plate[X].top(z=-5))
+            p1000.move_to(bypass)
             if TIPREUSE == 'NO':
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             else: 
-                p300.return_tip()
+                p1000.return_tip()
         if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
             X = 'A6'
             if TIPREUSE == 'NO': 
-                p300.pick_up_tip()
+                p1000.pick_up_tip()
             elif WASHNUM == 1:
-                p300.pick_up_tip(W1_AMPure_Bind_3)
+                p1000.pick_up_tip(W1_AMPure_Bind_3)
             elif WASHNUM == 2:
-                p300.pick_up_tip(W2_AMPure_Bind_3)
+                p1000.pick_up_tip(W2_AMPure_Bind_3)
             elif WASHNUM == 3:
-                p300.pick_up_tip(W3_AMPure_Bind_3)
-            p300.mix(3,AMPureVol+10, AMPure.bottom(z=p300_offset_Res))
-            p300.aspirate(AMPureVol, AMPure.bottom(z=p300_offset_Res), rate=0.25)
-            p300.dispense(AMPureVol, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
-            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
-            p300.mix(AMPureMixRep,AMPureMixVol)
-            p300.blow_out(sample_plate[X].top(z=-5))
-            p300.move_to(bypass) 
+                p1000.pick_up_tip(W3_AMPure_Bind_3)
+            p1000.mix(3, AMPureVol + 10, AMPure.bottom(z=p300_offset_Res))
+            p1000.aspirate(AMPureVol, AMPure.bottom(z=p300_offset_Res), rate=0.25)
+            p1000.dispense(AMPureVol, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
+            p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
+            p1000.mix(AMPureMixRep, AMPureMixVol)
+            p1000.blow_out(sample_plate[X].top(z=-5))
+            p1000.move_to(bypass)
             if TIPREUSE == 'NO':
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             else: 
-                p300.return_tip()
+                p1000.return_tip()
 
         if DRYRUN == 'NO':
             protocol.delay(seconds=5)
@@ -2167,88 +2184,88 @@ def run(protocol: protocol_api.ProtocolContext):
 
         if samplecolumns == 2:
             protocol.pause('RESET TIPS')
-            p300.reset_tipracks()
+            p1000.reset_tipracks()
 
         protocol.comment('--> Removing Supernatant')
         RemoveSup = 100
         if samplecolumns >= 1:#-----------------------------------------------------------------------------------------
             X = 'A2'
             if TIPREUSE == 'NO': 
-                p300.pick_up_tip()
+                p1000.pick_up_tip()
             elif WASHNUM == 1:
-                p300.pick_up_tip(W1_AMPure_Bind_1)
+                p1000.pick_up_tip(W1_AMPure_Bind_1)
             elif WASHNUM == 2:
-                p300.pick_up_tip(W2_AMPure_Bind_1)
+                p1000.pick_up_tip(W2_AMPure_Bind_1)
             elif WASHNUM == 3:
-                p300.pick_up_tip(W3_AMPure_Bind_1)
-            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
-            p300.aspirate(RemoveSup-30, rate=0.25)
-            p300.default_speed = 5
-            if X == 'A2': p300.move_to(A2_p300_bead_side)
-            if X == 'A4': p300.move_to(A4_p300_bead_side)
-            if X == 'A6': p300.move_to(A6_p300_bead_side)
+                p1000.pick_up_tip(W3_AMPure_Bind_1)
+            p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag + 4))
+            p1000.aspirate(RemoveSup - 30, rate=0.25)
+            p1000.default_speed = 5
+            if X == 'A2': p1000.move_to(A2_p300_bead_side)
+            if X == 'A4': p1000.move_to(A4_p300_bead_side)
+            if X == 'A6': p1000.move_to(A6_p300_bead_side)
             protocol.delay(minutes=0.1)
-            p300.aspirate(20, rate=0.2)
-            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
+            p1000.aspirate(20, rate=0.2)
+            p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
             protocol.delay(minutes=0.1)
-            p300.aspirate(10, rate=0.1)
-            p300.move_to(sample_plate[X].top(z=2))
-            p300.default_speed = 400
-            p300.dispense(200, Liquid_trash)
-            p300.move_to(bypass)
-            p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+            p1000.aspirate(10, rate=0.1)
+            p1000.move_to(sample_plate[X].top(z=2))
+            p1000.default_speed = 400
+            p1000.dispense(200, Liquid_trash)
+            p1000.move_to(bypass)
+            p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
         if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
             X = 'A4'
             if TIPREUSE == 'NO': 
-                p300.pick_up_tip()
+                p1000.pick_up_tip()
             elif WASHNUM == 1:
-                p300.pick_up_tip(W1_AMPure_Bind_2)
+                p1000.pick_up_tip(W1_AMPure_Bind_2)
             elif WASHNUM == 2:
-                p300.pick_up_tip(W2_AMPure_Bind_2)
+                p1000.pick_up_tip(W2_AMPure_Bind_2)
             elif WASHNUM == 3:
-                p300.pick_up_tip(W3_AMPure_Bind_2)
-            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
-            p300.aspirate(RemoveSup-30, rate=0.25)
-            p300.default_speed = 5
-            if X == 'A2': p300.move_to(A2_p300_bead_side)
-            if X == 'A4': p300.move_to(A4_p300_bead_side)
-            if X == 'A6': p300.move_to(A6_p300_bead_side)
+                p1000.pick_up_tip(W3_AMPure_Bind_2)
+            p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag + 4))
+            p1000.aspirate(RemoveSup - 30, rate=0.25)
+            p1000.default_speed = 5
+            if X == 'A2': p1000.move_to(A2_p300_bead_side)
+            if X == 'A4': p1000.move_to(A4_p300_bead_side)
+            if X == 'A6': p1000.move_to(A6_p300_bead_side)
             protocol.delay(minutes=0.1)
-            p300.aspirate(20, rate=0.2)
-            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
+            p1000.aspirate(20, rate=0.2)
+            p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
             protocol.delay(minutes=0.1)
-            p300.aspirate(10, rate=0.1)
-            p300.move_to(sample_plate[X].top(z=2))
-            p300.default_speed = 400
-            p300.dispense(200, Liquid_trash)
-            p300.move_to(bypass)
-            p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+            p1000.aspirate(10, rate=0.1)
+            p1000.move_to(sample_plate[X].top(z=2))
+            p1000.default_speed = 400
+            p1000.dispense(200, Liquid_trash)
+            p1000.move_to(bypass)
+            p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
         if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
             X = 'A6'
             if TIPREUSE == 'NO': 
-                p300.pick_up_tip()
+                p1000.pick_up_tip()
             elif WASHNUM == 1:
-                p300.pick_up_tip(W1_AMPure_Bind_3)
+                p1000.pick_up_tip(W1_AMPure_Bind_3)
             elif WASHNUM == 2:
-                p300.pick_up_tip(W2_AMPure_Bind_3)
+                p1000.pick_up_tip(W2_AMPure_Bind_3)
             elif WASHNUM == 3:
-                p300.pick_up_tip(W3_AMPure_Bind_3)
-            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
-            p300.aspirate(RemoveSup-30, rate=0.25)
-            p300.default_speed = 5
-            if X == 'A2': p300.move_to(A2_p300_bead_side)
-            if X == 'A4': p300.move_to(A4_p300_bead_side)
-            if X == 'A6': p300.move_to(A6_p300_bead_side)
+                p1000.pick_up_tip(W3_AMPure_Bind_3)
+            p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag + 4))
+            p1000.aspirate(RemoveSup - 30, rate=0.25)
+            p1000.default_speed = 5
+            if X == 'A2': p1000.move_to(A2_p300_bead_side)
+            if X == 'A4': p1000.move_to(A4_p300_bead_side)
+            if X == 'A6': p1000.move_to(A6_p300_bead_side)
             protocol.delay(minutes=0.1)
-            p300.aspirate(20, rate=0.2)
-            p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
+            p1000.aspirate(20, rate=0.2)
+            p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
             protocol.delay(minutes=0.1)
-            p300.aspirate(10, rate=0.1)
-            p300.move_to(sample_plate[X].top(z=2))
-            p300.default_speed = 400
-            p300.dispense(200, Liquid_trash)
-            p300.move_to(bypass)
-            p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+            p1000.aspirate(10, rate=0.1)
+            p1000.move_to(sample_plate[X].top(z=2))
+            p1000.default_speed = 400
+            p1000.dispense(200, Liquid_trash)
+            p1000.move_to(bypass)
+            p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
 
         protocol.comment('--> Repeating 2 washes')
         washreps = 2
@@ -2259,69 +2276,69 @@ def run(protocol: protocol_api.ProtocolContext):
             if samplecolumns >= 1:#-----------------------------------------------------------------------------------------
                 X = 'A2'
                 if TIPREUSE == 'NO': 
-                    p300.pick_up_tip()
+                    p1000.pick_up_tip()
                 elif WASHNUM == 1:
-                    p300.pick_up_tip(W1_ETOH_washtip_1)
+                    p1000.pick_up_tip(W1_ETOH_washtip_1)
                 elif WASHNUM == 2:
-                    p300.pick_up_tip(W2_ETOH_washtip_1)
-                p300.aspirate(ETOHMaxVol, EtOH_1.bottom(z=p300_offset_Res))
-                if X == 'A2': p300.move_to(A2_p300_bead_side)
-                if X == 'A4': p300.move_to(A4_p300_bead_side)
-                if X == 'A6': p300.move_to(A6_p300_bead_side)
-                p300.dispense(ETOHMaxVol-50, rate=0.5)
-                p300.move_to(sample_plate[X].center())
-                p300.dispense(50, rate=0.5)
-                p300.move_to(sample_plate[X].top(z=2))
-                p300.default_speed = 5
-                p300.move_to(sample_plate[X].top(z=-2))
+                    p1000.pick_up_tip(W2_ETOH_washtip_1)
+                p1000.aspirate(ETOHMaxVol, EtOH_1.bottom(z=p300_offset_Res))
+                if X == 'A2': p1000.move_to(A2_p300_bead_side)
+                if X == 'A4': p1000.move_to(A4_p300_bead_side)
+                if X == 'A6': p1000.move_to(A6_p300_bead_side)
+                p1000.dispense(ETOHMaxVol - 50, rate=0.5)
+                p1000.move_to(sample_plate[X].center())
+                p1000.dispense(50, rate=0.5)
+                p1000.move_to(sample_plate[X].top(z=2))
+                p1000.default_speed = 5
+                p1000.move_to(sample_plate[X].top(z=-2))
                 protocol.delay(minutes=0.1)
-                p300.blow_out()
-                p300.default_speed = 400
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.blow_out()
+                p1000.default_speed = 400
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
                 X = 'A4'
                 if TIPREUSE == 'NO': 
-                    p300.pick_up_tip()
+                    p1000.pick_up_tip()
                 elif WASHNUM == 1:
-                    p300.pick_up_tip(W1_ETOH_washtip_2)
+                    p1000.pick_up_tip(W1_ETOH_washtip_2)
                 elif WASHNUM == 2:
-                    p300.pick_up_tip(W2_ETOH_washtip_2)
-                p300.aspirate(ETOHMaxVol, EtOH_2.bottom(z=p300_offset_Res))
-                if X == 'A2': p300.move_to(A2_p300_bead_side)
-                if X == 'A4': p300.move_to(A4_p300_bead_side)
-                if X == 'A6': p300.move_to(A6_p300_bead_side)
-                p300.dispense(ETOHMaxVol-50, rate=0.5)
-                p300.move_to(sample_plate[X].center())
-                p300.dispense(50, rate=0.5)
-                p300.move_to(sample_plate[X].top(z=2))
-                p300.default_speed = 5
-                p300.move_to(sample_plate[X].top(z=-2))
+                    p1000.pick_up_tip(W2_ETOH_washtip_2)
+                p1000.aspirate(ETOHMaxVol, EtOH_2.bottom(z=p300_offset_Res))
+                if X == 'A2': p1000.move_to(A2_p300_bead_side)
+                if X == 'A4': p1000.move_to(A4_p300_bead_side)
+                if X == 'A6': p1000.move_to(A6_p300_bead_side)
+                p1000.dispense(ETOHMaxVol - 50, rate=0.5)
+                p1000.move_to(sample_plate[X].center())
+                p1000.dispense(50, rate=0.5)
+                p1000.move_to(sample_plate[X].top(z=2))
+                p1000.default_speed = 5
+                p1000.move_to(sample_plate[X].top(z=-2))
                 protocol.delay(minutes=0.1)
-                p300.blow_out()
-                p300.default_speed = 400
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.blow_out()
+                p1000.default_speed = 400
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
                 X = 'A6'
                 if TIPREUSE == 'NO': 
-                    p300.pick_up_tip()
+                    p1000.pick_up_tip()
                 elif WASHNUM == 1:
-                    p300.pick_up_tip(W1_ETOH_washtip_3)
+                    p1000.pick_up_tip(W1_ETOH_washtip_3)
                 elif WASHNUM == 2:
-                    p300.pick_up_tip(W2_ETOH_washtip_3)
-                p300.aspirate(ETOHMaxVol, EtOH_2.bottom(z=p300_offset_Res))
-                if X == 'A2': p300.move_to(A2_p300_bead_side)
-                if X == 'A4': p300.move_to(A4_p300_bead_side)
-                if X == 'A6': p300.move_to(A6_p300_bead_side)
-                p300.dispense(ETOHMaxVol-50, rate=0.5)
-                p300.move_to(sample_plate[X].center())
-                p300.dispense(50, rate=0.5)
-                p300.move_to(sample_plate[X].top(z=2))
-                p300.default_speed = 5
-                p300.move_to(sample_plate[X].top(z=-2))
+                    p1000.pick_up_tip(W2_ETOH_washtip_3)
+                p1000.aspirate(ETOHMaxVol, EtOH_2.bottom(z=p300_offset_Res))
+                if X == 'A2': p1000.move_to(A2_p300_bead_side)
+                if X == 'A4': p1000.move_to(A4_p300_bead_side)
+                if X == 'A6': p1000.move_to(A6_p300_bead_side)
+                p1000.dispense(ETOHMaxVol - 50, rate=0.5)
+                p1000.move_to(sample_plate[X].center())
+                p1000.dispense(50, rate=0.5)
+                p1000.move_to(sample_plate[X].top(z=2))
+                p1000.default_speed = 5
+                p1000.move_to(sample_plate[X].top(z=-2))
                 protocol.delay(minutes=0.1)
-                p300.blow_out()
-                p300.default_speed = 400
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.blow_out()
+                p1000.default_speed = 400
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
 
             protocol.delay(minutes=0.5)
 
@@ -2329,69 +2346,69 @@ def run(protocol: protocol_api.ProtocolContext):
             if samplecolumns >= 1:#-----------------------------------------------------------------------------------------
                 X = 'A2'
                 if TIPREUSE == 'NO': 
-                    p300.pick_up_tip()
+                    p1000.pick_up_tip()
                 elif WASHNUM == 1:
-                    p300.pick_up_tip(W1_ETOH_removetip_1)
+                    p1000.pick_up_tip(W1_ETOH_removetip_1)
                 elif WASHNUM == 2:
-                    p300.pick_up_tip(W2_ETOH_removetip_1)
-                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
-                p300.aspirate(ETOHMaxVol, rate=0.25)
-                p300.default_speed = 5
-                if X == 'A2': p300.move_to(A2_p300_bead_side)
-                if X == 'A4': p300.move_to(A4_p300_bead_side)
-                if X == 'A6': p300.move_to(A6_p300_bead_side)
+                    p1000.pick_up_tip(W2_ETOH_removetip_1)
+                p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag + 4))
+                p1000.aspirate(ETOHMaxVol, rate=0.25)
+                p1000.default_speed = 5
+                if X == 'A2': p1000.move_to(A2_p300_bead_side)
+                if X == 'A4': p1000.move_to(A4_p300_bead_side)
+                if X == 'A6': p1000.move_to(A6_p300_bead_side)
                 protocol.delay(minutes=0.1)
-                p300.aspirate(200-ETOHMaxVol, rate=0.25)
-                p300.default_speed = 400
-                p300.dispense(200, Liquid_trash)
-                p300.move_to(Liquid_trash.top(z=5))
+                p1000.aspirate(200 - ETOHMaxVol, rate=0.25)
+                p1000.default_speed = 400
+                p1000.dispense(200, Liquid_trash)
+                p1000.move_to(Liquid_trash.top(z=5))
                 protocol.delay(minutes=0.1)
-                p300.blow_out()
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.blow_out()
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
                 X = 'A4'
                 if TIPREUSE == 'NO': 
-                    p300.pick_up_tip()
+                    p1000.pick_up_tip()
                 elif WASHNUM == 1:
-                    p300.pick_up_tip(W1_ETOH_removetip_2)
+                    p1000.pick_up_tip(W1_ETOH_removetip_2)
                 elif WASHNUM == 2:
-                    p300.pick_up_tip(W2_ETOH_removetip_2)
-                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
-                p300.aspirate(ETOHMaxVol, rate=0.25)
-                p300.default_speed = 5
-                if X == 'A2': p300.move_to(A2_p300_bead_side)
-                if X == 'A4': p300.move_to(A4_p300_bead_side)
-                if X == 'A6': p300.move_to(A6_p300_bead_side)
+                    p1000.pick_up_tip(W2_ETOH_removetip_2)
+                p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag + 4))
+                p1000.aspirate(ETOHMaxVol, rate=0.25)
+                p1000.default_speed = 5
+                if X == 'A2': p1000.move_to(A2_p300_bead_side)
+                if X == 'A4': p1000.move_to(A4_p300_bead_side)
+                if X == 'A6': p1000.move_to(A6_p300_bead_side)
                 protocol.delay(minutes=0.1)
-                p300.aspirate(200-ETOHMaxVol, rate=0.25)
-                p300.default_speed = 400
-                p300.dispense(200, Liquid_trash)
-                p300.move_to(Liquid_trash.top(z=5))
+                p1000.aspirate(200 - ETOHMaxVol, rate=0.25)
+                p1000.default_speed = 400
+                p1000.dispense(200, Liquid_trash)
+                p1000.move_to(Liquid_trash.top(z=5))
                 protocol.delay(minutes=0.1)
-                p300.blow_out()
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.blow_out()
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
                 X = 'A6'
                 if TIPREUSE == 'NO': 
-                    p300.pick_up_tip()
+                    p1000.pick_up_tip()
                 elif WASHNUM == 1:
-                    p300.pick_up_tip(W1_ETOH_removetip_3)
+                    p1000.pick_up_tip(W1_ETOH_removetip_3)
                 elif WASHNUM == 2:
-                    p300.pick_up_tip(W2_ETOH_removetip_3)
-                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+4))
-                p300.aspirate(ETOHMaxVol, rate=0.25)
-                p300.default_speed = 5
-                if X == 'A2': p300.move_to(A2_p300_bead_side)
-                if X == 'A4': p300.move_to(A4_p300_bead_side)
-                if X == 'A6': p300.move_to(A6_p300_bead_side)
+                    p1000.pick_up_tip(W2_ETOH_removetip_3)
+                p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag + 4))
+                p1000.aspirate(ETOHMaxVol, rate=0.25)
+                p1000.default_speed = 5
+                if X == 'A2': p1000.move_to(A2_p300_bead_side)
+                if X == 'A4': p1000.move_to(A4_p300_bead_side)
+                if X == 'A6': p1000.move_to(A6_p300_bead_side)
                 protocol.delay(minutes=0.1)
-                p300.aspirate(200-ETOHMaxVol, rate=0.25)
-                p300.default_speed = 400
-                p300.dispense(200, Liquid_trash)
-                p300.move_to(Liquid_trash.top(z=5))
+                p1000.aspirate(200 - ETOHMaxVol, rate=0.25)
+                p1000.default_speed = 400
+                p1000.dispense(200, Liquid_trash)
+                p1000.move_to(Liquid_trash.top(z=5))
                 protocol.delay(minutes=0.1)
-                p300.blow_out()
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.blow_out()
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
 
             wash += 1
 
@@ -2402,62 +2419,62 @@ def run(protocol: protocol_api.ProtocolContext):
         if TIPREUSE == 'NO':
             if samplecolumns >= 1:#-----------------------------------------------------------------------------------------
                 X = 'A2'
-                p20.pick_up_tip()
-                p20.move_to(sample_plate[X].bottom(z=p20_offset_Mag+1))
-                p20.aspirate(20, rate=0.25)if NOMODULES == 'NO' else p20.aspirate(10, rate=0.25)
-                p20.move_to(bypass)
-                p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
+                p50.pick_up_tip()
+                p50.move_to(sample_plate[X].bottom(z=p20_offset_Mag + 1))
+                p50.aspirate(20, rate=0.25)if NOMODULES == 'NO' else p50.aspirate(10, rate=0.25)
+                p50.move_to(bypass)
+                p50.drop_tip() if DRYRUN == 'NO' else p50.return_tip()
             if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
                 X = 'A4'
-                p20.pick_up_tip()
-                p20.move_to(sample_plate[X].bottom(z=p20_offset_Mag+1))
-                p20.aspirate(20, rate=0.25)if NOMODULES == 'NO' else p20.aspirate(10, rate=0.25)
-                p20.move_to(bypass)
-                p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
+                p50.pick_up_tip()
+                p50.move_to(sample_plate[X].bottom(z=p20_offset_Mag + 1))
+                p50.aspirate(20, rate=0.25)if NOMODULES == 'NO' else p50.aspirate(10, rate=0.25)
+                p50.move_to(bypass)
+                p50.drop_tip() if DRYRUN == 'NO' else p50.return_tip()
             if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
                 X = 'A6'
-                p20.pick_up_tip()
-                p20.move_to(sample_plate[X].bottom(z=p20_offset_Mag+1))
-                p20.aspirate(20, rate=0.25)if NOMODULES == 'NO' else p20.aspirate(10, rate=0.25)
-                p20.move_to(bypass)
-                p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
+                p50.pick_up_tip()
+                p50.move_to(sample_plate[X].bottom(z=p20_offset_Mag + 1))
+                p50.aspirate(20, rate=0.25)if NOMODULES == 'NO' else p50.aspirate(10, rate=0.25)
+                p50.move_to(bypass)
+                p50.drop_tip() if DRYRUN == 'NO' else p50.return_tip()
         if TIPREUSE == 'YES':
             if samplecolumns >= 1:#-----------------------------------------------------------------------------------------
                 X = 'A2'
                 if TIPREUSE == 'NO': 
-                    p300.pick_up_tip()
+                    p1000.pick_up_tip()
                 elif WASHNUM == 1:
-                    p300.pick_up_tip(W1_ETOH_removetip_1)
+                    p1000.pick_up_tip(W1_ETOH_removetip_1)
                 elif WASHNUM == 2:
-                    p300.pick_up_tip(W2_ETOH_removetip_1)
-                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+1))
-                p300.aspirate(20, rate=0.25)
-                p300.move_to(bypass)
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                    p1000.pick_up_tip(W2_ETOH_removetip_1)
+                p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag + 1))
+                p1000.aspirate(20, rate=0.25)
+                p1000.move_to(bypass)
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
                 X = 'A4'
                 if TIPREUSE == 'NO': 
-                    p300.pick_up_tip()
+                    p1000.pick_up_tip()
                 elif WASHNUM == 1:
-                    p300.pick_up_tip(W1_ETOH_removetip_2)
+                    p1000.pick_up_tip(W1_ETOH_removetip_2)
                 elif WASHNUM == 2:
-                    p300.pick_up_tip(W2_ETOH_removetip_2)
-                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+1))
-                p300.aspirate(20, rate=0.25)
-                p300.move_to(bypass)
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                    p1000.pick_up_tip(W2_ETOH_removetip_2)
+                p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag + 1))
+                p1000.aspirate(20, rate=0.25)
+                p1000.move_to(bypass)
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
                 X = 'A6'
                 if TIPREUSE == 'NO': 
-                    p300.pick_up_tip()
+                    p1000.pick_up_tip()
                 elif WASHNUM == 1:
-                    p300.pick_up_tip(W1_ETOH_removetip_3)
+                    p1000.pick_up_tip(W1_ETOH_removetip_3)
                 elif WASHNUM == 2:
-                    p300.pick_up_tip(W2_ETOH_removetip_3)
-                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag+1))
-                p300.aspirate(20, rate=0.25)
-                p300.move_to(bypass)
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                    p1000.pick_up_tip(W2_ETOH_removetip_3)
+                p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag + 1))
+                p1000.aspirate(20, rate=0.25)
+                p1000.move_to(bypass)
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
 
         # if DRYRUN == 'NO':
         #     mag_block.engage(height_from_base=6)        # TODO: remove?
@@ -2475,207 +2492,207 @@ def run(protocol: protocol_api.ProtocolContext):
         if samplecolumns >= 1:#-----------------------------------------------------------------------------------------
             X = 'A2'
             if TIPREUSE == 'NO': 
-                p300.pick_up_tip()
+                p1000.pick_up_tip()
             elif WASHNUM == 1:
-                p300.pick_up_tip(W1_ResusTrans_1)
+                p1000.pick_up_tip(W1_ResusTrans_1)
             elif WASHNUM == 2:
-                p300.pick_up_tip(W2_ResusTrans_1)
+                p1000.pick_up_tip(W2_ResusTrans_1)
             elif WASHNUM == 3:
-                p300.pick_up_tip(W3_ResusTrans_1)
-            p300.aspirate(RSBVol, RSB.bottom(p300_offset_Res))
-            if X == 'A2': p300.move_to(A2_p300_loc1)
-            if X == 'A4': p300.move_to(A4_p300_loc1)
-            if X == 'A6': p300.move_to(A6_p300_loc1)
-            p300.dispense(RSBVol/5, rate=0.75)
-            p300.default_speed = 5
-            if X == 'A2': p300.move_to(A2_p300_loc1)
-            if X == 'A4': p300.move_to(A4_p300_loc1)
-            if X == 'A6': p300.move_to(A6_p300_loc1)
-            p300.dispense(RSBVol/5, rate=0.75)
-            if X == 'A2': p300.move_to(A2_p300_loc1)
-            if X == 'A4': p300.move_to(A4_p300_loc1)
-            if X == 'A6': p300.move_to(A6_p300_loc1)
-            p300.dispense(RSBVol/5, rate=0.75)
-            if X == 'A2': p300.move_to(A2_p300_loc1)
-            if X == 'A4': p300.move_to(A4_p300_loc1)
-            if X == 'A6': p300.move_to(A6_p300_loc1)
-            p300.dispense(RSBVol/5, rate=0.75)
-            if X == 'A2': p300.move_to(A2_p300_loc1)
-            if X == 'A4': p300.move_to(A4_p300_loc1)
-            if X == 'A6': p300.move_to(A6_p300_loc1)
-            p300.dispense(RSBVol/5, rate=0.75)
+                p1000.pick_up_tip(W3_ResusTrans_1)
+            p1000.aspirate(RSBVol, RSB.bottom(p300_offset_Res))
+            if X == 'A2': p1000.move_to(A2_p300_loc1)
+            if X == 'A4': p1000.move_to(A4_p300_loc1)
+            if X == 'A6': p1000.move_to(A6_p300_loc1)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            p1000.default_speed = 5
+            if X == 'A2': p1000.move_to(A2_p300_loc1)
+            if X == 'A4': p1000.move_to(A4_p300_loc1)
+            if X == 'A6': p1000.move_to(A6_p300_loc1)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            if X == 'A2': p1000.move_to(A2_p300_loc1)
+            if X == 'A4': p1000.move_to(A4_p300_loc1)
+            if X == 'A6': p1000.move_to(A6_p300_loc1)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            if X == 'A2': p1000.move_to(A2_p300_loc1)
+            if X == 'A4': p1000.move_to(A4_p300_loc1)
+            if X == 'A6': p1000.move_to(A6_p300_loc1)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            if X == 'A2': p1000.move_to(A2_p300_loc1)
+            if X == 'A4': p1000.move_to(A4_p300_loc1)
+            if X == 'A6': p1000.move_to(A6_p300_loc1)
+            p1000.dispense(RSBVol / 5, rate=0.75)
             reps = 5
             for x in range(reps):
-                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
-                p300.aspirate(RSBVol, rate=0.5)
-                if X == 'A2': p300.move_to(A2_p300_loc1)
-                if X == 'A4': p300.move_to(A4_p300_loc1)
-                if X == 'A6': p300.move_to(A6_p300_loc1)
-                p300.dispense(RSBVol, rate=1)
+                p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
+                p1000.aspirate(RSBVol, rate=0.5)
+                if X == 'A2': p1000.move_to(A2_p300_loc1)
+                if X == 'A4': p1000.move_to(A4_p300_loc1)
+                if X == 'A6': p1000.move_to(A6_p300_loc1)
+                p1000.dispense(RSBVol, rate=1)
             reps = 3
             for x in range(reps):    
-                if X == 'A2': p300.move_to(A2_p300_loc1)
-                if X == 'A4': p300.move_to(A4_p300_loc1)
-                if X == 'A6': p300.move_to(A6_p300_loc1)
-                p300.mix(RSBMixRep,RSBMixVol)
-                if X == 'A2': p300.move_to(A2_p300_loc1)
-                if X == 'A4': p300.move_to(A4_p300_loc1)
-                if X == 'A6': p300.move_to(A6_p300_loc1)
-                p300.mix(RSBMixRep,RSBMixVol)
-                if X == 'A2': p300.move_to(A2_p300_loc1)
-                if X == 'A4': p300.move_to(A4_p300_loc1)
-                if X == 'A6': p300.move_to(A6_p300_loc1)
-                p300.mix(RSBMixRep,RSBMixVol)
-                if X == 'A2': p300.move_to(A2_p300_loc1)
-                if X == 'A4': p300.move_to(A4_p300_loc1)
-                if X == 'A6': p300.move_to(A6_p300_loc1)
-                p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate.wells_by_name()[X].bottom(z=p300_offset_Mag))
-            p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate.wells_by_name()[X].top())
+                if X == 'A2': p1000.move_to(A2_p300_loc1)
+                if X == 'A4': p1000.move_to(A4_p300_loc1)
+                if X == 'A6': p1000.move_to(A6_p300_loc1)
+                p1000.mix(RSBMixRep, RSBMixVol)
+                if X == 'A2': p1000.move_to(A2_p300_loc1)
+                if X == 'A4': p1000.move_to(A4_p300_loc1)
+                if X == 'A6': p1000.move_to(A6_p300_loc1)
+                p1000.mix(RSBMixRep, RSBMixVol)
+                if X == 'A2': p1000.move_to(A2_p300_loc1)
+                if X == 'A4': p1000.move_to(A4_p300_loc1)
+                if X == 'A6': p1000.move_to(A6_p300_loc1)
+                p1000.mix(RSBMixRep, RSBMixVol)
+                if X == 'A2': p1000.move_to(A2_p300_loc1)
+                if X == 'A4': p1000.move_to(A4_p300_loc1)
+                if X == 'A6': p1000.move_to(A6_p300_loc1)
+                p1000.mix(RSBMixRep, RSBMixVol)
+            p1000.move_to(sample_plate.wells_by_name()[X].bottom(z=p300_offset_Mag))
+            p1000.mix(RSBMixRep, RSBMixVol)
+            p1000.move_to(sample_plate.wells_by_name()[X].top())
             protocol.delay(seconds=0.5)
-            p300.move_to(sample_plate.wells_by_name()[X].center())
-            p300.default_speed = 400
+            p1000.move_to(sample_plate.wells_by_name()[X].center())
+            p1000.default_speed = 400
             if TIPREUSE == 'NO':
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             else: 
-                p300.return_tip()
+                p1000.return_tip()
         if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
             X = 'A4'
             if TIPREUSE == 'NO': 
-                p300.pick_up_tip()
+                p1000.pick_up_tip()
             elif WASHNUM == 1:
-                p300.pick_up_tip(W1_ResusTrans_2)
+                p1000.pick_up_tip(W1_ResusTrans_2)
             elif WASHNUM == 2:
-                p300.pick_up_tip(W2_ResusTrans_2)
+                p1000.pick_up_tip(W2_ResusTrans_2)
             elif WASHNUM == 3:
-                p300.pick_up_tip(W3_ResusTrans_2)
-            p300.aspirate(RSBVol, RSB.bottom(p300_offset_Res))
-            if X == 'A2': p300.move_to(A2_p300_loc1)
-            if X == 'A4': p300.move_to(A4_p300_loc1)
-            if X == 'A6': p300.move_to(A6_p300_loc1)
-            p300.dispense(RSBVol/5, rate=0.75)
-            p300.default_speed = 5
-            if X == 'A2': p300.move_to(A2_p300_loc1)
-            if X == 'A4': p300.move_to(A4_p300_loc1)
-            if X == 'A6': p300.move_to(A6_p300_loc1)
-            p300.dispense(RSBVol/5, rate=0.75)
-            if X == 'A2': p300.move_to(A2_p300_loc1)
-            if X == 'A4': p300.move_to(A4_p300_loc1)
-            if X == 'A6': p300.move_to(A6_p300_loc1)
-            p300.dispense(RSBVol/5, rate=0.75)
-            if X == 'A2': p300.move_to(A2_p300_loc1)
-            if X == 'A4': p300.move_to(A4_p300_loc1)
-            if X == 'A6': p300.move_to(A6_p300_loc1)
-            p300.dispense(RSBVol/5, rate=0.75)
-            if X == 'A2': p300.move_to(A2_p300_loc1)
-            if X == 'A4': p300.move_to(A4_p300_loc1)
-            if X == 'A6': p300.move_to(A6_p300_loc1)
-            p300.dispense(RSBVol/5, rate=0.75)
+                p1000.pick_up_tip(W3_ResusTrans_2)
+            p1000.aspirate(RSBVol, RSB.bottom(p300_offset_Res))
+            if X == 'A2': p1000.move_to(A2_p300_loc1)
+            if X == 'A4': p1000.move_to(A4_p300_loc1)
+            if X == 'A6': p1000.move_to(A6_p300_loc1)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            p1000.default_speed = 5
+            if X == 'A2': p1000.move_to(A2_p300_loc1)
+            if X == 'A4': p1000.move_to(A4_p300_loc1)
+            if X == 'A6': p1000.move_to(A6_p300_loc1)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            if X == 'A2': p1000.move_to(A2_p300_loc1)
+            if X == 'A4': p1000.move_to(A4_p300_loc1)
+            if X == 'A6': p1000.move_to(A6_p300_loc1)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            if X == 'A2': p1000.move_to(A2_p300_loc1)
+            if X == 'A4': p1000.move_to(A4_p300_loc1)
+            if X == 'A6': p1000.move_to(A6_p300_loc1)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            if X == 'A2': p1000.move_to(A2_p300_loc1)
+            if X == 'A4': p1000.move_to(A4_p300_loc1)
+            if X == 'A6': p1000.move_to(A6_p300_loc1)
+            p1000.dispense(RSBVol / 5, rate=0.75)
             reps = 5
             for x in range(reps):
-                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
-                p300.aspirate(RSBVol, rate=0.5)
-                if X == 'A2': p300.move_to(A2_p300_loc1)
-                if X == 'A4': p300.move_to(A4_p300_loc1)
-                if X == 'A6': p300.move_to(A6_p300_loc1)
-                p300.dispense(RSBVol, rate=1)
+                p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
+                p1000.aspirate(RSBVol, rate=0.5)
+                if X == 'A2': p1000.move_to(A2_p300_loc1)
+                if X == 'A4': p1000.move_to(A4_p300_loc1)
+                if X == 'A6': p1000.move_to(A6_p300_loc1)
+                p1000.dispense(RSBVol, rate=1)
             reps = 3
             for x in range(reps):    
-                if X == 'A2': p300.move_to(A2_p300_loc1)
-                if X == 'A4': p300.move_to(A4_p300_loc1)
-                if X == 'A6': p300.move_to(A6_p300_loc1)
-                p300.mix(RSBMixRep,RSBMixVol)
-                if X == 'A2': p300.move_to(A2_p300_loc1)
-                if X == 'A4': p300.move_to(A4_p300_loc1)
-                if X == 'A6': p300.move_to(A6_p300_loc1)
-                p300.mix(RSBMixRep,RSBMixVol)
-                if X == 'A2': p300.move_to(A2_p300_loc1)
-                if X == 'A4': p300.move_to(A4_p300_loc1)
-                if X == 'A6': p300.move_to(A6_p300_loc1)
-                p300.mix(RSBMixRep,RSBMixVol)
-                if X == 'A2': p300.move_to(A2_p300_loc1)
-                if X == 'A4': p300.move_to(A4_p300_loc1)
-                if X == 'A6': p300.move_to(A6_p300_loc1)
-                p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate.wells_by_name()[X].bottom(z=p300_offset_Mag))
-            p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate.wells_by_name()[X].top())
+                if X == 'A2': p1000.move_to(A2_p300_loc1)
+                if X == 'A4': p1000.move_to(A4_p300_loc1)
+                if X == 'A6': p1000.move_to(A6_p300_loc1)
+                p1000.mix(RSBMixRep, RSBMixVol)
+                if X == 'A2': p1000.move_to(A2_p300_loc1)
+                if X == 'A4': p1000.move_to(A4_p300_loc1)
+                if X == 'A6': p1000.move_to(A6_p300_loc1)
+                p1000.mix(RSBMixRep, RSBMixVol)
+                if X == 'A2': p1000.move_to(A2_p300_loc1)
+                if X == 'A4': p1000.move_to(A4_p300_loc1)
+                if X == 'A6': p1000.move_to(A6_p300_loc1)
+                p1000.mix(RSBMixRep, RSBMixVol)
+                if X == 'A2': p1000.move_to(A2_p300_loc1)
+                if X == 'A4': p1000.move_to(A4_p300_loc1)
+                if X == 'A6': p1000.move_to(A6_p300_loc1)
+                p1000.mix(RSBMixRep, RSBMixVol)
+            p1000.move_to(sample_plate.wells_by_name()[X].bottom(z=p300_offset_Mag))
+            p1000.mix(RSBMixRep, RSBMixVol)
+            p1000.move_to(sample_plate.wells_by_name()[X].top())
             protocol.delay(seconds=0.5)
-            p300.move_to(sample_plate.wells_by_name()[X].center())
-            p300.default_speed = 400
+            p1000.move_to(sample_plate.wells_by_name()[X].center())
+            p1000.default_speed = 400
             if TIPREUSE == 'NO':
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             else: 
-                p300.return_tip()
+                p1000.return_tip()
         if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
             X = 'A6'
             if TIPREUSE == 'NO': 
-                p300.pick_up_tip()
+                p1000.pick_up_tip()
             elif WASHNUM == 1:
-                p300.pick_up_tip(W1_ResusTrans_3)
+                p1000.pick_up_tip(W1_ResusTrans_3)
             elif WASHNUM == 2:
-                p300.pick_up_tip(W2_ResusTrans_3)
+                p1000.pick_up_tip(W2_ResusTrans_3)
             elif WASHNUM == 3:
-                p300.pick_up_tip(W3_ResusTrans_3)
-            p300.aspirate(RSBVol, RSB.bottom(p300_offset_Res))
-            if X == 'A2': p300.move_to(A2_p300_loc1)
-            if X == 'A4': p300.move_to(A4_p300_loc1)
-            if X == 'A6': p300.move_to(A6_p300_loc1)
-            p300.dispense(RSBVol/5, rate=0.75)
-            p300.default_speed = 5
-            if X == 'A2': p300.move_to(A2_p300_loc1)
-            if X == 'A4': p300.move_to(A4_p300_loc1)
-            if X == 'A6': p300.move_to(A6_p300_loc1)
-            p300.dispense(RSBVol/5, rate=0.75)
-            if X == 'A2': p300.move_to(A2_p300_loc1)
-            if X == 'A4': p300.move_to(A4_p300_loc1)
-            if X == 'A6': p300.move_to(A6_p300_loc1)
-            p300.dispense(RSBVol/5, rate=0.75)
-            if X == 'A2': p300.move_to(A2_p300_loc1)
-            if X == 'A4': p300.move_to(A4_p300_loc1)
-            if X == 'A6': p300.move_to(A6_p300_loc1)
-            p300.dispense(RSBVol/5, rate=0.75)
-            if X == 'A2': p300.move_to(A2_p300_loc1)
-            if X == 'A4': p300.move_to(A4_p300_loc1)
-            if X == 'A6': p300.move_to(A6_p300_loc1)
-            p300.dispense(RSBVol/5, rate=0.75)
+                p1000.pick_up_tip(W3_ResusTrans_3)
+            p1000.aspirate(RSBVol, RSB.bottom(p300_offset_Res))
+            if X == 'A2': p1000.move_to(A2_p300_loc1)
+            if X == 'A4': p1000.move_to(A4_p300_loc1)
+            if X == 'A6': p1000.move_to(A6_p300_loc1)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            p1000.default_speed = 5
+            if X == 'A2': p1000.move_to(A2_p300_loc1)
+            if X == 'A4': p1000.move_to(A4_p300_loc1)
+            if X == 'A6': p1000.move_to(A6_p300_loc1)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            if X == 'A2': p1000.move_to(A2_p300_loc1)
+            if X == 'A4': p1000.move_to(A4_p300_loc1)
+            if X == 'A6': p1000.move_to(A6_p300_loc1)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            if X == 'A2': p1000.move_to(A2_p300_loc1)
+            if X == 'A4': p1000.move_to(A4_p300_loc1)
+            if X == 'A6': p1000.move_to(A6_p300_loc1)
+            p1000.dispense(RSBVol / 5, rate=0.75)
+            if X == 'A2': p1000.move_to(A2_p300_loc1)
+            if X == 'A4': p1000.move_to(A4_p300_loc1)
+            if X == 'A6': p1000.move_to(A6_p300_loc1)
+            p1000.dispense(RSBVol / 5, rate=0.75)
             reps = 5
             for x in range(reps):
-                p300.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
-                p300.aspirate(RSBVol, rate=0.5)
-                if X == 'A2': p300.move_to(A2_p300_loc1)
-                if X == 'A4': p300.move_to(A4_p300_loc1)
-                if X == 'A6': p300.move_to(A6_p300_loc1)
-                p300.dispense(RSBVol, rate=1)
+                p1000.move_to(sample_plate[X].bottom(z=p300_offset_Mag))
+                p1000.aspirate(RSBVol, rate=0.5)
+                if X == 'A2': p1000.move_to(A2_p300_loc1)
+                if X == 'A4': p1000.move_to(A4_p300_loc1)
+                if X == 'A6': p1000.move_to(A6_p300_loc1)
+                p1000.dispense(RSBVol, rate=1)
             reps = 3
             for x in range(reps):    
-                if X == 'A2': p300.move_to(A2_p300_loc1)
-                if X == 'A4': p300.move_to(A4_p300_loc1)
-                if X == 'A6': p300.move_to(A6_p300_loc1)
-                p300.mix(RSBMixRep,RSBMixVol)
-                if X == 'A2': p300.move_to(A2_p300_loc1)
-                if X == 'A4': p300.move_to(A4_p300_loc1)
-                if X == 'A6': p300.move_to(A6_p300_loc1)
-                p300.mix(RSBMixRep,RSBMixVol)
-                if X == 'A2': p300.move_to(A2_p300_loc1)
-                if X == 'A4': p300.move_to(A4_p300_loc1)
-                if X == 'A6': p300.move_to(A6_p300_loc1)
-                p300.mix(RSBMixRep,RSBMixVol)
-                if X == 'A2': p300.move_to(A2_p300_loc1)
-                if X == 'A4': p300.move_to(A4_p300_loc1)
-                if X == 'A6': p300.move_to(A6_p300_loc1)
-                p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate.wells_by_name()[X].bottom(z=p300_offset_Mag))
-            p300.mix(RSBMixRep,RSBMixVol)
-            p300.move_to(sample_plate.wells_by_name()[X].top())
+                if X == 'A2': p1000.move_to(A2_p300_loc1)
+                if X == 'A4': p1000.move_to(A4_p300_loc1)
+                if X == 'A6': p1000.move_to(A6_p300_loc1)
+                p1000.mix(RSBMixRep, RSBMixVol)
+                if X == 'A2': p1000.move_to(A2_p300_loc1)
+                if X == 'A4': p1000.move_to(A4_p300_loc1)
+                if X == 'A6': p1000.move_to(A6_p300_loc1)
+                p1000.mix(RSBMixRep, RSBMixVol)
+                if X == 'A2': p1000.move_to(A2_p300_loc1)
+                if X == 'A4': p1000.move_to(A4_p300_loc1)
+                if X == 'A6': p1000.move_to(A6_p300_loc1)
+                p1000.mix(RSBMixRep, RSBMixVol)
+                if X == 'A2': p1000.move_to(A2_p300_loc1)
+                if X == 'A4': p1000.move_to(A4_p300_loc1)
+                if X == 'A6': p1000.move_to(A6_p300_loc1)
+                p1000.mix(RSBMixRep, RSBMixVol)
+            p1000.move_to(sample_plate.wells_by_name()[X].bottom(z=p300_offset_Mag))
+            p1000.mix(RSBMixRep, RSBMixVol)
+            p1000.move_to(sample_plate.wells_by_name()[X].top())
             protocol.delay(seconds=0.5)
-            p300.move_to(sample_plate.wells_by_name()[X].center())
-            p300.default_speed = 400
+            p1000.move_to(sample_plate.wells_by_name()[X].center())
+            p1000.default_speed = 400
             if TIPREUSE == 'NO':
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             else: 
-                p300.return_tip()
+                p1000.return_tip()
 
         # if DRYRUN == 'NO':
         #     protocol.delay(minutes=2)
@@ -2687,7 +2704,7 @@ def run(protocol: protocol_api.ProtocolContext):
 
         if samplecolumns == 2:
             protocol.pause('RESET TIPS')
-            p20.reset_tipracks()
+            p50.reset_tipracks()
 
         protocol.comment('--> Transferring Supernatant')
         if NOMODULES == 'NO':
@@ -2698,79 +2715,79 @@ def run(protocol: protocol_api.ProtocolContext):
             if samplecolumns >= 1:#-----------------------------------------------------------------------------------------
                 X = 'A2'
                 Y = 'A8'
-                p20.pick_up_tip()
-                p20.aspirate(TransferSup/2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
-                p20.dispense(TransferSup/2, sample_plate[Y].bottom(z=p20_offset_Mag))
-                p20.aspirate(TransferSup/2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
-                p20.dispense(TransferSup/2+5, sample_plate[Y].bottom(z=p20_offset_Mag))
-                p20.move_to(bypass)
-                p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
+                p50.pick_up_tip()
+                p50.aspirate(TransferSup / 2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
+                p50.dispense(TransferSup / 2, sample_plate[Y].bottom(z=p20_offset_Mag))
+                p50.aspirate(TransferSup / 2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
+                p50.dispense(TransferSup / 2 + 5, sample_plate[Y].bottom(z=p20_offset_Mag))
+                p50.move_to(bypass)
+                p50.drop_tip() if DRYRUN == 'NO' else p50.return_tip()
             if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
                 X = 'A4'
                 Y = 'A10'
-                p20.pick_up_tip()
-                p20.aspirate(TransferSup/2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
-                p20.dispense(TransferSup/2, sample_plate[Y].bottom(z=p20_offset_Mag))
-                p20.aspirate(TransferSup/2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
-                p20.dispense(TransferSup/2+5, sample_plate[Y].bottom(z=p20_offset_Mag))
-                p20.move_to(bypass)
-                p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
+                p50.pick_up_tip()
+                p50.aspirate(TransferSup / 2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
+                p50.dispense(TransferSup / 2, sample_plate[Y].bottom(z=p20_offset_Mag))
+                p50.aspirate(TransferSup / 2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
+                p50.dispense(TransferSup / 2 + 5, sample_plate[Y].bottom(z=p20_offset_Mag))
+                p50.move_to(bypass)
+                p50.drop_tip() if DRYRUN == 'NO' else p50.return_tip()
             if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
                 X = 'A6'
                 Y = 'A12'
-                p20.pick_up_tip()
-                p20.aspirate(TransferSup/2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
-                p20.dispense(TransferSup/2, sample_plate[Y].bottom(z=p20_offset_Mag))
-                p20.aspirate(TransferSup/2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
-                p20.dispense(TransferSup/2+5, sample_plate[Y].bottom(z=p20_offset_Mag))
-                p20.move_to(bypass)
-                p20.drop_tip() if DRYRUN == 'NO' else p20.return_tip()
+                p50.pick_up_tip()
+                p50.aspirate(TransferSup / 2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
+                p50.dispense(TransferSup / 2, sample_plate[Y].bottom(z=p20_offset_Mag))
+                p50.aspirate(TransferSup / 2, sample_plate[X].bottom(z=p20_offset_Mag), rate=0.25)
+                p50.dispense(TransferSup / 2 + 5, sample_plate[Y].bottom(z=p20_offset_Mag))
+                p50.move_to(bypass)
+                p50.drop_tip() if DRYRUN == 'NO' else p50.return_tip()
         if TIPREUSE == 'YES':
             if samplecolumns >= 1:#-----------------------------------------------------------------------------------------
                 X = 'A2'
                 Y = 'A8'
                 if TIPREUSE == 'NO': 
-                    p300.pick_up_tip()
+                    p1000.pick_up_tip()
                 elif WASHNUM == 1:
-                    p300.pick_up_tip(W1_ResusTrans_1)
+                    p1000.pick_up_tip(W1_ResusTrans_1)
                 elif WASHNUM == 2:
-                    p300.pick_up_tip(W2_ResusTrans_1)
+                    p1000.pick_up_tip(W2_ResusTrans_1)
                 elif WASHNUM == 3:
-                    p300.pick_up_tip(W3_ResusTrans_1)
-                p300.aspirate(TransferSup, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
-                p300.dispense(TransferSup+5, sample_plate[Y].bottom(z=p300_offset_Mag))
-                p300.move_to(bypass)
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                    p1000.pick_up_tip(W3_ResusTrans_1)
+                p1000.aspirate(TransferSup, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
+                p1000.dispense(TransferSup + 5, sample_plate[Y].bottom(z=p300_offset_Mag))
+                p1000.move_to(bypass)
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
                 X = 'A4'
                 Y = 'A10'
                 if TIPREUSE == 'NO': 
-                    p300.pick_up_tip()
+                    p1000.pick_up_tip()
                 elif WASHNUM == 1:
-                    p300.pick_up_tip(W1_ResusTrans_2)
+                    p1000.pick_up_tip(W1_ResusTrans_2)
                 elif WASHNUM == 2:
-                    p300.pick_up_tip(W2_ResusTrans_2)
+                    p1000.pick_up_tip(W2_ResusTrans_2)
                 elif WASHNUM == 3:
-                    p300.pick_up_tip(W3_ResusTrans_2)
-                p300.aspirate(TransferSup, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
-                p300.dispense(TransferSup+5, sample_plate[Y].bottom(z=p300_offset_Mag))
-                p300.move_to(bypass)
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                    p1000.pick_up_tip(W3_ResusTrans_2)
+                p1000.aspirate(TransferSup, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
+                p1000.dispense(TransferSup + 5, sample_plate[Y].bottom(z=p300_offset_Mag))
+                p1000.move_to(bypass)
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
             if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
                 X = 'A6'
                 Y = 'A12'
                 if TIPREUSE == 'NO': 
-                    p300.pick_up_tip()
+                    p1000.pick_up_tip()
                 elif WASHNUM == 1:
-                    p300.pick_up_tip(W1_ResusTrans_3)
+                    p1000.pick_up_tip(W1_ResusTrans_3)
                 elif WASHNUM == 2:
-                    p300.pick_up_tip(W2_ResusTrans_3)
+                    p1000.pick_up_tip(W2_ResusTrans_3)
                 elif WASHNUM == 3:
-                    p300.pick_up_tip(W3_ResusTrans_3)
-                p300.aspirate(TransferSup, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
-                p300.dispense(TransferSup+5, sample_plate[Y].bottom(z=p300_offset_Mag))
-                p300.move_to(bypass)
-                p300.drop_tip() if DRYRUN == 'NO' else p300.return_tip()
+                    p1000.pick_up_tip(W3_ResusTrans_3)
+                p1000.aspirate(TransferSup, sample_plate[X].bottom(z=p300_offset_Mag), rate=0.25)
+                p1000.dispense(TransferSup + 5, sample_plate[Y].bottom(z=p300_offset_Mag))
+                p1000.move_to(bypass)
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
 
         # if DRYRUN == 'NO':
         #     protocol.comment('MAGNET DISENGAGE')
