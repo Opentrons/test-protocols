@@ -102,8 +102,10 @@ def run(ctx):
     wash5 = res2.wells()[8:10]
     wash6 = res2.wells()[10:]
 
-    elutionplate_row_0 = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10', 'A11', 'A12']
-    elution_samples_m = elutionplate_row_0[:num_cols]            # elutionplate.rows()[0][:num_cols]
+    row_0_of_96_plate = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10', 'A11', 'A12']
+
+    elution_samples_m = [elutionplate.wells_by_name()[well_name] for well_name in row_0_of_96_plate][:num_cols]         # elutionplate.rows()[0][:num_cols]
+    sample_m = [sample_deepwell_plate.wells_by_name()[well_name] for well_name in row_0_of_96_plate][:num_cols]
 
     m200.flow_rate.aspirate = 50
     m200.flow_rate.dispense = 150
@@ -141,8 +143,8 @@ def run(ctx):
                 #     m1000.dispense(m1000.current_volume, m.top())
                 m1000.blow_out(m.top())           # TODO: remove this
                 m1000.move_to(m.center())
-                m1000.transfer(vol_per_trans, loc, waste, new_tip='never',
-                              air_gap=20)
+                # m1000.transfer(vol_per_trans, loc, waste, new_tip='never',
+                #               air_gap=20)
                 m1000.blow_out(waste)
                 m1000.air_gap(20)
             m1000.drop_tip()
@@ -299,8 +301,7 @@ def run(ctx):
                 reps = 2
             mixing(source,m1000,starting_vol+binding_buffer_vol,reps=reps)
             for t in range(num_trans):
-                m1000.transfer(vol_per_trans, source, well.top(), air_gap=20,
-                              new_tip='never')
+                # m1000.transfer(vol_per_trans, source, well.top(), air_gap=20, new_tip='never')
                 m1000.air_gap(5)
             mixing(well,m1000,200,reps=4)
             m1000.blow_out(well.top(-2))
@@ -353,7 +354,7 @@ def run(ctx):
                 # if m1000.current_volume > 0:
                 #     m1000.dispense(m1000.current_volume, waste)
                 m1000.blow_out(waste)           # TODO: remove this
-                m1000.transfer(vol_per_trans, src, m.top(), air_gap=20,new_tip='never')
+                # m1000.transfer(vol_per_trans, src, m.top(), air_gap=20,new_tip='never')
             mixing(m, m1000, vol, reps=4)
             m1000.blow_out(m.top())
             m1000.air_gap(10)
@@ -388,7 +389,7 @@ def run(ctx):
                 # if m200.current_volume > 0:
                 #     m200.dispense(m200.current_volume, src.top())
                 m1000.blow_out(src.top())           # TODO: remove this
-                m200.transfer(vol_per_trans, src, m.top(), air_gap=20,new_tip='never')
+                # m200.transfer(vol_per_trans, src, m.top(), air_gap=20,new_tip='never')
                 m200.air_gap(10)
             mixing(m, m200, vol, reps=5)
             m200.drop_tip()
@@ -411,8 +412,8 @@ def run(ctx):
                 # if m1000.current_volume > 0:
                 #     m1000.dispense(m1000.current_volume, src.top())
                 m1000.blow_out(src.top())           # TODO: remove this
-                m1000.transfer(vol_per_trans, src, m.top(), air_gap=20,
-                              new_tip='never')
+                # m1000.transfer(vol_per_trans, src, m.top(), air_gap=20,
+                #               new_tip='never')
                 if n < num_trans - 1:  # only air_gap if going back to source
                     m1000.air_gap(20)
             mixing(m, m1000, vol+dnase_vol, reps=7)
@@ -472,7 +473,7 @@ def run(ctx):
             tiptrack(m200,tips)
             m200.flow_rate.aspirate = 15
             m200.flow_rate.dispense = 15
-            m200.transfer(100, m.bottom(0.15), e.bottom(5), air_gap=20, new_tip='never')
+            # m200.transfer(100, m.bottom(0.15), e.bottom(5), air_gap=20, new_tip='never')
             m200.blow_out(e.top(-2))
             m200.air_gap(20)
             m200.drop_tip()
