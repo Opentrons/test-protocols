@@ -51,17 +51,17 @@ def run(ctx):
     Here is where you can change the locations of your labware and modules
     (note that this is the recommended configuration)
     """
-    #Protocol Parameters
+    # Protocol Parameters
     num_samples = 8
     deepwell_type = "nest_96_wellplate_2ml_deep"
     res_type = "nest_12_reservoir_15ml"
     settling_time = 3
     lysis_vol = 200
-    binding_buffer_vol = 430 #Beads+Binding
+    binding_buffer_vol = 430 # Beads+Binding
     wash_vol = stop_vol = 500
     dnase_vol = 50
     elution_vol = 110
-    starting_vol= 400 #This is sample volume (200 in shield) + lysis volume
+    starting_vol= 400 # This is sample volume (200 in shield) + lysis volume
 
     h_s = ctx.load_module('heaterShakerModuleV1','10')
     sample_deepwell_plate = h_s.load_labware(deepwell_type)
@@ -75,7 +75,7 @@ def run(ctx):
     res2 = ctx.load_labware(res_type, '3', 'reagent reservoir 2')
     num_cols = math.ceil(num_samples/8)
     
-    #Load tips and combine all similar boxes
+    # Load tips and combine all similar boxes
     t200 = ctx.load_labware('opentrons_ot3_96_tiprack_200ul', '4')
     t1000 = ctx.load_labware('opentrons_ot3_96_tiprack_1000ul', '5')
     t1001 = ctx.load_labware('opentrons_ot3_96_tiprack_1000ul', '7')
@@ -102,10 +102,8 @@ def run(ctx):
     wash5 = res2.wells()[8:10]
     wash6 = res2.wells()[10:]
 
-    row_0_of_96_plate = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10', 'A11', 'A12']
-
-    elution_samples_m = [elutionplate.wells_by_name()[well_name] for well_name in row_0_of_96_plate][:num_cols]         # elutionplate.rows()[0][:num_cols]
-    sample_m = [sample_deepwell_plate.wells_by_name()[well_name] for well_name in row_0_of_96_plate][:num_cols]
+    elution_samples_m = elutionplate.rows()[0][:num_cols]
+    sample_m = sample_deepwell_plate.rows()[0][:num_cols]
 
     m200.flow_rate.aspirate = 50
     m200.flow_rate.dispense = 150
@@ -135,16 +133,14 @@ def run(ctx):
         num_trans = math.ceil(vol/980)
         vol_per_trans = vol/num_trans
         for i, m in enumerate(sample_m):
-            tiptrack(m1000,tips)
+            tiptrack(m1000,t1k)
             loc = m.bottom(0.5)
             for _ in range(num_trans):
-                # if m1000.current_volume > 0:        # TODO: current volume not implemented
-                #     # void air gap if necessary
-                #     m1000.dispense(m1000.current_volume, m.top())
-                m1000.blow_out(m.top())           # TODO: remove this
+                if m1000.current_volume > 0:
+                    # void air gap if necessary
+                    m1000.dispense(m1000.current_volume, m.top())
                 m1000.move_to(m.center())
-                # m1000.transfer(vol_per_trans, loc, waste, new_tip='never',
-                #               air_gap=20)
+                m1000.transfer(vol_per_trans, loc, waste, new_tip='never', air_gap=20)
                 m1000.blow_out(waste)
                 m1000.air_gap(20)
             m1000.drop_tip()
@@ -264,8 +260,7 @@ def run(ctx):
             tvol = vol/num_transfers
             for t in range(num_transfers):
                 m1000.aspirate(tvol,src.bottom(1))
-                # m1000.dispense(m1000.current_volume,sample_m[i].top(-3))
-                m1000.blow_out(sample_m[i].top(-3))     # TODO: remove this
+                m1000.dispense(m1000.current_volume,sample_m[i].top(-3))
                 if t == num_transfers-1:
                     mixing(sample_m[i],m1000,starting_vol,reps=8)
             m1000.drop_tip()
@@ -301,7 +296,7 @@ def run(ctx):
                 reps = 2
             mixing(source,m1000,starting_vol+binding_buffer_vol,reps=reps)
             for t in range(num_trans):
-                # m1000.transfer(vol_per_trans, source, well.top(), air_gap=20, new_tip='never')
+                m1000.transfer(vol_per_trans, source, well.top(), air_gap=20, new_tip='never')
                 m1000.air_gap(5)
             mixing(well,m1000,200,reps=4)
             m1000.blow_out(well.top(-2))
@@ -322,7 +317,7 @@ def run(ctx):
 
         h_s.close_labware_latch()
 
-        for bindi in np.arange(settling_time+2,0,-0.5): #Settling time delay with countdown timer
+        for bindi in np.arange(settling_time+2,0,-0.5): # Settling time delay with countdown timer
             ctx.delay(minutes=0.5, msg='There are ' + str(bindi) + ' minutes left in the incubation.')
 
         # remove initial supernatant
@@ -330,7 +325,7 @@ def run(ctx):
 
     def wash(vol, source):
 
-        global whichwash #Defines which wash the protocol is on to log on the app
+        global whichwash # Defines which wash the protocol is on to log on the app
 
         if source == wash1:
             whichwash = 1
@@ -351,10 +346,9 @@ def run(ctx):
             tiptrack(m1000,t1k)
             src = source[i//len(source)]
             for n in range(num_trans):
-                # if m1000.current_volume > 0:
-                #     m1000.dispense(m1000.current_volume, waste)
-                m1000.blow_out(waste)           # TODO: remove this
-                # m1000.transfer(vol_per_trans, src, m.top(), air_gap=20,new_tip='never')
+                if m1000.current_volume > 0:
+                    m1000.dispense(m1000.current_volume, waste)
+                m1000.transfer(vol_per_trans, src, m.top(), air_gap=20,new_tip='never')
             mixing(m, m1000, vol, reps=4)
             m1000.blow_out(m.top())
             m1000.air_gap(10)
@@ -365,7 +359,7 @@ def run(ctx):
         h_s.deactivate_shaker()
 
         h_s.open_labware_latch()
-        # grip.move(deepwell_type,h_s,magnet)
+        #grip.move(deepwell_type,h_s,magnet)
         ctx.move_labware(
             labware=sample_deepwell_plate,  # plate that is on h/s
             new_location=MAG_PLATE_SLOT,  # Mag plate
@@ -373,7 +367,7 @@ def run(ctx):
         )
         h_s.close_labware_latch()
 
-        for washi in np.arange(settling_time,0,-0.5): #settling time timer for washes
+        for washi in np.arange(settling_time,0,-0.5): # settling time timer for washes
             ctx.delay(minutes=0.5, msg='There are ' + str(washi) + ' minutes left in wash ' + str(whichwash) + ' incubation.')
 
         remove_supernatant(vol)
@@ -386,17 +380,16 @@ def run(ctx):
             tiptrack(m200, t200)
             src = source
             for n in range(num_trans):
-                # if m200.current_volume > 0:
-                #     m200.dispense(m200.current_volume, src.top())
-                m1000.blow_out(src.top())           # TODO: remove this
-                # m200.transfer(vol_per_trans, src, m.top(), air_gap=20,new_tip='never')
+                if m200.current_volume > 0:
+                    m200.dispense(m200.current_volume, src.top())
+                m200.transfer(vol_per_trans, src, m.top(), air_gap=20,new_tip='never')
                 m200.air_gap(10)
             mixing(m, m200, vol, reps=5)
             m200.drop_tip()
 
         h_s.set_and_wait_for_shake_speed(rpm=2000)
         h_s.set_and_wait_for_temperature(65)
-        #minutes should equal 10 minus time it takes to reach 65
+        # minutes should equal 10 minus time it takes to reach 65
         ctx.delay(minutes=9,msg='Please wait 10 minutes while the dnase incubates.')
         h_s.deactivate_shaker()    
         h_s.deactivate_heater()    
@@ -409,11 +402,9 @@ def run(ctx):
             tiptrack(m1000, t1k)
             src = source[i//len(source)]
             for n in range(num_trans):
-                # if m1000.current_volume > 0:
-                #     m1000.dispense(m1000.current_volume, src.top())
-                m1000.blow_out(src.top())           # TODO: remove this
-                # m1000.transfer(vol_per_trans, src, m.top(), air_gap=20,
-                #               new_tip='never')
+                if m1000.current_volume > 0:
+                    m1000.dispense(m1000.current_volume, src.top())
+                m1000.transfer(vol_per_trans, src, m.top(), air_gap=20, new_tip='never')
                 if n < num_trans - 1:  # only air_gap if going back to source
                     m1000.air_gap(20)
             mixing(m, m1000, vol+dnase_vol, reps=7)
@@ -442,12 +433,10 @@ def run(ctx):
 
     def elute(vol):
         for i, m in enumerate(sample_m):
-            tiptrack(m200,tips)
+            tiptrack(m200, t200.wells())
             m200.aspirate(vol, elution_solution)
             m200.move_to(m.center())
-            # m200.dispense(m200.current_volume, m.bottom(0.5))
-            m1000.blow_out(m.bottom(0.5))  # TODO: remove this
-
+            m200.dispense(m200.current_volume, m.bottom(0.5))
             mixing(m, m200, elution_vol,reps=3)
             m200.drop_tip()
 
@@ -470,10 +459,10 @@ def run(ctx):
             ctx.delay(minutes=0.5, msg='Incubating on MagDeck for ' + str(elutei) + ' more minutes.')
 
         for i, (m, e) in enumerate(zip(sample_m, elution_samples_m)):
-            tiptrack(m200,tips)
+            tiptrack(m200, t200.wells())
             m200.flow_rate.aspirate = 15
             m200.flow_rate.dispense = 15
-            # m200.transfer(100, m.bottom(0.15), e.bottom(5), air_gap=20, new_tip='never')
+            m200.transfer(100, m.bottom(0.15), e.bottom(5), air_gap=20, new_tip='never')
             m200.blow_out(e.top(-2))
             m200.air_gap(20)
             m200.drop_tip()
@@ -487,13 +476,13 @@ def run(ctx):
     wash(wash_vol, wash1)
     wash(wash_vol, wash2)
     wash(wash_vol, wash3)
-    #dnase1 treatment
+    # dnase1 treatment
     dnase(dnase_vol, dnase1)
     stop_reaction(stop_vol, stopreaction)
-    #Resume washes
+    # Resume washes
     wash(wash_vol, wash4)
     wash(wash_vol, wash5)
-    drybeads = 10 #Number of minutes you want to dry for
+    drybeads = 10 # Number of minutes you want to dry for
     for beaddry in np.arange(drybeads,0,-0.5):
         ctx.delay(minutes=0.5, msg='There are ' + str(beaddry) + ' minutes left in the drying step.')
     elute(elution_vol)
