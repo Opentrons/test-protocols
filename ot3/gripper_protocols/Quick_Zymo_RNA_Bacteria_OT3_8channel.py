@@ -10,10 +10,32 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
+#####################################
+# ____ Initial Deck setup _____
+# Slot 1: Temperature Module
+# Slot 2: nest_12_reservoir_15ml
+# Slot 3: nest_12_reservoir_15ml
+# Slot 4: opentrons_ot3_96_tiprack_200ul
+# Slot 5: opentrons_ot3_96_tiprack_1000ul
+# Slot 6: empty
+# Slot 7: opentrons_ot3_96_tiprack_1000ul
+# Slot 8: opentrons_ot3_96_tiprack_1000ul
+# Slot 9: nest_1_reservoir_195ml (Liquid waste reservoir)
+# Slot 10: Heater-Shaker
+# Slot 11: opentrons_ot3_96_tiprack_1000ul
+
 metadata = {
     'protocolName': 'Zymo Magbead RNA Extraction with Lysis: Bacteria',
     'author': 'Zach Galluzzo <zachary.galluzzo@opentrons.com>',
 }
+
+requirements = {
+    "robotType": "OT-3",
+    "apiLevel": "2.13",
+}
+
+MAG_PLATE_SLOT = 6
+USE_GRIPPER = True
 
 """
 Here is where you can modify the magnetic module engage height:
@@ -41,9 +63,8 @@ def run(ctx):
     elution_vol = 110
     starting_vol= 400 #This is sample volume (200 in shield) + lysis volume
 
-    magnet = ctx.load_module('magplate','6')
     h_s = ctx.load_module('heaterShakerModuleV1','10')
-    h_s_plate = h_s.load_labware(deepwell_type)
+    sample_deepwell_plate = h_s.load_labware(deepwell_type)
     h_s.close_labware_latch()
     tempdeck = ctx.load_module('Temperature Module Gen2','1')
     tempdeck.set_temperature(4)
@@ -64,8 +85,7 @@ def run(ctx):
     
     # load instruments
     m1000 = ctx.load_instrument('p1000_multi_gen3', 'left')
-    m200 = ctx.load_instrument('p200_multi_gen3', 'right')
-    grip = ctx.load_instrument('opentrons_gripper_gen1')
+    m200 = ctx.load_instrument('p1000_multi_gen3', 'right')
 
     """
     Here is where you can define the locations of your reagents.
@@ -82,8 +102,8 @@ def run(ctx):
     wash5 = res2.wells()[8:10]
     wash6 = res2.wells()[10:]
 
-    samples_m = magplate.rows()[0][:num_cols]
-    elution_samples_m = elutionplate.rows()[0][:num_cols]
+    elutionplate_row_0 = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10', 'A11', 'A12']
+    elution_samples_m = elutionplate_row_0[:num_cols]            # elutionplate.rows()[0][:num_cols]
 
     m200.flow_rate.aspirate = 50
     m200.flow_rate.dispense = 150
@@ -108,7 +128,6 @@ def run(ctx):
             drop_count = 0
             ctx.pause("Please empty the waste bin of all the tips before continuing.")
 
-
     def remove_supernatant(vol):
         m1000.flow_rate.aspirate = 30
         num_trans = math.ceil(vol/980)
@@ -117,9 +136,10 @@ def run(ctx):
             tiptrack(m1000,tips)
             loc = m.bottom(0.5)
             for _ in range(num_trans):
-                if m1000.current_volume > 0:
-                    # void air gap if necessary
-                    m1000.dispense(m1000.current_volume, m.top())
+                # if m1000.current_volume > 0:        # TODO: current volume not implemented
+                #     # void air gap if necessary
+                #     m1000.dispense(m1000.current_volume, m.top())
+                m1000.blow_out(m.top())           # TODO: remove this
                 m1000.move_to(m.center())
                 m1000.transfer(vol_per_trans, loc, waste, new_tip='never',
                               air_gap=20)
@@ -129,7 +149,12 @@ def run(ctx):
         m1000.flow_rate.aspirate = 150
 
         h_s.open_labware_latch()
-        grip.move(deepwell_type,magnet,h_s)
+        # grip.move(deepwell_type,magnet,h_s)
+        ctx.move_labware(
+            labware=sample_deepwell_plate,  # plate that is on mag plate
+            new_location=h_s,
+            use_gripper=USE_GRIPPER,
+        )
         h_s.close_labware_latch()
 
     def mixing(well, pip, mvol, reps=5):
@@ -187,9 +212,9 @@ def run(ctx):
 
     def blink():
         for i in range(3):
-            ctx.set_rail_lights(True)
+            ctx.set_rail_lights(True)           # Not implemented in engine core
             ctx.delay(minutes=0.01666667)
-            ctx.set_rail_lights(False)
+            ctx.set_rail_lights(False)          # Not implemented in engine core
             ctx.delay(minutes=0.01666667)
 
     def mixing(well, pip, mvol, reps=8):
@@ -237,7 +262,8 @@ def run(ctx):
             tvol = vol/num_transfers
             for t in range(num_transfers):
                 m1000.aspirate(tvol,src.bottom(1))
-                m1000.dispense(m1000.current_volume,sample_m[i].top(-3))
+                # m1000.dispense(m1000.current_volume,sample_m[i].top(-3))
+                m1000.blow_out(sample_m[i].top(-3))     # TODO: remove this
                 if t == num_transfers-1:
                     mixing(sample_m[i],m1000,starting_vol,reps=8)
             m1000.drop_tip()
@@ -286,7 +312,13 @@ def run(ctx):
         h_s.deactivate_shaker()
 
         h_s.open_labware_latch()
-        grip.move(deepwell_type,h_s,magnet)
+        # grip.move(deepwell_type,h_s,magnet)
+        ctx.move_labware(
+            labware=sample_deepwell_plate,  # plate that is on h/s
+            new_location=MAG_PLATE_SLOT,  # Mag plate
+            use_gripper=USE_GRIPPER,
+        )
+
         h_s.close_labware_latch()
 
         for bindi in np.arange(settling_time+2,0,-0.5): #Settling time delay with countdown timer
@@ -318,8 +350,9 @@ def run(ctx):
             tiptrack(m1000,t1k)
             src = source[i//len(source)]
             for n in range(num_trans):
-                if m1000.current_volume > 0:
-                    m1000.dispense(m1000.current_volume, waste)
+                # if m1000.current_volume > 0:
+                #     m1000.dispense(m1000.current_volume, waste)
+                m1000.blow_out(waste)           # TODO: remove this
                 m1000.transfer(vol_per_trans, src, m.top(), air_gap=20,new_tip='never')
             mixing(m, m1000, vol, reps=4)
             m1000.blow_out(m.top())
@@ -331,7 +364,12 @@ def run(ctx):
         h_s.deactivate_shaker()
 
         h_s.open_labware_latch()
-        grip.move(deepwell_type,h_s,magnet)
+        # grip.move(deepwell_type,h_s,magnet)
+        ctx.move_labware(
+            labware=sample_deepwell_plate,  # plate that is on h/s
+            new_location=MAG_PLATE_SLOT,  # Mag plate
+            use_gripper=USE_GRIPPER,
+        )
         h_s.close_labware_latch()
 
         for washi in np.arange(settling_time,0,-0.5): #settling time timer for washes
@@ -347,8 +385,9 @@ def run(ctx):
             tiptrack(m200, t200)
             src = source
             for n in range(num_trans):
-                if m200.current_volume > 0:
-                    m200.dispense(m200.current_volume, src.top())
+                # if m200.current_volume > 0:
+                #     m200.dispense(m200.current_volume, src.top())
+                m1000.blow_out(src.top())           # TODO: remove this
                 m200.transfer(vol_per_trans, src, m.top(), air_gap=20,new_tip='never')
                 m200.air_gap(10)
             mixing(m, m200, vol, reps=5)
@@ -369,8 +408,9 @@ def run(ctx):
             tiptrack(m1000, t1k)
             src = source[i//len(source)]
             for n in range(num_trans):
-                if m1000.current_volume > 0:
-                    m1000.dispense(m1000.current_volume, src.top())
+                # if m1000.current_volume > 0:
+                #     m1000.dispense(m1000.current_volume, src.top())
+                m1000.blow_out(src.top())           # TODO: remove this
                 m1000.transfer(vol_per_trans, src, m.top(), air_gap=20,
                               new_tip='never')
                 if n < num_trans - 1:  # only air_gap if going back to source
@@ -386,7 +426,12 @@ def run(ctx):
         h_s.deactivate_shaker()
 
         h_s.open_labware_latch()
-        grip.move(deepwell_type,h_s,magnet)
+        # grip.move(deepwell_type,h_s,magnet)
+        ctx.move_labware(
+            labware=sample_deepwell_plate,  # plate that is on h/s
+            new_location=MAG_PLATE_SLOT,  # Mag plate
+            use_gripper=USE_GRIPPER,
+        )
         h_s.close_labware_latch()
 
         for stop in np.arange(settling_time,0,-0.5):
@@ -399,9 +444,11 @@ def run(ctx):
             tiptrack(m200,tips)
             m200.aspirate(vol, elution_solution)
             m200.move_to(m.center())
-            m200.dispense(m200.current_volume, m.bottom(0.5))
+            # m200.dispense(m200.current_volume, m.bottom(0.5))
+            m1000.blow_out(m.bottom(0.5))  # TODO: remove this
+
             mixing(m, m200, elution_vol,reps=3)
-			m200.drop_tip()
+            m200.drop_tip()
 
         h_s.set_and_wait_for_shake_speed(rpm=2000)
         h_s.set_and_wait_for_temperature(60)
@@ -410,7 +457,12 @@ def run(ctx):
         h_s.deactivate_heater()
 
         h_s.open_labware_latch()
-        grip.move(deepwell_type,h_s,magnet)
+        # grip.move(deepwell_type,h_s,magnet)
+        ctx.move_labware(
+            labware=sample_deepwell_plate,  # plate that is on h/s
+            new_location=MAG_PLATE_SLOT,  # Mag plate
+            use_gripper=USE_GRIPPER,
+        )
         h_s.close_labware_latch()
 
         for elutei in np.arange(settling_time,0,-0.5):
