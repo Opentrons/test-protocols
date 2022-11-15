@@ -235,7 +235,7 @@ def run(ctx):
                 #     m1000.drop_tip()
             mixing(samples_m[i], m1000, tvol, reps=5)
             m1000.drop_tip()
-            
+
         h_s.set_and_wait_for_shake_speed(1800)
         ctx.delay(minutes=9, msg='Shake at 1800 rpm for 10 minutes.')
         h_s.set_and_wait_for_temperature(55)
@@ -377,10 +377,10 @@ def run(ctx):
     """
     lysis(AL_vol,AL)
     bind(binding_buffer_vol)
-    # wash(wash1_vol, wash1)
-    # wash(wash2_vol, wash2)
-    # wash(wash3_vol, wash3)
-    # drybeads = 10 #Number of minutes you want to dry for
-    # for beaddry in np.arange(drybeads,0,-0.5):
-    #     ctx.delay(minutes=0.5, msg='There are ' + str(beaddry) + ' minutes left in the drying step.')
-    # elute(elution_vol)
+    wash(wash1_vol, wash1)
+    wash(wash2_vol, wash2)
+    wash(wash3_vol, wash3)
+    drybeads = 10 #Number of minutes you want to dry for
+    for beaddry in np.arange(drybeads,0,-0.5):
+        ctx.delay(minutes=0.5, msg='There are ' + str(beaddry) + ' minutes left in the drying step.')
+    elute(elution_vol)
