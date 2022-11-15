@@ -1,18 +1,20 @@
 from opentrons import protocol_api
 
 metadata = {
-    "protocolName": "Thermocycler commands",
+    "protocolName": "Thermocycler lid and block commands",
     "author": "Opentrons Engineering <engineering@opentrons.com>",
     "source": "Software Testing Team",
-    "description": ("Simple protocol with just a profile."),
+    "description": "Simple protocol with just a profile.",
     "apiLevel": "2.13",
 }
 
+TC_GEN1 = "Thermocycler Module"
+TC_GEN2 = "thermocyclerModuleV2"
 
 def run(ctx: protocol_api.ProtocolContext) -> None:
     """This method is run by the protocol engine."""
 
-    tc_mod = ctx.load_module("thermocyclerModuleV2")
+    tc_mod = ctx.load_module(TC_GEN1)
     tc_plate = tc_mod.load_labware(
         "nest_96_wellplate_100ul_pcr_full_skirt"
     )
