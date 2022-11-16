@@ -1,3 +1,6 @@
+##### !!! NOTE: This protocol still needs curating. Currently fails analysis !!! ####
+
+
 from opentrons.types import Point
 import json
 import os
@@ -6,7 +9,7 @@ import threading
 from time import sleep
 from opentrons import types
 import numpy as np
-import smtplib 
+import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
