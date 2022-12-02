@@ -27,8 +27,8 @@ def grip_offset(action, item):
         "deck": Point(),
         "mag-plate": Point(z=29.5),
         "heater-shaker": Point(x=-3, y=-1, z=(24 - 68.275)),
-        "temp-module": Point(),
-        "thermo-cycler": Point()
+        "temp-module": Point(z=9),
+        "thermo-cycler": Point(x=-20, y=-39.5)
     }
     # EDIT these values
     # NOTE: we are still testing to determine our software's defaults
