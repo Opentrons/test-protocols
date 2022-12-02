@@ -1,6 +1,6 @@
 from typing import Mapping
 from opentrons.protocol_api import ProtocolContext
-from opentrons.types import Mount, Point
+from opentrons.types import Mount
 
 ######### Initial Deck Setup #########
 # Slot 1: Tiprack- opentrons_ot3_96_tiprack_50ul
@@ -18,25 +18,52 @@ requirements = {
 }
 
 
-
-# do NOT edit any of the below values
-pick_up_deck_slot_offset = Point(x=-0.2) # do NOT edit
-mag_plate_offset = Point(z=29.5)  # do NOT edit
-hs_labware_offset_z_on_ot2 = 68.275  # do NOT edit
-hw_labware_offset_z_on_ot3 = 24  # do NOT edit
-hw_labware_offset_z_workaround = hw_labware_offset_z_on_ot3 - hs_labware_offset_z_on_ot2
-hs_z_offset = Point(x=-3, y=-1, z=hw_labware_offset_z_workaround)  # do NOT edit
-
-# EDIT these values below
-# pick-up and drop offsets
-pick_up_mag_plate_offset = mag_plate_offset + Point(z=0)
-drop_off_mag_plate_offset = mag_plate_offset + Point(z=9.5)
-pick_up_hs_z_offset = hs_z_offset + Point()
-drop_off_hs_z_offset = hs_z_offset + Point(z=-2)
-
-
-
-def point_to_dict(offset: Point) -> Mapping[str, float]:
+def grip_offset(action, item):
+    from opentrons.types import Point
+    # do NOT edit these values
+    # NOTE: these values will eventually be in our software
+    #       and will not need to be inside a protocol
+    _hw_offsets = {
+        "deck": Point(),
+        "mag-plate": Point(z=29.5),
+        "heater-shaker": Point(x=-3, y=-1, z=(24 - 68.275)),
+        "temp-module": Point(),
+        "thermo-cycler": Point()
+    }
+    # EDIT these values
+    # NOTE: we are still testing to determine our software's defaults
+    #       but we also expect users will want to edit these
+    _pick_up_offsets = {
+        "deck": Point(x=-0.2),
+        "mag-plate": Point(),
+        "heater-shaker": Point(),
+        "temp-module": Point(),
+        "thermo-cycler": Point()
+    }
+    # EDIT these values
+    # NOTE: we are still testing to determine our software's defaults
+    #       but we also expect users will want to edit these
+    _drop_offsets = {
+        "deck": Point(z=-2),
+        "mag-plate": Point(z=9.5),
+        "heater-shaker": Point(z=-2),
+        "temp-module": Point(z=-2),
+        "thermo-cycler": Point()
+    }
+    # make sure arguments are correct
+    action_options = ["pick-up", "drop"]
+    item_options = list(_hw_offsets.keys())
+    if action not in action_options:
+        raise ValueError(f"\"{action}\" not recognized, available options: {action_options}")
+    if item not in item_options:
+        raise ValueError(f"\"{item}\" not recognized, available options: {item_options}")
+    # add up the combined offset
+    hw_offset = _hw_offsets[item]
+    if action == "pick-up":
+        offset = hw_offset + _pick_up_offsets[item]
+    elif action == "drop":
+        offset = hw_offset + _drop_offsets[item]
+    # convert from Point() to dict()
     return {"x": offset.x, "y": offset.y, "z": offset.z}
 
 
@@ -60,20 +87,16 @@ def run(protocol: ProtocolContext) -> None:
             labware=well_plate_1,
             new_location=2,
             use_gripper=True,
-            use_pick_up_location_lpc_offset=False,
-            use_drop_location_lpc_offset=False,
-            pick_up_offset=point_to_dict(pick_up_hs_z_offset),
-            drop_offset=point_to_dict(drop_off_mag_plate_offset),
+            pick_up_offset=grip_offset("pick-up", "heater-shaker"),
+            drop_offset=grip_offset("drop", "mag-plate"),
         )
         #### Move armadillo plate from Mag plate to h/s ####
         protocol.move_labware(
             labware=well_plate_1,
             new_location=heater_shaker,
             use_gripper=True,
-            use_pick_up_location_lpc_offset=False,
-            use_drop_location_lpc_offset=False,
-            pick_up_offset=point_to_dict(pick_up_mag_plate_offset),
-            drop_offset=point_to_dict(drop_off_hs_z_offset),
+            pick_up_offset=grip_offset("pick-up", "mag-plate"),
+            drop_offset=grip_offset("drop", "heater-shaker"),
         )
         heater_shaker.close_labware_latch()
 
