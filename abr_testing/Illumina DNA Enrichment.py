@@ -286,6 +286,7 @@ def run(protocol: protocol_api.ProtocolContext):
             p1000.move_to(sample_plate_2[sample_well].bottom(z=5))
             p1000.dispense(100,rate=0.5)
             Mix += 1
+        p1000.touch_tip()
         p1000.blow_out(sample_plate_2[sample_well].top(z=2))
         p1000.default_speed = 400
         p1000.move_to(sample_plate_2[sample_well].top(z=5))
@@ -326,6 +327,7 @@ def run(protocol: protocol_api.ProtocolContext):
         p1000.dispense(200, Liquid_trash)
         p1000.move_to(Liquid_trash.top(z=5))
         protocol.delay(minutes=0.1)
+        p1000.touch_tip()
         p1000.blow_out(Liquid_trash.top(z=5))
         p1000.aspirate(20)
         p1000.return_tip()
@@ -387,6 +389,7 @@ def run(protocol: protocol_api.ProtocolContext):
             p1000.move_to(sample_plate_2[sample_well].top(z=2))
             p1000.dispense(200, Liquid_trash.top(z=0))
             protocol.delay(minutes=0.1)
+            p1000.touch_tip()
             p1000.blow_out(Liquid_trash.top(z=0))
             p1000.aspirate(20)
             p1000.return_tip()
@@ -451,6 +454,7 @@ def run(protocol: protocol_api.ProtocolContext):
         p1000.move_to(sample_plate_2[sample_well].top(z=2))
         p1000.dispense(200, Liquid_trash.top(z=0))
         protocol.delay(minutes=0.1)
+        p1000.touch_tip()
         p1000.blow_out(Liquid_trash.top(z=0))
         p1000.aspirate(20)
         p1000.return_tip()
@@ -462,6 +466,7 @@ def run(protocol: protocol_api.ProtocolContext):
         p50.default_speed = 200
         p50.dispense(100, Liquid_trash.top(z=0))
         protocol.delay(minutes=0.1)
+        p50.touch_tip()
         p50.blow_out()
         p50.default_speed = 400
         p50.move_to(Liquid_trash.top(z=-5))
@@ -631,6 +636,7 @@ def run(protocol: protocol_api.ProtocolContext):
             p1000.move_to(sample_plate_2[sample_well].bottom(z=5))
             p1000.dispense(30,rate=0.5)
             Mix += 1
+        p1000.touch_tip()
         p1000.blow_out(sample_plate_2[sample_well].top(z=2))
         p1000.default_speed = 400
         p1000.move_to(sample_plate_2[sample_well].top(z=5))
@@ -671,6 +677,7 @@ def run(protocol: protocol_api.ProtocolContext):
         p1000.default_speed = 200
         p1000.dispense(200, Liquid_trash.top(z=0))
         protocol.delay(minutes=0.1)
+        p1000.touch_tip()
         p1000.blow_out()
         p1000.default_speed = 400
         p1000.move_to(Liquid_trash.top(z=-5))
@@ -688,6 +695,7 @@ def run(protocol: protocol_api.ProtocolContext):
             p1000.move_to(sample_plate_2[sample_well].top(z=-2))
             p1000.dispense(ETOHMaxVol, rate=1)
             protocol.delay(minutes=0.1)
+            p1000.touch_tip()
             p1000.blow_out()
             p1000.move_to(sample_plate_2[sample_well].top(z=5))
             p1000.move_to(sample_plate_2[sample_well].top(z=0))
@@ -709,6 +717,7 @@ def run(protocol: protocol_api.ProtocolContext):
             p1000.default_speed = 200
             p1000.dispense(200, Liquid_trash.top(z=0))
             protocol.delay(minutes=0.1)
+            p1000.touch_tip()
             p1000.blow_out()
             p1000.default_speed = 400
             p1000.move_to(Liquid_trash.top(z=-5))
@@ -725,6 +734,7 @@ def run(protocol: protocol_api.ProtocolContext):
         p1000.default_speed = 200
         p1000.dispense(100, Liquid_trash.top(z=0))
         protocol.delay(minutes=0.1)
+        p1000.touch_tip()
         p1000.blow_out()
         p1000.default_speed = 400
         p1000.move_to(Liquid_trash.top(z=-5))
@@ -771,6 +781,7 @@ def run(protocol: protocol_api.ProtocolContext):
         p1000.aspirate(RSBVol, rate=1)
         p1000.dispense(RSBVol, rate=1)
 
+        p1000.touch_tip()
         p1000.blow_out(sample_plate_2.wells_by_name()[sample_well].center())
         p1000.move_to(sample_plate_2.wells_by_name()[sample_well].top(z=5))
         p1000.move_to(sample_plate_2.wells_by_name()[sample_well].top(z=0))
