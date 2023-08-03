@@ -79,9 +79,9 @@ def run(ctx):
     wash1 = wash1_reservoir.wells()[0]
     wash2 = wash2_reservoir.wells()[0] #loaded on magplate- move to lysis location after lysis is used
     wash3 = wash4 = wash5 = wash3_reservoir.wells()[0]
-    dnase_res = dnase_reservoir.wells()[0]
+    dnase_res = dnase_reservoir.wells()[0].bottom(2)
     stop_res = stop_reservoir.wells()[0]
-    elution_res = elutionplate.wells()[0]
+    elution_res = elutionplate.wells()[0].bottom(2)
     
     # Load tips
     tips = ctx.load_labware('opentrons_ot3_96_tiprack_1000ul_rss', '10').wells()[0]
