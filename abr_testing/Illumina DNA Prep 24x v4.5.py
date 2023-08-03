@@ -14,9 +14,9 @@ requirements = {
 }
 
 # SCRIPT SETTINGS
-DRYRUN              = True          # True = skip incubation times, shorten mix, for testing purposes
+DRYRUN              = False          # True = skip incubation times, shorten mix, for testing purposes
 USE_GRIPPER         = True          # True = Uses Gripper, False = Manual Move
-TIP_TRASH           = False         # True = Used tips go in Trash, False = Used tips go back into rack
+TIP_TRASH           = True         # True = Used tips go in Trash, False = Used tips go back into rack
 
 # PROTOCOL SETTINGS
 COLUMNS             = 3             # 1-4
