@@ -326,6 +326,7 @@ def run(protocol: protocol_api.ProtocolContext):
             protocol.move_labware(
                 labware=sample_plate_2,
                 new_location=heatershaker,
+                use_gripper=USE_GRIPPER,
             )
             heatershaker.close_labware_latch()
             #============================================================================================
