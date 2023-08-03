@@ -175,7 +175,7 @@ def run(protocol: protocol_api.ProtocolContext):
         #       but we also expect users will want to edit these
         _drop_offsets = {
             "deck": Point(),
-            "mag-plate": Point(x=0.1,y=-0.25,z=0.5),
+            "mag-plate": Point(z=0.5),
             "heater-shaker": Point(y=-0.5),
             "temp-module": Point(),
             "thermo-cycler": Point(),
@@ -189,7 +189,7 @@ def run(protocol: protocol_api.ProtocolContext):
             "heater-shaker-right": Point(z=2.5),
             "heater-shaker-left": Point(z=2.5),
             "temp-module": Point(z=5.0),
-            "thermo-cycler": Point(z=2.5),
+            "thermo-cycler": Point(z=4.5),
         }
         # make sure arguments are correct
         action_options = ["pick-up", "drop"]
