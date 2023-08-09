@@ -170,6 +170,8 @@ def run(protocol: protocol_api.ProtocolContext):
             if DyeVol != 0:
                 p1000.transfer(DyeVol, Dye_1.bottom(z=2), sample_plate_1.wells_by_name()[CurrentWell].top(z=1), new_tip='never')
             current += 1
+        p1000.blow_out()
+        p1000.touch_tip()
         p1000.return_tip()
 
         protocol.comment("==============================================")
@@ -184,6 +186,8 @@ def run(protocol: protocol_api.ProtocolContext):
                 p1000.pick_up_tip()
                 p1000.aspirate(DilutionVol, Diluent_1.bottom(z=2))
                 p1000.dispense(DilutionVol, sample_plate_1.wells_by_name()[CurrentWell].top(z=0.2))
+                p1000.blow_out()
+                p1000.touch_tip()
                 p1000.return_tip()
             current += 1
 
@@ -199,6 +203,8 @@ def run(protocol: protocol_api.ProtocolContext):
             if DyeVol != 0:
                 p1000.transfer(DyeVol, Dye_2.bottom(z=2), sample_plate_2.wells_by_name()[CurrentWell].top(z=1), new_tip='never')
             current += 1
+        p1000.blow_out()
+        p1000.touch_tip()
         p1000.return_tip()
 
         protocol.comment("==============================================")
@@ -213,6 +219,8 @@ def run(protocol: protocol_api.ProtocolContext):
                 p1000.pick_up_tip()
                 p1000.aspirate(DilutionVol, Diluent_2.bottom(z=2))
                 p1000.dispense(DilutionVol, sample_plate_2.wells_by_name()[CurrentWell].top(z=0.2))
+                p1000.blow_out()
+                p1000.touch_tip()
                 p1000.return_tip()
             current += 1
 
@@ -228,6 +236,8 @@ def run(protocol: protocol_api.ProtocolContext):
             if DyeVol != 0:
                 p1000.transfer(DyeVol, Dye_3.bottom(z=2), sample_plate_3.wells_by_name()[CurrentWell].top(z=1), new_tip='never')
             current += 1
+        p1000.blow_out()
+        p1000.touch_tip()
         p1000.return_tip()
 
         protocol.comment("==============================================")
@@ -242,5 +252,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 p1000.pick_up_tip()
                 p1000.aspirate(DilutionVol, Diluent_3.bottom(z=2))
                 p1000.dispense(DilutionVol, sample_plate_3.wells_by_name()[CurrentWell].top(z=0.2))
+                p1000.blow_out()
+                p1000.touch_tip()
                 p1000.return_tip()
             current += 1
