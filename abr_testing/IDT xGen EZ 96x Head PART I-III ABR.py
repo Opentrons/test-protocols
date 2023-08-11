@@ -57,7 +57,7 @@ def run(protocol: protocol_api.ProtocolContext):
     else:
         reagent_plate_2     = protocol.load_labware('armadillo_96_wellplate_200ul_pcr_full_skirt','3')
     # ========== SECOND ROW ==========
-    MAG_PLATE_SLOT      = 4      #protocol.load_module('magneticBlockV1', '4')
+    MAG_PLATE_SLOT      = protocol.load_module('magneticBlockV1', '4')
     reservoir_2         = protocol.load_labware('nest_96_wellplate_2ml_deep','5')
     tiprack_20_1        = protocol.load_labware('opentrons_ot3_96_tiprack_50ul_rss', '6')
     # ========== THIRD ROW ===========
