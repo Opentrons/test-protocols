@@ -812,8 +812,8 @@ def run(protocol: protocol_api.ProtocolContext):
                     Y6 = 'A12' 
                     p50.pick_up_tip()
                     p50.move_to(dilution_plate_2[X].bottom(z=p50_offset_Temp))
-                    p50.mix(30,58)
-                    p50.aspirate(62, dilution_plate_2[X].bottom(z=p1000_offset_Temp), rate=0.25)
+                    p50.mix(30,50)
+                    p50.aspirate(50, dilution_plate_2[X].bottom(z=p1000_offset_Temp), rate=0.25)
                     protocol.delay(seconds=0.2)
                     p50.move_to(qpcrplate_2[Y1].top(z=1.0))
                     protocol.delay(seconds=0.2)
