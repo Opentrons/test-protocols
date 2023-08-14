@@ -643,7 +643,7 @@ def run(protocol: protocol_api.ProtocolContext):
                     protocol.delay(seconds=0.2)
                     p50.default_speed = 400
 
-                    p50.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
+                    p50.drop_tip() if DRYRUN == 'NO' else p50.return_tip()
 
                 if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
                     X = 'A12'
