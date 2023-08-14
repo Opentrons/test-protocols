@@ -5,7 +5,6 @@ metadata = {
     'protocolName': 'IDT xGen EZ 96x Head PART I-III ABR',
     'author': 'Opentrons <protocols@opentrons.com>',
     'source': 'Protocol Library',
-    'apiLevel': '2.15'
     }
 
 requirements = {

@@ -6,7 +6,6 @@ metadata = {
     'protoclName': 'OT3 ABR KAPA Library Quant v2',
     'author': 'Opentrons <protocols@opentrons.com>',
     'source': 'Protocol Library',
-    'apiLevel': '2.15'
     }
 
 requirements = {

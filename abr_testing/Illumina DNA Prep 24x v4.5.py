@@ -5,7 +5,6 @@ metadata = {
     'protocolName': 'Illumina DNA Prep 24x v4.5',
     'author': 'Opentrons <protocols@opentrons.com>',
     'source': 'Protocol Library',
-    'apiLevel': '2.15'
     }
 
 requirements = {

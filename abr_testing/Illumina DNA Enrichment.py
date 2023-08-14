@@ -5,7 +5,6 @@ metadata = {
     'protocolName': 'Illumina DNA Enrichment',
     'author': 'Opentrons <protocols@opentrons.com>',
     'source': 'Protocol Library',
-    'apiLevel': '2.15'
     }
 
 requirements = {
