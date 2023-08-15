@@ -495,50 +495,49 @@ def run(protocol: protocol_api.ProtocolContext):
                 Y4 = 'A4'
                 Y5 = 'A5'
                 Y6 = 'A6'
-                p1000.pick_up_tip()
-                p1000.move_to(dilution_plate_1[X].bottom(z=p1000_offset_Temp))
-                p1000.mix(30,58)
-                p1000.aspirate(62, dilution_plate_1[X].bottom(z=p1000_offset_Temp), rate=0.25)
+                p50.pick_up_tip()
+                p50.move_to(dilution_plate_1[X].bottom(z=p50_offset_Temp))
+                p50.mix(10,40)
+                p50.aspirate(40, dilution_plate_1[X].bottom(z=p50_offset_Temp), rate=0.25)
                 protocol.delay(seconds=0.2)
-                p1000.move_to(qpcrplate_1[Y1].top(z=1.0))
+                p50.move_to(qpcrplate_1[Y1].top(z=1.0))
                 protocol.delay(seconds=0.2)
-                p1000.default_speed = 2.5
-                p1000.dispense(10, qpcrplate_1[Y1].bottom(z=1.75), rate=0.25)
+                p50.default_speed = 2.5
+                p50.dispense(7, qpcrplate_1[Y1].bottom(z=1.75), rate=0.25)
                 protocol.delay(seconds=0.2)
-                p1000.default_speed = 400
-                p1000.move_to(qpcrplate_1[Y2].top(z=1.0))
+                p50.default_speed = 400
+                p50.move_to(qpcrplate_1[Y2].top(z=1.0))
                 protocol.delay(seconds=0.2)
-                p1000.default_speed = 2.5
-                p1000.dispense(10, qpcrplate_1[Y2].bottom(z=1.75), rate=0.25)
+                p50.default_speed = 2.5
+                p50.dispense(7, qpcrplate_1[Y2].bottom(z=1.75), rate=0.25)
                 protocol.delay(seconds=0.2)
-                p1000.default_speed = 400
-                p1000.move_to(qpcrplate_1[Y3].top(z=1.0))
+                p50.default_speed = 400
+                p50.move_to(qpcrplate_1[Y3].top(z=1.0))
                 protocol.delay(seconds=0.2)
-                p1000.default_speed = 2.5
-                p1000.dispense(10, qpcrplate_1[Y3].bottom(z=1.75), rate=0.25)
+                p50.default_speed = 2.5
+                p50.dispense(7, qpcrplate_1[Y3].bottom(z=1.75), rate=0.25)
                 protocol.delay(seconds=0.2)
-                p1000.default_speed = 400
+                p50.default_speed = 400
+                p50.move_to(qpcrplate_1[Y4].top(z=1.0))
+                protocol.delay(seconds=0.2)
+                p50.default_speed = 2.5
+                p50.dispense(7, qpcrplate_1[Y4].bottom(z=1.75), rate=0.25)
+                protocol.delay(seconds=0.2)
+                p50.default_speed = 400
+                p50.move_to(qpcrplate_1[Y5].top(z=1.0))
+                protocol.delay(seconds=0.2)
+                p50.default_speed = 2.5
+                p50.dispense(7, qpcrplate_1[Y5].bottom(z=1.75), rate=0.25)
+                protocol.delay(seconds=0.2)
+                p50.default_speed = 400
+                p50.move_to(qpcrplate_1[Y6].top(z=1.0))
+                protocol.delay(seconds=0.2)
+                p50.default_speed = 2.5
+                p50.dispense(5, qpcrplate_1[Y6].bottom(z=1.75), rate=0.25)
+                protocol.delay(seconds=0.2)
+                p50.default_speed = 400
+                p50.drop_tip() if DRYRUN == 'NO' else p50.return_tip()
 
-                p1000.move_to(qpcrplate_1[Y4].top(z=1.0))
-                protocol.delay(seconds=0.2)
-                p1000.default_speed = 2.5
-                p1000.dispense(10, qpcrplate_1[Y4].bottom(z=1.75), rate=0.25)
-                protocol.delay(seconds=0.2)
-                p1000.default_speed = 400
-                p1000.move_to(qpcrplate_1[Y5].top(z=1.0))
-                protocol.delay(seconds=0.2)
-                p1000.default_speed = 2.5
-                p1000.dispense(10, qpcrplate_1[Y5].bottom(z=1.75), rate=0.25)
-                protocol.delay(seconds=0.2)
-                p1000.default_speed = 400
-                p1000.move_to(qpcrplate_1[Y6].top(z=1.0))
-                protocol.delay(seconds=0.2)
-                p1000.default_speed = 2.5
-                p1000.dispense(10, qpcrplate_1[Y6].bottom(z=1.75), rate=0.25)
-                protocol.delay(seconds=0.2)
-                p1000.default_speed = 400
-
-                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
                 if samplecolumns >= 1:#-----------------------------------------------------------------------------------------
                     X = 'A10'
                     Y1 = 'B1'
@@ -547,50 +546,49 @@ def run(protocol: protocol_api.ProtocolContext):
                     Y4 = 'B4'
                     Y5 = 'B5'
                     Y6 = 'B6'
-                    p1000.pick_up_tip()
-                    p1000.move_to(dilution_plate_1[X].bottom(z=p1000_offset_Temp))
-                    p1000.mix(30,58)
-                    p1000.aspirate(62, dilution_plate_1[X].bottom(z=p1000_offset_Temp), rate=0.25)
+                    p50.pick_up_tip()
+                    p50.move_to(dilution_plate_1[X].bottom(z=p50_offset_Temp))
+                    p50.mix(10,40)
+                    p50.aspirate(40, dilution_plate_1[X].bottom(z=p50_offset_Temp), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.move_to(qpcrplate_1[Y1].top(z=1.0))
+                    p50.move_to(qpcrplate_1[Y1].top(z=1.0))
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_1[Y1].bottom(z=1.75), rate=0.25)
+                    p50.default_speed = 2.5
+                    p50.dispense(7, qpcrplate_1[Y1].bottom(z=1.75), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
-                    p1000.move_to(qpcrplate_1[Y2].top(z=1.0))
+                    p50.default_speed = 400
+                    p50.move_to(qpcrplate_1[Y2].top(z=1.0))
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_1[Y2].bottom(z=1.75), rate=0.25)
+                    p50.default_speed = 2.5
+                    p50.dispense(7, qpcrplate_1[Y2].bottom(z=1.75), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
-                    p1000.move_to(qpcrplate_1[Y3].top(z=1.0))
+                    p50.default_speed = 400
+                    p50.move_to(qpcrplate_1[Y3].top(z=1.0))
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_1[Y3].bottom(z=1.75), rate=0.25)
+                    p50.default_speed = 2.5
+                    p50.dispense(7, qpcrplate_1[Y3].bottom(z=1.75), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
+                    p50.default_speed = 400
+                    p50.move_to(qpcrplate_1[Y4].top(z=1.0))
+                    protocol.delay(seconds=0.2)
+                    p50.default_speed = 2.5
+                    p50.dispense(7, qpcrplate_1[Y4].bottom(z=1.75), rate=0.25)
+                    protocol.delay(seconds=0.2)
+                    p50.default_speed = 400
+                    p50.move_to(qpcrplate_1[Y5].top(z=1.0))
+                    protocol.delay(seconds=0.2)
+                    p50.default_speed = 2.5
+                    p50.dispense(7, qpcrplate_1[Y5].bottom(z=1.75), rate=0.25)
+                    protocol.delay(seconds=0.2)
+                    p50.default_speed = 400
+                    p50.move_to(qpcrplate_1[Y6].top(z=1.0))
+                    protocol.delay(seconds=0.2)
+                    p50.default_speed = 2.5
+                    p50.dispense(5, qpcrplate_1[Y6].bottom(z=1.75), rate=0.25)
+                    protocol.delay(seconds=0.2)
+                    p50.default_speed = 400
 
-                    p1000.move_to(qpcrplate_1[Y4].top(z=1.0))
-                    protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_1[Y4].bottom(z=1.75), rate=0.25)
-                    protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
-                    p1000.move_to(qpcrplate_1[Y5].top(z=1.0))
-                    protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_1[Y5].bottom(z=1.75), rate=0.25)
-                    protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
-                    p1000.move_to(qpcrplate_1[Y6].top(z=1.0))
-                    protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_1[Y6].bottom(z=1.75), rate=0.25)
-                    protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
-
-                    p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
+                    p50.drop_tip() if DRYRUN == 'NO' else p50.return_tip()
 
                 if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
                     X = 'A11'
@@ -600,50 +598,48 @@ def run(protocol: protocol_api.ProtocolContext):
                     Y4 = 'A10'
                     Y5 = 'A11'
                     Y6 = 'A12' 
-                    p1000.pick_up_tip()
-                    p1000.move_to(dilution_plate_1[X].bottom(z=p1000_offset_Temp))
-                    p1000.mix(30,58)
-                    p1000.aspirate(62, dilution_plate_1[X].bottom(z=p1000_offset_Temp), rate=0.25)
+                    p50.pick_up_tip()
+                    p50.move_to(dilution_plate_1[X].bottom(z=p50_offset_Temp))
+                    p50.mix(10,40)
+                    p50.aspirate(40, dilution_plate_1[X].bottom(z=p50_offset_Temp), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.move_to(qpcrplate_1[Y1].top(z=1.0))
+                    p50.move_to(qpcrplate_1[Y1].top(z=1.0))
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_1[Y1].bottom(z=1.75), rate=0.25)
+                    p50.default_speed = 2.5
+                    p50.dispense(7, qpcrplate_1[Y1].bottom(z=1.75), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
-                    p1000.move_to(qpcrplate_1[Y2].top(z=1.0))
+                    p50.default_speed = 400
+                    p50.move_to(qpcrplate_1[Y2].top(z=1.0))
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_1[Y2].bottom(z=1.75), rate=0.25)
+                    p50.default_speed = 2.5
+                    p50.dispense(7, qpcrplate_1[Y2].bottom(z=1.75), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
-                    p1000.move_to(qpcrplate_1[Y3].top(z=1.0))
+                    p50.default_speed = 400
+                    p50.move_to(qpcrplate_1[Y3].top(z=1.0))
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_1[Y3].bottom(z=1.75), rate=0.25)
+                    p50.default_speed = 2.5
+                    p50.dispense(7, qpcrplate_1[Y3].bottom(z=1.75), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
-
-                    p1000.move_to(qpcrplate_1[Y4].top(z=1.0))
+                    p50.default_speed = 400
+                    p50.move_to(qpcrplate_1[Y4].top(z=1.0))
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_1[Y4].bottom(z=1.75), rate=0.25)
+                    p50.default_speed = 2.5
+                    p50.dispense(7, qpcrplate_1[Y4].bottom(z=1.75), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
-                    p1000.move_to(qpcrplate_1[Y5].top(z=1.0))
+                    p50.default_speed = 400
+                    p50.move_to(qpcrplate_1[Y5].top(z=1.0))
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_1[Y5].bottom(z=1.75), rate=0.25)
+                    p50.default_speed = 2.5
+                    p50.dispense(7, qpcrplate_1[Y5].bottom(z=1.75), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
-                    p1000.move_to(qpcrplate_1[Y6].top(z=1.0))
+                    p50.default_speed = 400
+                    p50.move_to(qpcrplate_1[Y6].top(z=1.0))
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_1[Y6].bottom(z=1.75), rate=0.25)
+                    p50.default_speed = 2.5
+                    p50.dispense(5, qpcrplate_1[Y6].bottom(z=1.75), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
-
-                    p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
+                    p50.default_speed = 400
+                    p50.drop_tip() if DRYRUN == 'NO' else p50.return_tip()
 
                 if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
                     X = 'A12'
@@ -653,50 +649,49 @@ def run(protocol: protocol_api.ProtocolContext):
                     Y4 = 'B10'
                     Y5 = 'B11'
                     Y6 = 'B12'                     
-                    p1000.pick_up_tip()
-                    p1000.move_to(dilution_plate_1[X].bottom(z=p1000_offset_Temp))
-                    p1000.mix(30,58)
-                    p1000.aspirate(62, dilution_plate_1[X].bottom(z=p1000_offset_Temp), rate=0.25)
+                    p50.pick_up_tip()
+                    p50.move_to(dilution_plate_1[X].bottom(z=p50_offset_Temp))
+                    p50.mix(10,40)
+                    p50.aspirate(40, dilution_plate_1[X].bottom(z=p50_offset_Temp), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.move_to(qpcrplate_1[Y1].top(z=1.0))
+                    p50.move_to(qpcrplate_1[Y1].top(z=1.0))
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_1[Y1].bottom(z=1.75), rate=0.25)
+                    p50.default_speed = 2.5
+                    p50.dispense(7, qpcrplate_1[Y1].bottom(z=1.75), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
-                    p1000.move_to(qpcrplate_1[Y2].top(z=1.0))
+                    p50.default_speed = 400
+                    p50.move_to(qpcrplate_1[Y2].top(z=1.0))
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_1[Y2].bottom(z=1.75), rate=0.25)
+                    p50.default_speed = 2.5
+                    p50.dispense(7, qpcrplate_1[Y2].bottom(z=1.75), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
-                    p1000.move_to(qpcrplate_1[Y3].top(z=1.0))
+                    p50.default_speed = 400
+                    p50.move_to(qpcrplate_1[Y3].top(z=1.0))
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_1[Y3].bottom(z=1.75), rate=0.25)
+                    p50.default_speed = 2.5
+                    p50.dispense(7, qpcrplate_1[Y3].bottom(z=1.75), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
+                    p50.default_speed = 400
+                    p50.move_to(qpcrplate_1[Y4].top(z=1.0))
+                    protocol.delay(seconds=0.2)
+                    p50.default_speed = 2.5
+                    p50.dispense(7, qpcrplate_1[Y4].bottom(z=1.75), rate=0.25)
+                    protocol.delay(seconds=0.2)
+                    p50.default_speed = 400
+                    p50.move_to(qpcrplate_1[Y5].top(z=1.0))
+                    protocol.delay(seconds=0.2)
+                    p50.default_speed = 2.5
+                    p50.dispense(7, qpcrplate_1[Y5].bottom(z=1.75), rate=0.25)
+                    protocol.delay(seconds=0.2)
+                    p50.default_speed = 400
+                    p50.move_to(qpcrplate_1[Y6].top(z=1.0))
+                    protocol.delay(seconds=0.2)
+                    p50.default_speed = 2.5
+                    p50.dispense(5, qpcrplate_1[Y6].bottom(z=1.75), rate=0.25)
+                    protocol.delay(seconds=0.2)
+                    p50.default_speed = 400
 
-                    p1000.move_to(qpcrplate_1[Y4].top(z=1.0))
-                    protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_1[Y4].bottom(z=1.75), rate=0.25)
-                    protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
-                    p1000.move_to(qpcrplate_1[Y5].top(z=1.0))
-                    protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_1[Y5].bottom(z=1.75), rate=0.25)
-                    protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
-                    p1000.move_to(qpcrplate_1[Y6].top(z=1.0))
-                    protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_1[Y6].bottom(z=1.75), rate=0.25)
-                    protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
-
-                    p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
+                    p50.drop_tip() if DRYRUN == 'NO' else p50.return_tip()
 
                 X = 'A9'
                 Y1 = 'A1'
@@ -705,50 +700,49 @@ def run(protocol: protocol_api.ProtocolContext):
                 Y4 = 'A4'
                 Y5 = 'A5'
                 Y6 = 'A6'
-                p1000.pick_up_tip()
-                p1000.move_to(dilution_plate_2[X].bottom(z=p1000_offset_Temp))
-                p1000.mix(30,58)
-                p1000.aspirate(62, dilution_plate_2[X].bottom(z=p1000_offset_Temp), rate=0.25)
+                p50.pick_up_tip()
+                p50.move_to(dilution_plate_2[X].bottom(z=p50_offset_Temp))
+                p50.mix(10,40)
+                p50.aspirate(40, dilution_plate_2[X].bottom(z=p50_offset_Temp), rate=0.25)
                 protocol.delay(seconds=0.2)
-                p1000.move_to(qpcrplate_2[Y1].top(z=1.0))
+                p50.move_to(qpcrplate_2[Y1].top(z=1.0))
                 protocol.delay(seconds=0.2)
-                p1000.default_speed = 2.5
-                p1000.dispense(10, qpcrplate_2[Y1].bottom(z=1.75), rate=0.25)
+                p50.default_speed = 2.5
+                p50.dispense(7, qpcrplate_2[Y1].bottom(z=1.75), rate=0.25)
                 protocol.delay(seconds=0.2)
-                p1000.default_speed = 400
-                p1000.move_to(qpcrplate_2[Y2].top(z=1.0))
+                p50.default_speed = 400
+                p50.move_to(qpcrplate_2[Y2].top(z=1.0))
                 protocol.delay(seconds=0.2)
-                p1000.default_speed = 2.5
-                p1000.dispense(10, qpcrplate_2[Y2].bottom(z=1.75), rate=0.25)
+                p50.default_speed = 2.5
+                p50.dispense(7, qpcrplate_2[Y2].bottom(z=1.75), rate=0.25)
                 protocol.delay(seconds=0.2)
-                p1000.default_speed = 400
-                p1000.move_to(qpcrplate_2[Y3].top(z=1.0))
+                p50.default_speed = 400
+                p50.move_to(qpcrplate_2[Y3].top(z=1.0))
                 protocol.delay(seconds=0.2)
-                p1000.default_speed = 2.5
-                p1000.dispense(10, qpcrplate_2[Y3].bottom(z=1.75), rate=0.25)
+                p50.default_speed = 2.5
+                p50.dispense(7, qpcrplate_2[Y3].bottom(z=1.75), rate=0.25)
                 protocol.delay(seconds=0.2)
-                p1000.default_speed = 400
+                p50.default_speed = 400
+                p50.move_to(qpcrplate_2[Y4].top(z=1.0))
+                protocol.delay(seconds=0.2)
+                p50.default_speed = 2.5
+                p50.dispense(7, qpcrplate_2[Y4].bottom(z=1.75), rate=0.25)
+                protocol.delay(seconds=0.2)
+                p50.default_speed = 400
+                p50.move_to(qpcrplate_2[Y5].top(z=1.0))
+                protocol.delay(seconds=0.2)
+                p50.default_speed = 2.5
+                p50.dispense(7, qpcrplate_2[Y5].bottom(z=1.75), rate=0.25)
+                protocol.delay(seconds=0.2)
+                p50.default_speed = 400
+                p50.move_to(qpcrplate_2[Y6].top(z=1.0))
+                protocol.delay(seconds=0.2)
+                p50.default_speed = 2.5
+                p50.dispense(5, qpcrplate_2[Y6].bottom(z=1.75), rate=0.25)
+                protocol.delay(seconds=0.2)
+                p50.default_speed = 400
+                p50.drop_tip() if DRYRUN == 'NO' else p50.return_tip()
 
-                p1000.move_to(qpcrplate_2[Y4].top(z=1.0))
-                protocol.delay(seconds=0.2)
-                p1000.default_speed = 2.5
-                p1000.dispense(10, qpcrplate_2[Y4].bottom(z=1.75), rate=0.25)
-                protocol.delay(seconds=0.2)
-                p1000.default_speed = 400
-                p1000.move_to(qpcrplate_2[Y5].top(z=1.0))
-                protocol.delay(seconds=0.2)
-                p1000.default_speed = 2.5
-                p1000.dispense(10, qpcrplate_2[Y5].bottom(z=1.75), rate=0.25)
-                protocol.delay(seconds=0.2)
-                p1000.default_speed = 400
-                p1000.move_to(qpcrplate_2[Y6].top(z=1.0))
-                protocol.delay(seconds=0.2)
-                p1000.default_speed = 2.5
-                p1000.dispense(10, qpcrplate_2[Y6].bottom(z=1.75), rate=0.25)
-                protocol.delay(seconds=0.2)
-                p1000.default_speed = 400
-
-                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
                 if samplecolumns >= 1:#-----------------------------------------------------------------------------------------
                     X = 'A10'
                     Y1 = 'B1'
@@ -757,50 +751,48 @@ def run(protocol: protocol_api.ProtocolContext):
                     Y4 = 'B4'
                     Y5 = 'B5'
                     Y6 = 'B6'
-                    p1000.pick_up_tip()
-                    p1000.move_to(dilution_plate_2[X].bottom(z=p1000_offset_Temp))
-                    p1000.mix(30,58)
-                    p1000.aspirate(62, dilution_plate_2[X].bottom(z=p1000_offset_Temp), rate=0.25)
+                    p50.pick_up_tip()
+                    p50.move_to(dilution_plate_2[X].bottom(z=p50_offset_Temp))
+                    p50.mix(10,40)
+                    p50.aspirate(40, dilution_plate_2[X].bottom(z=p50_offset_Temp), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.move_to(qpcrplate_2[Y1].top(z=1.0))
+                    p50.move_to(qpcrplate_2[Y1].top(z=1.0))
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_2[Y1].bottom(z=1.75), rate=0.25)
+                    p50.default_speed = 2.5
+                    p50.dispense(7, qpcrplate_2[Y1].bottom(z=1.75), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
-                    p1000.move_to(qpcrplate_2[Y2].top(z=1.0))
+                    p50.default_speed = 400
+                    p50.move_to(qpcrplate_2[Y2].top(z=1.0))
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_2[Y2].bottom(z=1.75), rate=0.25)
+                    p50.default_speed = 2.5
+                    p50.dispense(7, qpcrplate_2[Y2].bottom(z=1.75), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
-                    p1000.move_to(qpcrplate_2[Y3].top(z=1.0))
+                    p50.default_speed = 400
+                    p50.move_to(qpcrplate_2[Y3].top(z=1.0))
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_2[Y3].bottom(z=1.75), rate=0.25)
+                    p50.default_speed = 2.5
+                    p50.dispense(7, qpcrplate_2[Y3].bottom(z=1.75), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
-
-                    p1000.move_to(qpcrplate_2[Y4].top(z=1.0))
+                    p50.default_speed = 400
+                    p50.move_to(qpcrplate_2[Y4].top(z=1.0))
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_2[Y4].bottom(z=1.75), rate=0.25)
+                    p50.default_speed = 2.5
+                    p50.dispense(7, qpcrplate_2[Y4].bottom(z=1.75), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
-                    p1000.move_to(qpcrplate_2[Y5].top(z=1.0))
+                    p50.default_speed = 400
+                    p50.move_to(qpcrplate_2[Y5].top(z=1.0))
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_2[Y5].bottom(z=1.75), rate=0.25)
+                    p50.default_speed = 2.5
+                    p50.dispense(7, qpcrplate_2[Y5].bottom(z=1.75), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
-                    p1000.move_to(qpcrplate_2[Y6].top(z=1.0))
+                    p50.default_speed = 400
+                    p50.move_to(qpcrplate_2[Y6].top(z=1.0))
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_2[Y6].bottom(z=1.75), rate=0.25)
+                    p50.default_speed = 2.5
+                    p50.dispense(5, qpcrplate_2[Y6].bottom(z=1.75), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
-
-                    p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
+                    p50.default_speed = 400
+                    p50.drop_tip() if DRYRUN == 'NO' else p50.return_tip()
 
                 if samplecolumns >= 2:#-----------------------------------------------------------------------------------------
                     X = 'A11'
@@ -810,50 +802,48 @@ def run(protocol: protocol_api.ProtocolContext):
                     Y4 = 'A10'
                     Y5 = 'A11'
                     Y6 = 'A12' 
-                    p1000.pick_up_tip()
-                    p1000.move_to(dilution_plate_2[X].bottom(z=p1000_offset_Temp))
-                    p1000.mix(30,58)
-                    p1000.aspirate(62, dilution_plate_2[X].bottom(z=p1000_offset_Temp), rate=0.25)
+                    p50.pick_up_tip()
+                    p50.move_to(dilution_plate_2[X].bottom(z=p50_offset_Temp))
+                    p50.mix(10,40)
+                    p50.aspirate(40, dilution_plate_2[X].bottom(z=p50_offset_Temp), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.move_to(qpcrplate_2[Y1].top(z=1.0))
+                    p50.move_to(qpcrplate_2[Y1].top(z=1.0))
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_2[Y1].bottom(z=1.75), rate=0.25)
+                    p50.default_speed = 2.5
+                    p50.dispense(7, qpcrplate_2[Y1].bottom(z=1.75), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
-                    p1000.move_to(qpcrplate_2[Y2].top(z=1.0))
+                    p50.default_speed = 400
+                    p50.move_to(qpcrplate_2[Y2].top(z=1.0))
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_2[Y2].bottom(z=1.75), rate=0.25)
+                    p50.default_speed = 2.5
+                    p50.dispense(7, qpcrplate_2[Y2].bottom(z=1.75), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
-                    p1000.move_to(qpcrplate_2[Y3].top(z=1.0))
+                    p50.default_speed = 400
+                    p50.move_to(qpcrplate_2[Y3].top(z=1.0))
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_2[Y3].bottom(z=1.75), rate=0.25)
+                    p50.default_speed = 2.5
+                    p50.dispense(7, qpcrplate_2[Y3].bottom(z=1.75), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
-
-                    p1000.move_to(qpcrplate_2[Y4].top(z=1.0))
+                    p50.default_speed = 400
+                    p50.move_to(qpcrplate_2[Y4].top(z=1.0))
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_2[Y4].bottom(z=1.75), rate=0.25)
+                    p50.default_speed = 2.5
+                    p50.dispense(7, qpcrplate_2[Y4].bottom(z=1.75), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
-                    p1000.move_to(qpcrplate_2[Y5].top(z=1.0))
+                    p50.default_speed = 400
+                    p50.move_to(qpcrplate_2[Y5].top(z=1.0))
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_2[Y5].bottom(z=1.75), rate=0.25)
+                    p50.default_speed = 2.5
+                    p50.dispense(7, qpcrplate_2[Y5].bottom(z=1.75), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
-                    p1000.move_to(qpcrplate_2[Y6].top(z=1.0))
+                    p50.default_speed = 400
+                    p50.move_to(qpcrplate_2[Y6].top(z=1.0))
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_2[Y6].bottom(z=1.75), rate=0.25)
+                    p50.default_speed = 2.5
+                    p50.dispense(5, qpcrplate_2[Y6].bottom(z=1.75), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
-
-                    p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
+                    p50.default_speed = 400
+                    p50.drop_tip() if DRYRUN == 'NO' else p50.return_tip()
 
                 if samplecolumns >= 3:#-----------------------------------------------------------------------------------------
                     X = 'A12'
@@ -863,50 +853,48 @@ def run(protocol: protocol_api.ProtocolContext):
                     Y4 = 'B10'
                     Y5 = 'B11'
                     Y6 = 'B12'                     
-                    p1000.pick_up_tip()
-                    p1000.move_to(dilution_plate_2[X].bottom(z=p1000_offset_Temp))
-                    p1000.mix(30,58)
-                    p1000.aspirate(62, dilution_plate_2[X].bottom(z=p1000_offset_Temp), rate=0.25)
+                    p50.pick_up_tip()
+                    p50.move_to(dilution_plate_2[X].bottom(z=p50_offset_Temp))
+                    p50.mix(10,40)
+                    p50.aspirate(40, dilution_plate_2[X].bottom(z=p50_offset_Temp), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.move_to(qpcrplate_2[Y1].top(z=1.0))
+                    p50.move_to(qpcrplate_2[Y1].top(z=1.0))
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_2[Y1].bottom(z=1.75), rate=0.25)
+                    p50.default_speed = 2.5
+                    p50.dispense(7, qpcrplate_2[Y1].bottom(z=1.75), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
-                    p1000.move_to(qpcrplate_2[Y2].top(z=1.0))
+                    p50.default_speed = 400
+                    p50.move_to(qpcrplate_2[Y2].top(z=1.0))
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_2[Y2].bottom(z=1.75), rate=0.25)
+                    p50.default_speed = 2.5
+                    p50.dispense(7, qpcrplate_2[Y2].bottom(z=1.75), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
-                    p1000.move_to(qpcrplate_2[Y3].top(z=1.0))
+                    p50.default_speed = 400
+                    p50.move_to(qpcrplate_2[Y3].top(z=1.0))
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_2[Y3].bottom(z=1.75), rate=0.25)
+                    p50.default_speed = 2.5
+                    p50.dispense(7, qpcrplate_2[Y3].bottom(z=1.75), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
-
-                    p1000.move_to(qpcrplate_2[Y4].top(z=1.0))
+                    p50.default_speed = 400
+                    p50.move_to(qpcrplate_2[Y4].top(z=1.0))
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_2[Y4].bottom(z=1.75), rate=0.25)
+                    p50.default_speed = 2.5
+                    p50.dispense(7, qpcrplate_2[Y4].bottom(z=1.75), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
-                    p1000.move_to(qpcrplate_2[Y5].top(z=1.0))
+                    p50.default_speed = 400
+                    p50.move_to(qpcrplate_2[Y5].top(z=1.0))
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_2[Y5].bottom(z=1.75), rate=0.25)
+                    p50.default_speed = 2.5
+                    p50.dispense(7, qpcrplate_2[Y5].bottom(z=1.75), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
-                    p1000.move_to(qpcrplate_2[Y6].top(z=1.0))
+                    p50.default_speed = 400
+                    p50.move_to(qpcrplate_2[Y6].top(z=1.0))
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 2.5
-                    p1000.dispense(10, qpcrplate_2[Y6].bottom(z=1.75), rate=0.25)
+                    p50.default_speed = 2.5
+                    p50.dispense(5, qpcrplate_2[Y6].bottom(z=1.75), rate=0.25)
                     protocol.delay(seconds=0.2)
-                    p1000.default_speed = 400
-
-                    p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
+                    p50.default_speed = 400
+                    p50.drop_tip() if DRYRUN == 'NO' else p50.return_tip()
 
         p1000.reset_tipracks()
         p50.reset_tipracks()
