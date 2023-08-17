@@ -44,7 +44,7 @@ def run(protocol: protocol_api.ProtocolContext):
     # ========== FIRST ROW ===========
     heatershaker        = protocol.load_module('heaterShakerModuleV1','1')
     sample_plate_2      = heatershaker.load_labware(
-                            load_name='nest_96_wellplate_2ml_deep'', 
+                            load_name='nest_96_wellplate_2ml_deep', 
                             location='D1',
                             adapter='opentrons_96_deep_well_adapter')
     tiprack_200_1       = protocol.load_labware('opentrons_ot3_96_tiprack_200ul', '2')
