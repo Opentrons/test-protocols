@@ -2,7 +2,7 @@ from opentrons import protocol_api
 from opentrons import types
 
 metadata = {
-    'protocolName': 'Illumina DNA Prep 24x v4.5',
+    'protocolName': 'Illumina DNA Prep 24x v4.5 W/ Adapter',
     'author': 'Opentrons <protocols@opentrons.com>',
     'source': 'Protocol Library',
     }
@@ -63,7 +63,8 @@ def run(protocol: protocol_api.ProtocolContext):
     # DECK SETUP AND LABWARE
     # ========== FIRST ROW ===========
     heatershaker        = protocol.load_module('heaterShakerModuleV1','1')
-    sample_plate_1      = heatershaker.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')
+    hs_adapter          = heatershaker.load_adapter('opentrons_96_pcr_adapter')
+    sample_plate_1      = hs_adapter.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')
     if RES_TYPE == '12x15ml':
         reservoir       = protocol.load_labware('nest_12_reservoir_15ml','2')
     if RES_TYPE == '96x2ml':
@@ -315,7 +316,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 heatershaker.open_labware_latch()
                 protocol.move_labware(
                     labware=sample_plate_1,
-                    new_location=heatershaker,
+                    new_location=hs_adapter,
                     use_gripper=USE_GRIPPER,
                 )
                 heatershaker.close_labware_latch()
@@ -399,7 +400,7 @@ def run(protocol: protocol_api.ProtocolContext):
             heatershaker.open_labware_latch()
             protocol.move_labware(
                 labware=sample_plate_1,
-                new_location=heatershaker,
+                new_location=hs_adapter,
                 use_gripper=USE_GRIPPER,
             )
             heatershaker.close_labware_latch()
@@ -519,7 +520,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 heatershaker.open_labware_latch()
                 protocol.move_labware(
                     labware=sample_plate_1,
-                    new_location=heatershaker,
+                    new_location=hs_adapter,
                     use_gripper=USE_GRIPPER,
                 )
                 heatershaker.close_labware_latch()
@@ -682,7 +683,7 @@ def run(protocol: protocol_api.ProtocolContext):
             heatershaker.open_labware_latch()
             protocol.move_labware(
                 labware=sample_plate_1,
-                new_location=heatershaker,
+                new_location=hs_adapter,
                 use_gripper=USE_GRIPPER,
             )
             heatershaker.close_labware_latch()
@@ -756,7 +757,7 @@ def run(protocol: protocol_api.ProtocolContext):
             heatershaker.open_labware_latch()
             protocol.move_labware(
                 labware=sample_plate_1,
-                new_location=heatershaker,
+                new_location=hs_adapter,
                 use_gripper=USE_GRIPPER,
             )
             heatershaker.close_labware_latch()

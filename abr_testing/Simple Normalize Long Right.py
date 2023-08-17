@@ -6,8 +6,7 @@ metadata = {
     'protocolName': 'OT3 ABR Simple Normalize Long',
     'author': 'Opentrons <protocols@opentrons.com>',
     'source': 'Protocol Library',
-    'apiLevel': '2.15'
-    }
+}
 
 requirements = {
     "robotType": "OT-3",
