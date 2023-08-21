@@ -66,8 +66,9 @@ def run(ctx):
     MAG_PLATE_SLOT = ctx.load_module('magneticBlockV1','4')
     
     tempdeck = ctx.load_module('Temperature Module Gen2','3')
+    tempdeck_adapter = tempdeck.load_adapter("opentrons_96_well_alluminum_block")
     #Keep elution warm during protocol
-    elutionplate = tempdeck.load_labware('opentrons_96_pcr_adapter_armadillo_wellplate_200ul')
+    elutionplate = tempdeck_adapter.load_labware('opentrons_96_pcr_adapter_armadillo_wellplate_200ul')
     
     #Load Reservoir Plates
     wash2_reservoir = lysis_reservoir = ctx.load_labware(deepwell_type,'2') #deleted after use- replaced (by gripper) with wash2 res
@@ -121,7 +122,7 @@ def run(ctx):
         h_s.open_labware_latch()
         ctx.move_labware(
             sample_plate, 
-            h_s, 
+            hs_adapter, 
             use_gripper=USE_GRIPPER,
         )
         h_s.close_labware_latch()
@@ -417,7 +418,7 @@ def run(ctx):
         #Transfer plate to magnet
         ctx.move_labware(
             sample_plate, 
-            h_s, 
+            hs_adapter, 
             use_gripper=USE_GRIPPER,
         )
         h_s.close_labware_latch()
