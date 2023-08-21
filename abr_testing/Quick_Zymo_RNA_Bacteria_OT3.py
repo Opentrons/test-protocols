@@ -56,10 +56,11 @@ def run(ctx):
     starting_vol= 250 # This is sample volume (300 in shield) + lysis volume
 
     h_s = ctx.load_module('heaterShakerModuleV1',HS_SLOT)
-    sample_plate = h_s.load_labware((
-                            load_name='nest_96_wellplate_2ml_deep'', 
-                            location='D1',
-                            adapter='opentrons_96_deep_well_adapter')
+    
+    ####### METHOD ONE FOR ADAPTER AND LABWARE SEPERATE #############
+    hs_adapter          = h_s.load_adapter("opentrons_96_deep_well_adapter")
+    sample_plate      = hs_adapter.load_labware("nest_96_wellplate_2ml_deep")
+
     samples_m = sample_plate.wells()[0]
     h_s.close_labware_latch()
     MAG_PLATE_SLOT = ctx.load_module('magneticBlockV1','4')
