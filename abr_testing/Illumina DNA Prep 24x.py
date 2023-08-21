@@ -37,7 +37,11 @@ def run(protocol: protocol_api.ProtocolContext):
     # DECK SETUP AND LABWARE
     # ========== FIRST ROW ===========
     heatershaker        = protocol.load_module('heaterShakerModuleV1','1')
-    sample_plate_1      = heatershaker.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')
+
+    ####### METHOD ONE FOR ADAPTER AND LABWARE SEPERATE #############
+    hs_adapter          = heatershaker.load_adapter("opentrons_96_pcr_adapter")
+    sample_plate_1      = hs_adapter.load_labware("armadillo_96_wellplate_200ul_pcr_full_skirt")
+
     tiprack_200_1       = protocol.load_labware('opentrons_ot3_96_tiprack_200ul', '2')
     temp_block          = protocol.load_module('temperature module gen2', '3')
     reagent_plate       = temp_block.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')

@@ -63,8 +63,11 @@ def run(protocol: protocol_api.ProtocolContext):
     # DECK SETUP AND LABWARE
     # ========== FIRST ROW ===========
     heatershaker        = protocol.load_module('heaterShakerModuleV1','1')
-    hs_adapter          = heatershaker.load_adapter('opentrons_96_pcr_adapter')
-    sample_plate_1      = hs_adapter.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')
+
+    ####### METHOD ONE FOR ADAPTER AND LABWARE SEPERATE #############
+    hs_adapter          = heatershaker.load_adapter("opentrons_96_pcr_adapter")
+    sample_plate_1      = hs_adapter.load_labware("armadillo_96_wellplate_200ul_pcr_full_skirt")
+
     if RES_TYPE == '12x15ml':
         reservoir       = protocol.load_labware('nest_12_reservoir_15ml','2')
     if RES_TYPE == '96x2ml':
