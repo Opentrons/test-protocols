@@ -73,7 +73,8 @@ def run(protocol: protocol_api.ProtocolContext):
     if RES_TYPE == '96x2ml':
         reservoir       = protocol.load_labware('nest_96_wellplate_2ml_deep','2')    
     temp_block          = protocol.load_module('temperature module gen2', '3')
-    reagent_plate       = temp_block.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')
+    temp_block_adapter  = temp_block.load_adapter('opentrons_96_well_aluminum_block')
+    reagent_plate       = temp_block_adapter.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')
     # ========== SECOND ROW ==========
     MAG_PLATE_SLOT      = protocol.load_module('magneticBlockV1', '4')
     tiprack_200_1       = protocol.load_labware('opentrons_ot3_96_tiprack_200ul', '5')
