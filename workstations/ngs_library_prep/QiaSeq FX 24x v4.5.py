@@ -4,8 +4,7 @@ from opentrons import types
 metadata = {
     'protocolName': 'Qiaseq FX 24x v4.5',
     'author': 'Opentrons <protocols@opentrons.com>',
-    'source': 'Protocol Library',
-    'apiLevel': '2.15'
+    'source': 'Protocol Library'
     }
 
 requirements = {

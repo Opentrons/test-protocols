@@ -3,13 +3,12 @@ from opentrons.types import Point
 metadata = {
     'protocolName': 'Immobilized Metal Affinity Chromatography by Ni-NTA Magnetic Agarose Beads (plate preparation) - 96-well setting on Opentrons Flex',
     'author': 'Boren Lin, Opentrons',
-    'description': 'This protocol prepares reagent plates for automated immobilized metal affinity chromatography (IMAC) using Ni-NTA magnetic agarose beads (up to 96 samples).',
-    'apiLevel': '2.14'
+    'description': 'This protocol prepares reagent plates for automated immobilized metal affinity chromatography (IMAC) using Ni-NTA magnetic agarose beads (up to 96 samples).'
 }
 
 requirements = {
     "robotType": "OT-3",
-    "apiLevel": "2.14",
+    "apiLevel": "2.15",
 }
 
 ########################

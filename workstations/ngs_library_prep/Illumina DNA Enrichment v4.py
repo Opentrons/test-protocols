@@ -4,8 +4,7 @@ from opentrons import types
 metadata = {
     'protocolName': 'Illumina DNA Enrichment v4',
     'author': 'Opentrons <protocols@opentrons.com>',
-    'source': 'Protocol Library',
-    'apiLevel': '2.15'
+    'source': 'Protocol Library'
     }
 
 requirements = {

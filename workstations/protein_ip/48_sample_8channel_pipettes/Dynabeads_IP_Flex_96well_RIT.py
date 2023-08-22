@@ -1,13 +1,12 @@
 metadata = {
     'protocolName': 'Immunoprecipitation by Dynabeads - 96-well setting on Opentrons Flex (Reagents in 15 mL tubes)',
     'author': 'Boren Lin, Opentrons',
-    'description': 'The protocol automates immunoprecipitation to isolate a protein of interest from liquid samples (up to 96 samples) by using protein A– or protein G–coupled magnetic beads.',
-    'apiLevel': '2.14'
+    'description': 'The protocol automates immunoprecipitation to isolate a protein of interest from liquid samples (up to 96 samples) by using protein A– or protein G–coupled magnetic beads.'
 }
 
 requirements = {
     "robotType": "OT-3",
-    "apiLevel": "2.14",
+    "apiLevel": "2.15",
 }
 
 ########################

@@ -10,8 +10,7 @@ import smtplib
 
 metadata = {
     'protocolName': 'OT-3 Omega HDQ DNA Extraction: Bacteria- Tissue Protocol',
-    'author': 'Zach Galluzzo <zachary.galluzzo@opentrons.com>',
-    'apiLevel': '2.14'
+    'author': 'Zach Galluzzo <zachary.galluzzo@opentrons.com>'
 }
 
 requirements = {

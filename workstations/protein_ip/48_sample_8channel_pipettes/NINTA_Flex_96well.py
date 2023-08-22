@@ -1,13 +1,12 @@
 metadata = {
     'protocolName': 'Immobilized Metal Affinity Chromatography by Ni-NTA Magnetic Agarose Beads - 96-well setting on Opentrons Flex',
     'author': 'Boren Lin, Opentrons',
-    'description': 'The protocol automates immobilized metal affinity chromatography (IMAC) using Ni-NTA magnetic agarose beads to isolate a protein of interest from liquid samples (up to 96 samples).',
-    'apiLevel': '2.14'
+    'description': 'The protocol automates immobilized metal affinity chromatography (IMAC) using Ni-NTA magnetic agarose beads to isolate a protein of interest from liquid samples (up to 96 samples).'
 }
 
 requirements = {
     "robotType": "OT-3",
-    "apiLevel": "2.14",
+    "apiLevel": "2.15"
 }
 
 ########################
