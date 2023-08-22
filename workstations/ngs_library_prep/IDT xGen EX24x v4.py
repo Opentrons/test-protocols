@@ -63,7 +63,8 @@ def run(protocol: protocol_api.ProtocolContext):
     heatershaker_adapter= heatershaker.load_adapter('opentrons_96_pcr_adapter')
     reservoir           = protocol.load_labware('nest_12_reservoir_15ml','2')
     temp_block          = protocol.load_module('temperature module gen2', '3')
-    reagent_plate       = temp_block.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')
+    temp_block_adapter  = temp_block.load_adapter('opentrons_96_well_aluminum_block')
+    reagent_plate       = temp_block_adapter.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')
     # ========== SECOND ROW ==========
     MAG_PLATE_SLOT      = 4       #DVT
     tiprack_200_1       = protocol.load_labware('opentrons_ot3_96_tiprack_200ul',  '5')
