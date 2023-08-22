@@ -40,6 +40,7 @@ def run(ctx):
     #Same for all Extractions
     num_samples = 48
     deepwell_type = "nest_96_wellplate_2ml_deep"
+    adapter_type = "opentrons_96_deep_well_adapter"
     res_type="nest_12_reservoir_15ml"
     wash_vol= 150
     if not dry_run:
@@ -52,10 +53,11 @@ def run(ctx):
     starting_vol= sample_vol+lysis_vol
     
     h_s = ctx.load_module('heaterShakerModuleV1','1')
-    sample_plate = h_s.load_labware(deepwell_type)
+    h_s_adapter = h_s.load_adapter(adapter_type)
+    sample_plate = h_s_adapter.load_labware(deepwell_type)
     h_s.close_labware_latch()
     temp = ctx.load_module('temperature module gen2','3')
-    elutionplate = temp.load_labware('opentrons_96_aluminumblock_armadillo_wellplate_200ul')
+    elutionplate = temp.load_labware('opentrons_96_pcr_adapter_armadillo_wellplate_200ul')
     if not dry_run:
         temp.set_temperature(4)
     MAG_PLATE_SLOT = ctx.load_module('magneticBlockV1','4')
@@ -193,7 +195,7 @@ def run(ctx):
         m1000.flow_rate.aspirate = 300
         #Move Plate From Magnet to H-S
         h_s.open_labware_latch()
-        ctx.move_labware(sample_plate,h_s,use_gripper=USE_GRIPPER,pick_up_offset=grip_offset("pick-up","mag-plate"),drop_offset=grip_offset("drop","heater-shaker",slot=1))
+        ctx.move_labware(sample_plate,h_s_adapter,use_gripper=USE_GRIPPER,pick_up_offset=grip_offset("pick-up","mag-plate"),drop_offset=grip_offset("drop","heater-shaker",slot=1))
         h_s.close_labware_latch()
 
     def bead_mixing(well, pip, mvol, reps=8):
