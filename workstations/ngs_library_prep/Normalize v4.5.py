@@ -9,6 +9,7 @@ metadata = {
 
 requirements = {
     "robotType": "OT-3",
+    "apiLevel" : "2.15"
 }
 
 # SCRIPT SETTINGS
