@@ -1,0 +1,444 @@
+from opentrons import protocol_api
+from opentrons import types
+
+metadata = {
+    'protocolName': 'Normalize v4.5',
+    'author': 'Opentrons <protocols@opentrons.com>',
+    'source': 'Protocol Library',
+    'apiLevel': '2.15'
+    }
+
+requirements = {
+    "robotType": "OT-3",
+    "apiLevel": "2.15",
+}
+
+# SCRIPT SETTINGS
+DRYRUN              = True          # True = skip incubation times, shorten mix, for testing purposes
+TIP_TRASH           = False         # True = Used tips go in Trash, False = Used tips go back into rack
+
+# PROTOCOL SETTINGS
+RES_TYPE            = '50ml_Tube'     # '12x15ml' or '50ml_Tube'
+MODULESONDECK       = False
+
+# PROTOCOL BLOCKS
+
+############################################################################################################################################
+############################################################################################################################################
+############################################################################################################################################
+
+p500_tips           = 0
+p50_tips            = 0
+WasteVol            = 0
+Resetcount          = 0
+
+ABR_TEST            = False
+if ABR_TEST == True:
+    DRYRUN          = True           # Overrides to only DRYRUN
+    TIP_TRASH       = False          # Overrides to only REUSING TIPS
+    RUN             = 3              # Repetitions
+else:
+    RUN             = 1
+
+def run(protocol: protocol_api.ProtocolContext):
+
+    global p500_tips
+    global p50_tips
+    global WasteVol
+    global Resetcount
+
+    protocol.comment('THIS IS A DRY RUN') if DRYRUN == True else protocol.comment('THIS IS A REACTION RUN')
+    protocol.comment('USED TIPS WILL GO IN TRASH') if TIP_TRASH == True else protocol.comment('USED TIPS WILL BE RE-RACKED')
+
+    # DECK SETUP AND LABWARE
+    # ========== FIRST ROW ===========
+    if MODULESONDECK == True:
+        heatershaker        = protocol.load_module('heaterShakerModuleV1','1')
+        sample_plate_1      = heatershaker.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')
+    else:
+        sample_plate_1      = protocol.load_labware('nest_96_wellplate_100ul_pcr_full_skirt','1')
+    if RES_TYPE == '12x15ml':
+        reservoir       = protocol.load_labware('nest_12_reservoir_15ml','2')
+    if RES_TYPE == '50ml_Tube':
+        reservoir       = protocol.load_labware('opentrons_10_tuberack_falcon_4x50ml_6x15ml_conical','2')
+    if MODULESONDECK == True:
+        temp_block          = protocol.load_module('temperature module gen2', '3')
+        reagent_plate       = temp_block.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')
+    else:
+        reagent_plate       = protocol.load_labware('nest_96_wellplate_100ul_pcr_full_skirt','3')
+    # ========== SECOND ROW ==========
+    MAG_PLATE_SLOT      = 4
+    tiprack_200_1       = protocol.load_labware('opentrons_ot3_96_tiprack_200ul', '5')
+    tiprack_50_1        = protocol.load_labware('opentrons_ot3_96_tiprack_50ul', '6')
+    # ========== THIRD ROW ===========
+    if MODULESONDECK == True:
+        thermocycler        = protocol.load_module('thermocycler module gen2')
+    # ========== FOURTH ROW ==========
+
+    # reagent
+    if RES_TYPE == '12x15ml':
+        RSB             = reservoir['A6']
+    if RES_TYPE == '50ml_Tube':
+        RSB             = reservoir['A1']
+
+    # pipette    
+    p1000 = protocol.load_instrument("p1000_single_gen3", "left", tip_racks=[tiprack_200_1])
+    p50 = protocol.load_instrument("p50_single_gen3", "right", tip_racks=[tiprack_50_1])
+    
+    MaxTubeVol      = 200
+    RSBUsed         = 0
+    RSBVol          = 0
+
+    # ============================
+    #
+    # Insert CSV BELOW
+    #
+    # ============================
+    sample_quant_csv = """
+    Sample_Plate, Sample_well,InitialVol,InitialConc,TargetConc
+    sample_plate,A2,10,3.94,1
+    sample_plate,B2,10,3.5,1
+    sample_plate,C2,10,3.46,1
+    sample_plate,D2,10,3.1,1
+    sample_plate,E2,10,2.64,1
+    sample_plate,F2,10,3.16,1
+    sample_plate,G2,10,2.9,1
+    sample_plate,H2,10,2.8,1
+    sample_plate,A3,10,2.82,1
+    sample_plate,B3,10,2.84,1
+    sample_plate,C3,10,2.72,1
+    sample_plate,D3,10,2.9,1
+    sample_plate,A5,10,3.94,1
+    sample_plate,B5,10,3.5,1
+    sample_plate,C5,10,3.46,1
+    sample_plate,D5,10,3.1,1
+    sample_plate,E5,10,2.64,1
+    sample_plate,F5,10,3.16,1
+    sample_plate,G5,10,2.9,1
+    sample_plate,H5,10,2.8,1
+    sample_plate,A6,10,2.82,1
+    sample_plate,B6,10,2.84,1
+    sample_plate,C6,10,2.72,1
+    sample_plate,D6,10,2.9,1
+    """
+    # ============================
+
+    data = [r.split(',') for r in sample_quant_csv.strip().splitlines() if r][1:]
+
+    def tipcheck():
+        global p200_tips
+        global p50_tips
+        global Resetcount
+        if p200_tips == 3*12:
+            if ABR_TEST == True: 
+                p1000.reset_tipracks()
+            else:
+                protocol.pause('RESET p200 TIPS')
+                p1000.reset_tipracks()
+            Resetcount += 1
+            p200_tips = 0 
+        if p50_tips == 2*12:
+            if ABR_TEST == True: 
+                p50.reset_tipracks()
+            else:
+                protocol.pause('RESET p50 TIPS')
+                p50.reset_tipracks()
+            Resetcount += 1
+            p50_tips = 0
+
+    def grip_offset(action, item, slot=None):
+        """Grip offset."""
+        from opentrons.types import Point
+
+        # EDIT these values
+        # NOTE: we are still testing to determine our software's defaults
+        #       but we also expect users will want to edit these
+        _pick_up_offsets = {
+            "deck": Point(),
+            "mag-plate": Point(),
+            "heater-shaker": Point(z=1.0),
+            "temp-module": Point(),
+            "thermo-cycler": Point(),
+        }
+        # EDIT these values
+        # NOTE: we are still testing to determine our software's defaults
+        #       but we also expect users will want to edit these
+        _drop_offsets = {
+            "deck": Point(),
+            "mag-plate": Point(x=0.1,y=-0.25,z=0.5),
+            "heater-shaker": Point(y=-0.5),
+            "temp-module": Point(),
+            "thermo-cycler": Point(),
+        }
+        # do NOT edit these values
+        # NOTE: these values will eventually be in our software
+        #       and will not need to be inside a protocol
+        _hw_offsets = {
+            "deck": Point(),
+            "mag-plate": Point(z=34.5),
+            "heater-shaker-right": Point(z=2.5),
+            "heater-shaker-left": Point(z=2.5),
+            "temp-module": Point(z=5.0),
+            "thermo-cycler": Point(z=2.5),
+        }
+        # make sure arguments are correct
+        action_options = ["pick-up", "drop"]
+        item_options = list(_hw_offsets.keys())
+        item_options.remove("heater-shaker-left")
+        item_options.remove("heater-shaker-right")
+        item_options.append("heater-shaker")
+        if action not in action_options:
+            raise ValueError(
+                f'"{action}" not recognized, available options: {action_options}'
+            )
+        if item not in item_options:
+            raise ValueError(
+                f'"{item}" not recognized, available options: {item_options}'
+            )
+        if item == "heater-shaker":
+            assert slot, 'argument slot= is required when using "heater-shaker"'
+            if slot in [1, 4, 7, 10]:
+                side = "left"
+            elif slot in [3, 6, 9, 12]:
+                side = "right"
+            else:
+                raise ValueError("heater shaker must be on either left or right side")
+            hw_offset = _hw_offsets[f"{item}-{side}"]
+        else:
+            hw_offset = _hw_offsets[item]
+        if action == "pick-up":
+            offset = hw_offset + _pick_up_offsets[item]
+        else:
+            offset = hw_offset + _drop_offsets[item]
+
+        # convert from Point() to dict()
+        return {"x": offset.x, "y": offset.y, "z": offset.z}
+
+############################################################################################################################################
+############################################################################################################################################
+############################################################################################################################################
+
+    # commands
+    if MODULESONDECK == True:
+        thermocycler.open_lid()
+        heatershaker.open_labware_latch()
+        protocol.pause("Ready")
+        heatershaker.close_labware_latch()
+
+    protocol.comment('==============================================')
+    protocol.comment('--> Reading File')
+    protocol.comment('==============================================')
+
+    current = 0
+    while current < len(data):
+
+        CurrentWell     = str(data[current][1])
+        if float(data[current][2]) > 0:
+            InitialVol = float(data[current][2])
+        else:
+            InitialVol = 0
+        if float(data[current][3]) > 0:
+            InitialConc = float(data[current][3])
+        else:
+            InitialConc = 0
+        if float(data[current][4]) > 0:
+            TargetConc = float(data[current][4])
+        else:
+            TargetConc = 0
+        TotalDNA        = float(InitialConc*InitialVol)
+        if TargetConc > 0:
+            TargetVol = float(TotalDNA/TargetConc)
+        else:
+            TargetVol = InitialVol
+        if TargetVol > InitialVol:
+            DilutionVol = float(TargetVol-InitialVol)
+        else:
+            DilutionVol = 0
+        FinalVol        = float(DilutionVol+InitialVol)
+        if TotalDNA > 0 and FinalVol > 0:
+            FinalConc       = float(TotalDNA/FinalVol)
+        else:
+            FinalConc = 0
+            
+        if DilutionVol <= 1:
+            protocol.comment("Sample "+CurrentWell+": Conc. Too Low, Will Skip")
+        elif DilutionVol > MaxTubeVol-InitialVol:
+            DilutionVol = MaxTubeVol-InitialVol
+            protocol.comment("Sample "+CurrentWell+": Conc. Too High, Will add, "+str(DilutionVol)+"ul, Max = "+str(MaxTubeVol)+"ul")
+            RSBVol += MaxTubeVol-InitialVol
+        else:
+            if DilutionVol <=20:
+                protocol.comment("Sample "+CurrentWell+": Using p50, will add "+str(round(DilutionVol,1)))
+            elif DilutionVol > 20:
+                protocol.comment("Sample "+CurrentWell+": Using p1000, will add "+str(round(DilutionVol,1)))
+            RSBVol += DilutionVol
+        current += 1
+
+    if RSBVol >= 14000:
+        protocol.pause("Caution, more than 15ml Required")
+    else:
+        protocol.comment("RSB Minimum: "+str(round(RSBVol/1000,1)+1)+"ml")
+    
+    PiR2 = 176.71
+    InitialRSBVol = RSBVol
+    RSBHeight = (InitialRSBVol/PiR2)+17.5
+
+    protocol.pause("Proceed")
+    protocol.comment('==============================================')
+    protocol.comment('--> Normalizing Samples')
+    protocol.comment('==============================================')
+    
+    current = 0
+    while current < len(data):
+
+        CurrentWell     = str(data[current][1])
+        if float(data[current][2]) > 0:
+            InitialVol = float(data[current][2])
+        else:
+            InitialVol = 0
+        if float(data[current][3]) > 0:
+            InitialConc = float(data[current][3])
+        else:
+            InitialConc = 0
+        if float(data[current][4]) > 0:
+            TargetConc = float(data[current][4])
+        else:
+            TargetConc = 0
+        TotalDNA        = float(InitialConc*InitialVol)
+        if TargetConc > 0:
+            TargetVol = float(TotalDNA/TargetConc)
+        else:
+            TargetVol = InitialVol
+        if TargetVol > InitialVol:
+            DilutionVol = float(TargetVol-InitialVol)
+        else:
+            DilutionVol = 0
+        FinalVol        = float(DilutionVol+InitialVol)
+        if TotalDNA > 0 and FinalVol > 0:
+            FinalConc       = float(TotalDNA/FinalVol)
+        else:
+            FinalConc = 0
+            
+        protocol.comment("Number "+str(data[current])+": Sample "+str(CurrentWell))
+#        protocol.comment("Vol Height = "+str(round(RSBHeight,2)))
+        HeightDrop = DilutionVol/PiR2
+#        protocol.comment("Vol Drop = "+str(round(HeightDrop,2)))
+
+        if DilutionVol <= 0:
+        #If the No Volume
+            protocol.comment("Conc. Too Low, Skipping")
+        
+        elif DilutionVol >= MaxTubeVol-InitialVol:
+        #If the Required Dilution volume is >= Max Volume
+            DilutionVol = MaxTubeVol-InitialVol
+            protocol.comment("Conc. Too High, Will add, "+str(DilutionVol)+"ul, Max = "+str(MaxTubeVol)+"ul")
+            p1000.pick_up_tip()
+            p1000.aspirate(DilutionVol, RSB.bottom(RSBHeight-(HeightDrop)))
+            RSBHeight -= HeightDrop
+#            protocol.comment("New Vol Height = "+str(round(RSBHeight,2)))
+            p1000.dispense(DilutionVol, sample_plate_1.wells_by_name()[CurrentWell])
+            HighVolMix = 10
+            for Mix in range(HighVolMix):
+                p1000.move_to(sample_plate_1.wells_by_name()[CurrentWell].center())
+                p1000.aspirate(100)
+                p1000.move_to(sample_plate_1.wells_by_name()[CurrentWell].bottom())
+                p1000.aspirate(100)
+                p1000.dispense(100)
+                p1000.move_to(sample_plate_1.wells_by_name()[CurrentWell].center())
+                p1000.dispense(100)
+                Mix += 1
+            p1000.move_to(sample_plate_1.wells_by_name()[CurrentWell].top())
+            protocol.delay(seconds=3)
+            p1000.blow_out()
+            p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
+        
+        else:
+            if DilutionVol <= 20:
+        #If the Required Dilution volume is <= 20ul
+                protocol.comment("Using p50 to add "+str(round(DilutionVol,1)))
+                p50.pick_up_tip()
+                if  round(float(data[current][3]),1) <= 20:
+                    p50.aspirate(DilutionVol, RSB.bottom(RSBHeight-(HeightDrop)))
+                    RSBHeight -= HeightDrop
+                else:
+                    p50.aspirate(20, RSB.bottom(RSBHeight-(HeightDrop)))
+                    RSBHeight -= HeightDrop
+                p50.dispense(DilutionVol, sample_plate_1.wells_by_name()[CurrentWell])
+                p50.move_to(sample_plate_1.wells_by_name()[CurrentWell].bottom())
+        # Mix volume <=20ul
+                if DilutionVol+InitialVol <= 20:
+                    p50.mix(10,DilutionVol+InitialVol)
+                elif DilutionVol+InitialVol > 20:
+                    p50.mix(10,20)
+                p50.move_to(sample_plate_1.wells_by_name()[CurrentWell].top())
+                protocol.delay(seconds=3)
+                p50.blow_out()
+                p50.drop_tip() if DRYRUN == 'NO' else p50.return_tip()
+            
+            elif DilutionVol > 20:
+        #If the required volume is >20
+                protocol.comment("Using p1000 to add "+str(round(DilutionVol,1)))
+                p1000.pick_up_tip()
+                p1000.aspirate(DilutionVol, RSB.bottom(RSBHeight-(HeightDrop)))
+                RSBHeight -= HeightDrop
+                if DilutionVol+InitialVol >= 120:
+                    HighVolMix = 10
+                    for Mix in range(HighVolMix):
+                        p1000.move_to(sample_plate_1.wells_by_name()[CurrentWell].center())
+                        p1000.aspirate(100)
+                        p1000.move_to(sample_plate_1.wells_by_name()[CurrentWell].bottom())
+                        p1000.aspirate(DilutionVol+InitialVol-100)
+                        p1000.dispense(100)
+                        p1000.move_to(sample_plate_1.wells_by_name()[CurrentWell].center())
+                        p1000.dispense(DilutionVol+InitialVol-100)
+                        Mix += 1
+                else:
+                    p1000.dispense(DilutionVol, sample_plate_1.wells_by_name()[CurrentWell])
+                    p1000.move_to(sample_plate_1.wells_by_name()[CurrentWell].bottom())
+                    p1000.mix(10,DilutionVol+InitialVol)
+                    p1000.move_to(sample_plate_1.wells_by_name()[CurrentWell].top())
+                protocol.delay(seconds=3)
+                p1000.blow_out()
+                p1000.drop_tip() if DRYRUN == 'NO' else p1000.return_tip()
+        current += 1
+    
+    protocol.comment('==============================================')
+    protocol.comment('--> Results')
+    protocol.comment('==============================================')
+
+    current = 0
+    while current < len(data):
+
+        CurrentWell     = str(data[current][1])
+        if float(data[current][2]) > 0:
+            InitialVol = float(data[current][2])
+        else:
+            InitialVol = 0
+        if float(data[current][3]) > 0:
+            InitialConc = float(data[current][3])
+        else:
+            InitialConc = 0
+        if float(data[current][4]) > 0:
+            TargetConc = float(data[current][4])
+        else:
+            TargetConc = 0
+        TotalDNA        = float(InitialConc*InitialVol)
+        if TargetConc > 0:
+            TargetVol = float(TotalDNA/TargetConc)
+        else:
+            TargetVol = InitialVol
+        if TargetVol > InitialVol:
+            DilutionVol = float(TargetVol-InitialVol)
+        else:
+            DilutionVol = 0
+        if DilutionVol > MaxTubeVol-InitialVol:
+            DilutionVol = MaxTubeVol-InitialVol
+        FinalVol        = float(DilutionVol+InitialVol)
+        if TotalDNA > 0 and FinalVol > 0:
+            FinalConc       = float(TotalDNA/FinalVol)
+        else:
+            FinalConc = 0
+        protocol.comment("Sample "+CurrentWell+": "+str(round(FinalVol,1))+" at "+str(round(FinalConc,1))+"ng/ul")
+        
+        current += 1
+    
