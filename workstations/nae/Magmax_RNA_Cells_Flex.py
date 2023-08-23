@@ -57,7 +57,8 @@ def run(ctx):
     sample_plate = h_s_adapter.load_labware(deepwell_type)
     h_s.close_labware_latch()
     temp = ctx.load_module('temperature module gen2','3')
-    elutionplate = temp.load_labware('opentrons_96_pcr_adapter_armadillo_wellplate_200ul')
+    temp_adapter = temp.load_adapter('opentrons_96_pcr_adapter')
+    elutionplate = temp_adapter.load_labware('armadillo_96_wellplate_200ul_pcr_full_skirt')
     if not dry_run:
         temp.set_temperature(4)
     MAG_PLATE_SLOT = ctx.load_module('magneticBlockV1','4')
