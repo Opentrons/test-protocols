@@ -41,7 +41,8 @@ def run(ctx):
    
     beads_stock = ctx.load_labware('nest_12_reservoir_15ml', 2, 'beads')
     h_s = ctx.load_module('heaterShakerModuleV1',1)
-    working_plate = h_s.load_labware('nest_96_wellplate_2ml_deep', 'working plate')
+    h_s_adapter = h_s.load_adapter('opentrons_96_deep_well_adapter')
+    working_plate = h_s_adapter.load_labware('nest_96_wellplate_2ml_deep', 'working plate')
     temp = ctx.load_module('Temperature Module Gen2', 3)
 
     tips = ctx.load_labware('opentrons_ot3_96_tiprack_1000ul', 5)

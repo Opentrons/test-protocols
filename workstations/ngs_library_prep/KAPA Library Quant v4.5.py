@@ -65,7 +65,7 @@ def run(protocol: protocol_api.ProtocolContext):
         protocol.comment("THIS IS A NO MODULE RUN")
         source_plate       = protocol.load_labware('nest_96_wellplate_100ul_pcr_full_skirt', '1') 
         reservoir           = protocol.load_labware('nest_12_reservoir_15ml','2')
-        dilution_plate   = protocol.load_labware('opentrons_96_aluminumblock_biorad_wellplate_200ul', '3')
+        dilution_plate   = protocol.load_labware('biorad_96_wellplate_200ul_pcr', '3')
     # ========== SECOND ROW ==========
         tiprack_50_1        = protocol.load_labware('opentrons_ot3_96_tiprack_50ul', '5')
         tiprack_50_2        = protocol.load_labware('opentrons_ot3_96_tiprack_50ul', '6')
@@ -91,7 +91,7 @@ def run(protocol: protocol_api.ProtocolContext):
         if NGSTEMP == 'YES':
             temp_block       = protocol.load_module('temperature module gen2', '3')
             temp_b_adapter   = temp_block.load_adapter('opentrons_96_well_aluminum_block')
-            dilution_plate   = temp_b_adapter.load_labware('opentrons_96_aluminumblock_biorad_wellplate_200ul')
+            dilution_plate   = temp_b_adapter.load_labware('biorad_96_wellplate_200ul_pcr')
         else:
             dilution_plate         = protocol.load_labware('opentrons_96_aluminumblock_biorad_wellplate_200ul','3')
     # ========== SECOND ROW ==========

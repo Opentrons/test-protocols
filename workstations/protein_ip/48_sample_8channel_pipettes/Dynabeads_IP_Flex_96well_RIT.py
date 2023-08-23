@@ -62,7 +62,8 @@ def run(ctx):
     p1000_single = ctx.load_instrument('p1000_single_gen3', 'right', tip_racks=[tips])
 
     h_s = ctx.load_module('heaterShakerModuleV1',1)
-    working_plate = h_s.load_labware("nest_96_wellplate_2ml_deep", 'wokring plate')
+    h_s_adapter = h_s.load_adapter('opentrons_96_deep_well_adapter')
+    working_plate = h_s_adapter.load_labware("nest_96_wellplate_2ml_deep", 'wokring plate')
 
     temp = ctx.load_module('Temperature Module Gen2', 3)
     final_plate = temp.load_labware('nest_96_wellplate_2ml_deep', 'final plate')
@@ -167,7 +168,7 @@ def run(ctx):
     h_s.open_labware_latch()
     #ctx.pause('Move the Working Plate to the Shaker')
     ctx.move_labware(working_plate,
-                     h_s,
+                     h_s_adapter,
                      use_gripper=USE_GRIPPER
                     )
     h_s.close_labware_latch()
@@ -212,7 +213,7 @@ def run(ctx):
         h_s.open_labware_latch()
         #ctx.pause('Move the Working Plate to the Shaker')
         ctx.move_labware(working_plate,
-                         h_s,
+                         h_s_adapter,
                          use_gripper=USE_GRIPPER
                         )
         h_s.close_labware_latch()
@@ -238,7 +239,7 @@ def run(ctx):
     h_s.open_labware_latch()
     #ctx.pause('Move the Working Plate to the Shaker')
     ctx.move_labware(working_plate,
-                     h_s,
+                     h_s_adapter,
                      use_gripper=USE_GRIPPER
                     )
     h_s.close_labware_latch()

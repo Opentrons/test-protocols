@@ -313,7 +313,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 heatershaker.open_labware_latch()
                 protocol.move_labware(
                     labware=sample_plate_1,
-                    new_location=heatershaker,
+                    new_location=hs_adapter,
                     use_gripper=USE_GRIPPER                
                     )
                 heatershaker.close_labware_latch()
@@ -395,7 +395,7 @@ def run(protocol: protocol_api.ProtocolContext):
             heatershaker.open_labware_latch()
             protocol.move_labware(
                 labware=sample_plate_1,
-                new_location=heatershaker,
+                new_location=hs_adapter,
                 use_gripper=USE_GRIPPER
             )
             heatershaker.close_labware_latch()
@@ -514,7 +514,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 heatershaker.open_labware_latch()
                 protocol.move_labware(
                     labware=sample_plate_1,
-                    new_location=heatershaker,
+                    new_location=hs_adapter,
                     use_gripper=USE_GRIPPER
                 )
                 heatershaker.close_labware_latch()
@@ -672,7 +672,7 @@ def run(protocol: protocol_api.ProtocolContext):
             heatershaker.open_labware_latch()
             protocol.move_labware(
                 labware=sample_plate_1,
-                new_location=heatershaker,
+                new_location=hs_adapter,
                 use_gripper=USE_GRIPPER
             )
             heatershaker.close_labware_latch()
@@ -744,7 +744,7 @@ def run(protocol: protocol_api.ProtocolContext):
             heatershaker.open_labware_latch()
             protocol.move_labware(
                 labware=sample_plate_1,
-                new_location=heatershaker,
+                new_location=hs_adapter,
                 use_gripper=USE_GRIPPER
             )
             heatershaker.close_labware_latch()
