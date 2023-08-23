@@ -72,7 +72,7 @@ def run(protocol: protocol_api.ProtocolContext):
     temp_block          = protocol.load_module('temperature module gen2', '3')
     reagent_plate       = temp_block.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')
     # ========== SECOND ROW ==========
-    MAG_PLATE_SLOT      = 4
+    MAG_PLATE_SLOT      = protocol.load_module('magneticBlockV1', 'C1')
     tiprack_200_1       = protocol.load_labware('opentrons_ot3_96_tiprack_200ul', '5')
     tiprack_50_1        = protocol.load_labware('opentrons_ot3_96_tiprack_50ul', '6')
     # ========== THIRD ROW ===========
