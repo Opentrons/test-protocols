@@ -101,57 +101,6 @@ def run(ctx):
     m1000.flow_rate.dispense = 300
     m1000.flow_rate.blow_out = 300
     
-    def grip_offset(action, item, slot = None):
-        from opentrons.types import Point
-
-        # EDIT these values
-        # NOTE: we are still testing to determine our software's defaults
-        #       but we also expect users will want to edit these
-        _pick_up_offsets = {
-            "deck": Point(),
-            "mag-plate": Point(),
-            "heater-shaker": Point(),
-            "temp-module": Point(),
-            "thermo-cycler": Point(),
-        }
-        # EDIT these values
-        # NOTE: we are still testing to determine our software's defaults
-        #       but we also expect users will want to edit these
-        _drop_offsets = {
-            "deck": Point(z=0.5),
-            "mag-plate": Point(z=0.5),
-            "heater-shaker": Point(z=0.5),
-            "temp-module": Point(z=0.5),
-            "thermo-cycler": Point(z=0.5),
-        }
-        # do NOT edit these values
-        # NOTE: these values will eventually be in our software
-        #       and will not need to be inside a protocol
-        _hw_offsets = {
-            "deck": Point(),
-            "mag-plate": Point(),
-            "heater-shaker": Point(z=2.5),
-            "temp-module": Point(z=5),
-            "thermo-cycler": Point(z=2.5),
-        }
-        # make sure arguments are correct
-        action_options = ["pick-up", "drop"]
-        item_options = list(_hw_offsets.keys())
-
-        if action not in action_options:
-            raise ValueError(
-                f'"{action}" not recognized, available options: {action_options}'
-            )
-        if item not in item_options:
-            raise ValueError(f'"{item}" not recognized, available options: {item_options}')
-        hw_offset = _hw_offsets[item]
-        if action == "pick-up":
-            offset = hw_offset + _pick_up_offsets[item]
-        else:
-            offset = hw_offset + _drop_offsets[item]
-        # convert from Point() to dict()
-        return {"x": offset.x, "y": offset.y, "z": offset.z}
-
     def tiptrack(pip, tipbox):
         global tip1k
         global tip200
@@ -201,7 +150,7 @@ def run(ctx):
         m1000.flow_rate.aspirate = 300
         #Move Plate From Magnet to H-S
         h_s.open_labware_latch()
-        ctx.move_labware(sample_plate,h_s_adapter,use_gripper=USE_GRIPPER,pick_up_offset=grip_offset("pick-up","mag-plate"),drop_offset=grip_offset("drop","heater-shaker",slot=1))
+        ctx.move_labware(sample_plate,h_s_adapter,use_gripper=USE_GRIPPER)
         h_s.close_labware_latch()
 
     def bead_mixing(well, pip, mvol, reps=8):
@@ -350,7 +299,7 @@ def run(ctx):
         h_s.deactivate_shaker()
 
         h_s.open_labware_latch()
-        ctx.move_labware(sample_plate,MAG_PLATE_SLOT,use_gripper=USE_GRIPPER,pick_up_offset=grip_offset("pick-up","heater-shaker",slot=4),drop_offset=grip_offset("drop","mag-plate"))
+        ctx.move_labware(sample_plate,MAG_PLATE_SLOT,use_gripper=USE_GRIPPER)
         h_s.close_labware_latch()
 
         for bindi in np.arange(settling_time+1,0,-0.5): # Settling time delay with countdown timer
@@ -411,7 +360,7 @@ def run(ctx):
         h_s.deactivate_shaker()
 
         h_s.open_labware_latch()
-        ctx.move_labware(sample_plate,MAG_PLATE_SLOT,use_gripper=USE_GRIPPER,pick_up_offset=grip_offset("pick-up","heater-shaker",slot=4),drop_offset=grip_offset("drop","mag-plate"))
+        ctx.move_labware(sample_plate,MAG_PLATE_SLOT,use_gripper=USE_GRIPPER)
         h_s.close_labware_latch()
 
         for washi in np.arange(settling_time,0,-0.5): # settling time timer for washes
@@ -467,7 +416,7 @@ def run(ctx):
         h_s.deactivate_shaker()
 
         h_s.open_labware_latch()
-        ctx.move_labware(sample_plate,MAG_PLATE_SLOT,use_gripper=USE_GRIPPER,pick_up_offset=grip_offset("pick-up","heater-shaker",slot=4),drop_offset=grip_offset("drop","mag-plate"))
+        ctx.move_labware(sample_plate,MAG_PLATE_SLOT,use_gripper=USE_GRIPPER)
         h_s.close_labware_latch()
 
         for stop in np.arange(settling_time,0,-0.5):
@@ -490,7 +439,7 @@ def run(ctx):
         h_s.deactivate_shaker()
 
         h_s.open_labware_latch()
-        ctx.move_labware(sample_plate,MAG_PLATE_SLOT,use_gripper=USE_GRIPPER,pick_up_offset=grip_offset("pick-up","heater-shaker",slot=4),drop_offset=grip_offset("drop","mag-plate"))
+        ctx.move_labware(sample_plate,MAG_PLATE_SLOT,use_gripper=USE_GRIPPER)
         h_s.close_labware_latch()
 
         for elutei in np.arange(settling_time,0,-0.5):

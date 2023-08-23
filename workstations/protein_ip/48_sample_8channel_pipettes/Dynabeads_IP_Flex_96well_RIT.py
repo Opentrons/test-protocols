@@ -78,72 +78,6 @@ def run(ctx):
     working_wells = working_plate.wells()[:NUM_COL*8]  ## 6
     final_cols = final_plate.rows()[0][:NUM_COL]
 
-    def grip_offset(action, item, slot=None):
-        """Grip offset."""
-        from opentrons.types import Point
-        # EDIT these values
-        # NOTE: we are still testing to determine our software's defaults
-        #       but we also expect users will want to edit these
-        _pick_up_offsets = {
-            "deck": Point(),
-            "mag-plate": Point(),
-            "heater-shaker": Point(z=1.0),
-            "temp-module": Point(),
-            "thermo-cycler": Point(),
-        }
-        # EDIT these values
-        # NOTE: we are still testing to determine our software's defaults
-        #       but we also expect users will want to edit these
-        _drop_offsets = {
-            "deck": Point(),
-            "mag-plate": Point(z=0.5),
-            "heater-shaker": Point(),
-            "temp-module": Point(),
-            "thermo-cycler": Point(),
-        }
-        # do NOT edit these values
-        # NOTE: these values will eventually be in our software
-        #       and will not need to be inside a protocol
-        _hw_offsets = {
-            "deck": Point(),
-            "mag-plate": Point(z=34.5),
-            "heater-shaker-right": Point(z=2.5),
-            "heater-shaker-left": Point(z=2.5),
-            "temp-module": Point(z=5.0),
-            "thermo-cycler": Point(z=2.5),
-        }
-        # make sure arguments are correct
-        action_options = ["pick-up", "drop"]
-        item_options = list(_hw_offsets.keys())
-        item_options.remove("heater-shaker-left")
-        item_options.remove("heater-shaker-right")
-        item_options.append("heater-shaker")
-        if action not in action_options:
-            raise ValueError(
-                f'"{action}" not recognized, available options: {action_options}'
-            )
-        if item not in item_options:
-            raise ValueError(
-                f'"{item}" not recognized, available options: {item_options}'
-            )
-        if item == "heater-shaker":
-            assert slot, 'argument slot= is required when using "heater-shaker"'
-            if slot in [1, 4, 7, 10]:
-                side = "left"
-            elif slot in [3, 6, 9, 12]:
-                side = "right"
-            else:
-                raise ValueError("heater shaker must be on either left or right side")
-            hw_offset = _hw_offsets[f"{item}-{side}"]
-        else:
-            hw_offset = _hw_offsets[item]
-        if action == "pick-up":
-            offset = hw_offset + _pick_up_offsets[item]
-        else:
-            offset = hw_offset + _drop_offsets[item]
-        # convert from Point() to dict()
-        return {"x": offset.x, "y": offset.y, "z": offset.z}
-
     def transfer_plate_to_plate(vol1, start, end, liquid, drop_height=-20):
         for i in range(NUM_COL):  
             if liquid == 1: p1000.pick_up_tip(tips_sample_loc[i*8])   
@@ -220,9 +154,7 @@ def run(ctx):
     #ctx.pause('Move the Working Plate to the Magnet')
     ctx.move_labware(working_plate,
                      MAG_PLATE_SLOT,
-                     use_gripper=USE_GRIPPER,
-                     pick_up_offset=grip_offset("pick-up","heater-shaker", 1),
-                     drop_offset=grip_offset("drop","mag-plate")
+                     use_gripper=USE_GRIPPER
                      )
     h_s.close_labware_latch()
     ctx.delay(minutes=MAG_DELAY_MIN)
@@ -236,10 +168,8 @@ def run(ctx):
     #ctx.pause('Move the Working Plate to the Shaker')
     ctx.move_labware(working_plate,
                      h_s,
-                     use_gripper=USE_GRIPPER,
-                     pick_up_offset=grip_offset("pick-up","mag-plate"),
-                     drop_offset=grip_offset("drop","heater-shaker", 1)
-                     )
+                     use_gripper=USE_GRIPPER
+                    )
     h_s.close_labware_latch()
 
     transfer_plate_to_plate(SAMPLE_VOL, samples, working_cols, 1)
@@ -264,10 +194,8 @@ def run(ctx):
     #ctx.pause('Move the Working Plate to the Magnet')
     ctx.move_labware(working_plate,
                      MAG_PLATE_SLOT,
-                     use_gripper=USE_GRIPPER,
-                     pick_up_offset=grip_offset("pick-up","heater-shaker", 1),
-                     drop_offset=grip_offset("drop","mag-plate")
-                     )
+                     use_gripper=USE_GRIPPER
+                    )
     h_s.close_labware_latch()
 
     ctx.delay(minutes=MAG_DELAY_MIN)
@@ -285,10 +213,8 @@ def run(ctx):
         #ctx.pause('Move the Working Plate to the Shaker')
         ctx.move_labware(working_plate,
                          h_s,
-                         use_gripper=USE_GRIPPER,
-                         pick_up_offset=grip_offset("pick-up","mag-plate"),
-                         drop_offset=grip_offset("drop","heater-shaker", 1)
-                         )
+                         use_gripper=USE_GRIPPER
+                        )
         h_s.close_labware_latch()
 
         transfer_well_to_plate(WASH_VOL, wash, working_cols, 5)
@@ -298,10 +224,8 @@ def run(ctx):
         #ctx.pause('Move the Working Plate to the Magnet')
         ctx.move_labware(working_plate,
                      MAG_PLATE_SLOT,
-                     use_gripper=USE_GRIPPER,
-                     pick_up_offset=grip_offset("pick-up","heater-shaker", 1),
-                     drop_offset=grip_offset("drop","mag-plate")
-                     )
+                     use_gripper=USE_GRIPPER
+                    )
         h_s.close_labware_latch()
         ctx.delay(minutes=MAG_DELAY_MIN)
         discard(WASH_VOL*1.1, working_cols)
@@ -315,10 +239,8 @@ def run(ctx):
     #ctx.pause('Move the Working Plate to the Shaker')
     ctx.move_labware(working_plate,
                      h_s,
-                     use_gripper=USE_GRIPPER,
-                     pick_up_offset=grip_offset("pick-up","mag-plate"),
-                     drop_offset=grip_offset("drop","heater-shaker", 1)
-                     )
+                     use_gripper=USE_GRIPPER
+                    )
     h_s.close_labware_latch()
 
     transfer_well_to_plate(ELUTION_VOL, elu, working_wells, 4)
@@ -338,9 +260,7 @@ def run(ctx):
         #ctx.pause('Move the Working Plate to the Magnet')
         ctx.move_labware(working_plate,
                         MAG_PLATE_SLOT,
-                        use_gripper=USE_GRIPPER,
-                        pick_up_offset=grip_offset("pick-up","heater-shaker", 1),
-                        drop_offset=grip_offset("drop","mag-plate")
+                        use_gripper=USE_GRIPPER
                         )
         h_s.close_labware_latch()
         ctx.delay(minutes=MAG_DELAY_MIN)

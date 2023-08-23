@@ -155,74 +155,6 @@ def run(protocol: protocol_api.ProtocolContext):
         if WasteVol >=1500:
             Liquid_trash = Liquid_trash_well_2
 
-    def grip_offset(action, item, slot=None):
-        """Grip offset."""
-        from opentrons.types import Point
-
-        # EDIT these values
-        # NOTE: we are still testing to determine our software's defaults
-        #       but we also expect users will want to edit these
-        _pick_up_offsets = {
-            "deck": Point(),
-            "mag-plate": Point(),
-            "heater-shaker": Point(z=1.0),
-            "temp-module": Point(),
-            "thermo-cycler": Point(),
-        }
-        # EDIT these values
-        # NOTE: we are still testing to determine our software's defaults
-        #       but we also expect users will want to edit these
-        _drop_offsets = {
-            "deck": Point(),
-            "mag-plate": Point(x=0.1,y=-0.25,z=0.5),
-            "heater-shaker": Point(y=-0.5),
-            "temp-module": Point(),
-            "thermo-cycler": Point(),
-        }
-        # do NOT edit these values
-        # NOTE: these values will eventually be in our software
-        #       and will not need to be inside a protocol
-        _hw_offsets = {
-            "deck": Point(),
-            "mag-plate": Point(z=34.5),
-            "heater-shaker-right": Point(z=2.5),
-            "heater-shaker-left": Point(z=2.5),
-            "temp-module": Point(z=5.0),
-            "thermo-cycler": Point(z=2.5),
-        }
-        # make sure arguments are correct
-        action_options = ["pick-up", "drop"]
-        item_options = list(_hw_offsets.keys())
-        item_options.remove("heater-shaker-left")
-        item_options.remove("heater-shaker-right")
-        item_options.append("heater-shaker")
-        if action not in action_options:
-            raise ValueError(
-                f'"{action}" not recognized, available options: {action_options}'
-            )
-        if item not in item_options:
-            raise ValueError(
-                f'"{item}" not recognized, available options: {item_options}'
-            )
-        if item == "heater-shaker":
-            assert slot, 'argument slot= is required when using "heater-shaker"'
-            if slot in [1, 4, 7, 10]:
-                side = "left"
-            elif slot in [3, 6, 9, 12]:
-                side = "right"
-            else:
-                raise ValueError("heater shaker must be on either left or right side")
-            hw_offset = _hw_offsets[f"{item}-{side}"]
-        else:
-            hw_offset = _hw_offsets[item]
-        if action == "pick-up":
-            offset = hw_offset + _pick_up_offsets[item]
-        else:
-            offset = hw_offset + _drop_offsets[item]
-
-        # convert from Point() to dict()
-        return {"x": offset.x, "y": offset.y, "z": offset.z}
-
 ############################################################################################################################################
 ############################################################################################################################################
 ############################################################################################################################################
@@ -285,9 +217,7 @@ def run(protocol: protocol_api.ProtocolContext):
             protocol.move_labware(
                 labware=sample_plate_1,
                 new_location=thermocycler,
-                use_gripper=USE_GRIPPER,
-                pick_up_offset=grip_offset("pick-up", "heater-shaker",1),
-                drop_offset=grip_offset("drop", "thermo-cycler"),
+                use_gripper=USE_GRIPPER
             )
             heatershaker.close_labware_latch()
             #============================================================================================
@@ -333,9 +263,7 @@ def run(protocol: protocol_api.ProtocolContext):
             protocol.move_labware(
                 labware=sample_plate_1,
                 new_location=MAG_PLATE_SLOT,
-                use_gripper=USE_GRIPPER,
-                pick_up_offset=grip_offset("pick-up", "thermo-cycler"),
-                drop_offset=grip_offset("drop", "mag-plate"),
+                use_gripper=USE_GRIPPER
             )
             #============================================================================================
 
@@ -354,9 +282,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 protocol.move_labware(
                     labware=sample_plate_1,
                     new_location=MAG_PLATE_SLOT,
-                    use_gripper=USE_GRIPPER,
-                    pick_up_offset=grip_offset("pick-up", "heater-shaker",1),
-                drop_offset=grip_offset("drop", "mag-plate"),
+                    use_gripper=USE_GRIPPER
                 )
                 heatershaker.close_labware_latch()
                 #============================================================================================
@@ -387,10 +313,8 @@ def run(protocol: protocol_api.ProtocolContext):
                 protocol.move_labware(
                     labware=sample_plate_1,
                     new_location=heatershaker,
-                    use_gripper=USE_GRIPPER,
-                    pick_up_offset=grip_offset("pick-up", "mag-plate"),
-                    drop_offset=grip_offset("drop", "heater-shaker",1),
-                )
+                    use_gripper=USE_GRIPPER                
+                    )
                 heatershaker.close_labware_latch()
                 #============================================================================================
 
@@ -422,9 +346,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 protocol.move_labware(
                     labware=sample_plate_1,
                     new_location=MAG_PLATE_SLOT,
-                    use_gripper=USE_GRIPPER,
-                    pick_up_offset=grip_offset("pick-up", "heater-shaker",1),
-                    drop_offset=grip_offset("drop", "mag-plate"),
+                    use_gripper=USE_GRIPPER
                 )
                 heatershaker.close_labware_latch()
                 #============================================================================================
@@ -473,9 +395,7 @@ def run(protocol: protocol_api.ProtocolContext):
             protocol.move_labware(
                 labware=sample_plate_1,
                 new_location=heatershaker,
-                use_gripper=USE_GRIPPER,
-                pick_up_offset=grip_offset("pick-up", "mag-plate"),
-                drop_offset=grip_offset("drop", "heater-shaker",1),
+                use_gripper=USE_GRIPPER
             )
             heatershaker.close_labware_latch()
             #============================================================================================
@@ -526,9 +446,7 @@ def run(protocol: protocol_api.ProtocolContext):
             protocol.move_labware(
                 labware=sample_plate_1,
                 new_location=thermocycler,
-                use_gripper=USE_GRIPPER,
-                pick_up_offset=grip_offset("pick-up", "heater-shaker",1),
-                drop_offset=grip_offset("drop", "thermo-cycler"),
+                use_gripper=USE_GRIPPER
             )
             heatershaker.close_labware_latch()
             #============================================================================================
@@ -585,9 +503,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 protocol.move_labware(
                     labware=sample_plate_1,
                     new_location=MAG_PLATE_SLOT,
-                    use_gripper=USE_GRIPPER,
-                    pick_up_offset=grip_offset("pick-up", "heater-shaker",1),
-                drop_offset=grip_offset("drop", "mag-plate"),
+                    use_gripper=USE_GRIPPER
                 )
                 heatershaker.close_labware_latch()
                 #============================================================================================
@@ -598,9 +514,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 protocol.move_labware(
                     labware=sample_plate_1,
                     new_location=heatershaker,
-                    use_gripper=USE_GRIPPER,
-                    pick_up_offset=grip_offset("pick-up", "thermo-cycler"),
-                    drop_offset=grip_offset("drop", "heater-shaker",1),
+                    use_gripper=USE_GRIPPER
                 )
                 heatershaker.close_labware_latch()
                 #============================================================================================
@@ -644,9 +558,7 @@ def run(protocol: protocol_api.ProtocolContext):
             protocol.move_labware(
                 labware=sample_plate_1,
                 new_location=MAG_PLATE_SLOT,
-                use_gripper=USE_GRIPPER,
-                pick_up_offset=grip_offset("pick-up", "heater-shaker",1),
-                drop_offset=grip_offset("drop", "mag-plate"),
+                use_gripper=USE_GRIPPER
             )
             heatershaker.close_labware_latch()
             #============================================================================================
@@ -760,9 +672,7 @@ def run(protocol: protocol_api.ProtocolContext):
             protocol.move_labware(
                 labware=sample_plate_1,
                 new_location=heatershaker,
-                use_gripper=USE_GRIPPER,
-                pick_up_offset=grip_offset("pick-up", "mag-plate"),
-                drop_offset=grip_offset("drop", "heater-shaker",1),
+                use_gripper=USE_GRIPPER
             )
             heatershaker.close_labware_latch()
             #============================================================================================
@@ -804,9 +714,7 @@ def run(protocol: protocol_api.ProtocolContext):
             protocol.move_labware(
                 labware=sample_plate_1,
                 new_location=MAG_PLATE_SLOT,
-                use_gripper=USE_GRIPPER,
-                pick_up_offset=grip_offset("pick-up", "heater-shaker",1),
-                drop_offset=grip_offset("drop", "mag-plate"),
+                use_gripper=USE_GRIPPER
             )
             heatershaker.close_labware_latch()
             #============================================================================================
@@ -836,9 +744,7 @@ def run(protocol: protocol_api.ProtocolContext):
             protocol.move_labware(
                 labware=sample_plate_1,
                 new_location=heatershaker,
-                use_gripper=USE_GRIPPER,
-                pick_up_offset=grip_offset("pick-up", "mag-plate"),
-                drop_offset=grip_offset("drop", "heater-shaker",1),
+                use_gripper=USE_GRIPPER
             )
             heatershaker.close_labware_latch()
             #============================================================================================
