@@ -83,13 +83,15 @@ def run(protocol: protocol_api.ProtocolContext):
     # ========== FIRST ROW ===========
         if NGSHS == 'YES':
             heatershaker        = protocol.load_module('heaterShakerModuleV1','1')
-            source_plate        = heatershaker.load_labware('nest_96_wellplate_100ul_pcr_full_skirt') 
+            hs_adapter          = heatershaker.load_adapter('opentrons_96_pcr_adapter')
+            source_plate        = hs_adapter.load_labware('nest_96_wellplate_100ul_pcr_full_skirt') 
         else:
             source_plate        = protocol.load_labware('nest_96_wellplate_100ul_pcr_full_skirt','1') 
         reservoir           = protocol.load_labware('nest_12_reservoir_15ml','2')
         if NGSTEMP == 'YES':
             temp_block       = protocol.load_module('temperature module gen2', '3')
-            dilution_plate   = temp_block.load_labware('opentrons_96_aluminumblock_biorad_wellplate_200ul')
+            temp_b_adapter   = temp_block.load_adapter('opentrons_96_well_aluminum_block')
+            dilution_plate   = temp_b_adapter.load_labware('opentrons_96_aluminumblock_biorad_wellplate_200ul')
         else:
             dilution_plate         = protocol.load_labware('opentrons_96_aluminumblock_biorad_wellplate_200ul','3')
     # ========== SECOND ROW ==========
