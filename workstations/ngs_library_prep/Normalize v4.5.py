@@ -53,7 +53,8 @@ def run(protocol: protocol_api.ProtocolContext):
     # ========== FIRST ROW ===========
     if MODULESONDECK == True:
         heatershaker        = protocol.load_module('heaterShakerModuleV1','1')
-        sample_plate_1      = heatershaker.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')
+        hs_adapter          = heatershaker.load_adapter('opentrons_96_pcr_adapter')
+        sample_plate_1      = hs_adapter.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')
     else:
         sample_plate_1      = protocol.load_labware('nest_96_wellplate_100ul_pcr_full_skirt','1')
     if RES_TYPE == '12x15ml':
@@ -62,7 +63,8 @@ def run(protocol: protocol_api.ProtocolContext):
         reservoir       = protocol.load_labware('opentrons_10_tuberack_falcon_4x50ml_6x15ml_conical','2')
     if MODULESONDECK == True:
         temp_block          = protocol.load_module('temperature module gen2', '3')
-        reagent_plate       = temp_block.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')
+        temp_b_adapter      = temp_block.load_adapter('opentrons_96_well_aluminum_block')
+        reagent_plate       = temp_b_adapter.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')
     else:
         reagent_plate       = protocol.load_labware('nest_96_wellplate_100ul_pcr_full_skirt','3')
     # ========== SECOND ROW ==========
