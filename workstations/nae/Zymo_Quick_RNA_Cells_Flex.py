@@ -58,7 +58,7 @@ def run(ctx):
     MAG_PLATE_SLOT = ctx.load_module('magneticBlockV1','4')
     if not dry_run:
         tempdeck.set_temperature(4)
-    temp_adapter = temp.load_adapter('opentrons_96_pcr_adapter')
+    temp_adapter = tempdeck.load_adapter('opentrons_96_pcr_adapter')
     elutionplate = temp_adapter.load_labware('armadillo_96_wellplate_200ul_pcr_full_skirt')
     waste = ctx.load_labware('nest_1_reservoir_195ml', '9','Liquid Waste').wells()[0].top()
     res1 = ctx.load_labware(res_type, '2', 'reagent reservoir 1')
