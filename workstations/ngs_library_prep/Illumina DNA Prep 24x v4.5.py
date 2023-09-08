@@ -39,7 +39,7 @@ p50_tips            = 0
 WasteVol            = 0
 Resetcount          = 0
 
-ABR_TEST            = True
+ABR_TEST            = False
 if ABR_TEST == True:
     COLUMNS         = 3              # Overrides to 3 columns
     DRYRUN          = True           # Overrides to only DRYRUN
