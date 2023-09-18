@@ -114,8 +114,8 @@ def run(protocol: protocol_api.ProtocolContext):
     Barcodes_3          = reagent_plate.wells_by_name()['A9']
 
     # pipette
-    p1000 = protocol.load_instrument("p1000_multi_gen3", "left",tip_racks=[tiprack_200_1,tiprack_200_2,tiprack_200_3,tiprack_200_4])
-    p50 = protocol.load_instrument("p50_multi_gen3", "right",tip_racks=[tiprack_50_1])
+    p1000 = protocol.load_instrument("flex_8channel_1000", "left",tip_racks=[tiprack_200_1,tiprack_200_2,tiprack_200_3,tiprack_200_4])
+    p50 = protocol.load_instrument("flex_8channel_50", "right",tip_racks=[tiprack_50_1])
             
     #tip and sample tracking
     if COLUMNS == 1:
