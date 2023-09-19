@@ -75,8 +75,8 @@ def run(ctx):
     t1k_super = t1000.wells()[:num_samples]
     
     # load instruments
-    m1000 = ctx.load_instrument('p1000_multi_gen3', 'left')
-    #s50 = ctx.load_instrument('p50_single_gen3', 'right',tip_racks=[t200])
+    m1000 = ctx.load_instrument('flex_8channel_1000', 'left')
+    #s50 = ctx.load_instrument('flex_1channel_50', 'right',tip_racks=[t200])
 
     """
     Here is where you can define the locations of your reagents.
