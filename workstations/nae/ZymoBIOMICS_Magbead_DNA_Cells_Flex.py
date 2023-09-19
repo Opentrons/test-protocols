@@ -77,7 +77,7 @@ def run(ctx):
     tips = [*tips1000.wells()[num_samples:96],*tips1001.wells(),*tips1002.wells()]
     tips_sn = tips1000.wells()[:num_samples]
     # load instruments
-    m1000 = ctx.load_instrument('p1000_multi_gen3', 'left')
+    m1000 = ctx.load_instrument('flex_8channel_1000', 'left')
 
     """
     Here is where you can define the locations of your reagents.
