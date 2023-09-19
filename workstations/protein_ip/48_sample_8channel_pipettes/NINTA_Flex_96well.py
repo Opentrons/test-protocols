@@ -62,7 +62,7 @@ def run(ctx):
     tips_reused_loc = tips_reused.wells()[:96]
     tips_elu = ctx.load_labware('opentrons_ot3_96_tiprack_1000ul', 10, 'elution tips')
     tips_elu_loc = tips_elu.wells()[:96]
-    p1000 = ctx.load_instrument('p1000_multi_gen3', 'left') 
+    p1000 = ctx.load_instrument('flex_8channel_1000', 'left') 
 
     h_s = ctx.load_module('heaterShakerModuleV1',1)
     h_s_adapter = h_s.load_adapter('opentrons_96_deep_well_adapter')

@@ -46,7 +46,7 @@ def run(ctx):
     temp = ctx.load_module('Temperature Module Gen2', 3)
 
     tips = ctx.load_labware('opentrons_ot3_96_tiprack_1000ul', 5)
-    p1000 = ctx.load_instrument('p1000_multi_gen3', 'left', tip_racks=[tips]) 
+    p1000 = ctx.load_instrument('flex_8channel_1000', 'left', tip_racks=[tips]) 
 
     # liquids
     eql = eql_res.rows()[0][:NUM_COL]

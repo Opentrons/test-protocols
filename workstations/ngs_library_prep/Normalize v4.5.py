@@ -83,8 +83,8 @@ def run(protocol: protocol_api.ProtocolContext):
         RSB             = reservoir['A1']
 
     # pipette    
-    p1000 = protocol.load_instrument("p1000_single_gen3", "left", tip_racks=[tiprack_200_1])
-    p50 = protocol.load_instrument("p50_single_gen3", "right", tip_racks=[tiprack_50_1])
+    p1000 = protocol.load_instrument("flex_1channel_1000", "left", tip_racks=[tiprack_200_1])
+    p50 = protocol.load_instrument("flex_1channel-50", "right", tip_racks=[tiprack_50_1])
     
     MaxTubeVol      = 200
     RSBUsed         = 0
