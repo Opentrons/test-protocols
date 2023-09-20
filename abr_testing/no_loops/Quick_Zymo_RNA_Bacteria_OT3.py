@@ -8,7 +8,8 @@ from opentrons import types
 import numpy as np
 
 metadata = {
-    'protocolName': 'Quick Zymo Magbead RNA Extraction with Lysis: Bacteria 96 Channel Deletion Test',
+    'protocolName': 'Quick_Zymo_RNA_Bacteria_OT3.py DRYRUN',
+    # 'protocolName': 'Quick Zymo Magbead RNA Extraction with Lysis: Bacteria 96 Channel Deletion Test',
     'author': 'Zach Galluzzo <zachary.galluzzo@opentrons.com>',
 }
 
@@ -30,11 +31,18 @@ requirements = {
         ***********
 
 """
-
+#SCRIPT SETTINGS
 HS_SLOT = 1
-dry_run = False
 USE_GRIPPER = True
 whichwash = 1
+
+ABR_TEST            = True
+if ABR_TEST == True:
+    dry_run             = True          # True = skip incubation times, shorten mix, for testing purposes
+    TIP_TRASH           = False         # True = Used tips go in Trash, False = Used tips go back into rack
+else:
+    dry_run              = False          # True = skip incubation times, shorten mix, for testing purposes
+    TIP_TRASH           = True   
 
 def run(ctx):
     """
