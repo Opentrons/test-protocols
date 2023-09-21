@@ -57,7 +57,7 @@ if ABR_TEST == True:
 else:
     RUN             = 1
     TIP_TRASH       = False         # True = Used tips go in Trash, False = Used tips go back into rack
-    DRYRUN          = True          # True = skip incubation times, shorten mix, for testing purposes
+    DRYRUN          = Tflex          # True = skip incubation times, shorten mix, for testing purposes
 
 def run(protocol: protocol_api.ProtocolContext):
 
@@ -83,15 +83,15 @@ def run(protocol: protocol_api.ProtocolContext):
     # ========== SECOND ROW ==========
   #  MAG_PLATE_SLOT      = 4       #DVT
     MAG_PLATE_SLOT      = protocol.load_module('magneticBlockV1', '4')
-    tiprack_200_1       = protocol.load_labware('opentrons_ot3_96_tiprack_200ul',  '5')
-    tiprack_50_1        = protocol.load_labware('opentrons_ot3_96_tiprack_50ul',  '6')
+    tiprack_200_1       = protocol.load_labware('opentrons_flex_96_tiprack_200ul',  '5')
+    tiprack_50_1        = protocol.load_labware('opentrons_flex_96_tiprack_50ul',  '6')
     # ========== THIRD ROW ===========
     thermocycler        = protocol.load_module('thermocycler module gen2')
     sample_plate_1      = thermocycler.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')
-    tiprack_200_2       = protocol.load_labware('opentrons_ot3_96_tiprack_200ul', '8')
-    tiprack_200_3        = protocol.load_labware('opentrons_ot3_96_tiprack_200ul','9')
+    tiprack_200_2       = protocol.load_labware('opentrons_flex_96_tiprack_200ul', '8')
+    tiprack_200_3        = protocol.load_labware('opentrons_flex_96_tiprack_200ul','9')
     # ========== FOURTH ROW ==========
-    tiprack_200_4       = protocol.load_labware('opentrons_ot3_96_tiprack_200ul',  '11')
+    tiprack_200_4       = protocol.load_labware('opentrons_flex_96_tiprack_200ul',  '11')
  
     # =========== RESERVOIR ==========
     AMPure              = reservoir['A1']    

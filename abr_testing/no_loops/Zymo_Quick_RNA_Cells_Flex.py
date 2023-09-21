@@ -75,10 +75,10 @@ def run(ctx):
     num_cols = math.ceil(num_samples/8)
     
     # Load tips and combine all similar boxes
-    t1000 = ctx.load_labware('opentrons_ot3_96_tiprack_1000ul', '7')
-    t1001 = ctx.load_labware('opentrons_ot3_96_tiprack_1000ul', '8')
-    t1002 = ctx.load_labware('opentrons_ot3_96_tiprack_1000ul', '10')
-    t1003 = ctx.load_labware('opentrons_ot3_96_tiprack_1000ul', '11')
+    t1000 = ctx.load_labware('opentrons_flex_96_tiprack_1000ul', '7')
+    t1001 = ctx.load_labware('opentrons_flex_96_tiprack_1000ul', '8')
+    t1002 = ctx.load_labware('opentrons_flex_96_tiprack_1000ul', '10')
+    t1003 = ctx.load_labware('opentrons_flex_96_tiprack_1000ul', '11')
     t1k = [*t1000.wells()[num_samples:96],*t1001.wells(),*t1002.wells(),*t1003.wells()]
     t1k_super = t1000.wells()[:num_samples]
     
