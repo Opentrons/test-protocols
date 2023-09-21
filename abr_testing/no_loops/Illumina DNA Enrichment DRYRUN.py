@@ -1,4 +1,4 @@
-flexfrom opentrons import protocol_api
+from opentrons import protocol_api
 from opentrons import types
 
 metadata = {

@@ -15,7 +15,7 @@ requirements = {
 # SCRIPT SETTINGS
 USE_GRIPPER = True
 
-ABR_TEST                = Faflex
+ABR_TEST                = True
 if ABR_TEST == True:
     DRYRUN              = True          # True = skip incubation times, shorten mix, for testing purposes
     TIP_TRASH           = False         # True = Used tips go in Trash, False = Used tips go back into rack
@@ -96,8 +96,8 @@ def run(protocol: protocol_api.ProtocolContext):
     EPM                   = reagent_plate.wells_by_name()['A7']
 
     # pipette
-    p1000 = protocol.load_instrument("p1000_multi_gen3", "left", tip_racks=[tiprack_200_1,tiprack_200_2])
-    p50 = protocol.load_instrument("p50_multi_gen3", "right", tip_racks=[tiprack_20])
+    p1000 = protocol.load_instrument("flex_8channel_1000", "left", tip_racks=[tiprack_200_1,tiprack_200_2])
+    p50 = protocol.load_instrument("flex_8channel_50", "right", tip_racks=[tiprack_20])
 
     #tip and sample tracking
     sample_well   = 'A3'
