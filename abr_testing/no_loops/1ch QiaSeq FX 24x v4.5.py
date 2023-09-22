@@ -81,14 +81,14 @@ def run(protocol: protocol_api.ProtocolContext):
         reservoir       = protocol.load_labware('nest_96_wellplate_2ml_deep','2')    
     temp_block          = protocol.load_module('temperature module gen2', '3')
     temp_block_adapter  = temp_block.load_adapter('opentrons_96_well_aluminum_block')
-    reagent_plate       = temp_block_adapter.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')
+    reagent_plate       = temp_block_adapter.load_labware('armadillo_96_wellplate_200ul_pcr_full_skirt')
     # ========== SECOND ROW ==========
     MAG_PLATE_SLOT      = protocol.load_module('magneticBlockV1', 'C1')   #DVT
     tiprack_200_1       = protocol.load_labware('opentrons_flex_96_tiprack_200ul',  '5')
     tiprack_50_1        = protocol.load_labware('opentrons_flex_96_tiprack_50ul',  '6')
     # ========== THIRD ROW ===========
     thermocycler        = protocol.load_module('thermocycler module gen2')
-    sample_plate_1      = thermocycler.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')
+    sample_plate_1      = thermocycler.load_labware('armadillo_96_wellplate_200ul_pcr_full_skirt')
     tiprack_200_2       = protocol.load_labware('opentrons_flex_96_tiprack_200ul', '8')
     tiprack_200_3        = protocol.load_labware('opentrons_flex_96_tiprack_200ul','9')
     # ========== FOURTH ROW ==========

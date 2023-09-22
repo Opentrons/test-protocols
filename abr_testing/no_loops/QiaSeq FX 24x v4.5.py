@@ -2,7 +2,7 @@ from opentrons import protocol_api
 from opentrons import types
 
 metadata = {
-    'protocolName': 'Qiaseq FX 24x v4.5.py DRYRUN',
+    'protocolName': 'Qiaseq FX 24x v4.5.py',
     'author': 'Opentrons <protocols@opentrons.com>',
     'source': 'Protocol Library',
     'apiLevel': '2.15'
@@ -56,8 +56,8 @@ if ABR_TEST == True:
     RUN             = 1              # Repetitions
 else:
     RUN             = 1
-    TIP_TRASH       = False         # True = Used tips go in Trash, False = Used tips go back into rack
-    DRYRUN          = Tflex          # True = skip incubation times, shorten mix, for testing purposes
+    TIP_TRASH       = True         # True = Used tips go in Trash, False = Used tips go back into rack
+    DRYRUN          = False          # True = skip incubation times, shorten mix, for testing purposes
 
 def run(protocol: protocol_api.ProtocolContext):
 
@@ -79,7 +79,7 @@ def run(protocol: protocol_api.ProtocolContext):
     if RES_TYPE == '96x2ml':
         reservoir       = protocol.load_labware('nest_96_wellplate_2ml_deep','2')    
     temp_block          = protocol.load_module('temperature module gen2', '3')
-    reagent_plate       = temp_block.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')
+    reagent_plate       = temp_block.load_labware('armadillo_96_wellplate_200ul_pcr_full_skirt')
     # ========== SECOND ROW ==========
   #  MAG_PLATE_SLOT      = 4       #DVT
     MAG_PLATE_SLOT      = protocol.load_module('magneticBlockV1', '4')
@@ -87,7 +87,7 @@ def run(protocol: protocol_api.ProtocolContext):
     tiprack_50_1        = protocol.load_labware('opentrons_flex_96_tiprack_50ul',  '6')
     # ========== THIRD ROW ===========
     thermocycler        = protocol.load_module('thermocycler module gen2')
-    sample_plate_1      = thermocycler.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')
+    sample_plate_1      = thermocycler.load_labware('armadillo_96_wellplate_200ul_pcr_full_skirt')
     tiprack_200_2       = protocol.load_labware('opentrons_flex_96_tiprack_200ul', '8')
     tiprack_200_3        = protocol.load_labware('opentrons_flex_96_tiprack_200ul','9')
     # ========== FOURTH ROW ==========
@@ -113,8 +113,8 @@ def run(protocol: protocol_api.ProtocolContext):
     Barcodes_3          = reagent_plate.wells_by_name()['A9']
 
     # pipette
-    p1000 = protocol.load_instrument("p1000_multi_gen3", "left",tip_racks=[tiprack_200_1,tiprack_200_2,tiprack_200_3,tiprack_200_4])
-    p50 = protocol.load_instrument("p50_multi_gen3", "right",tip_racks=[tiprack_50_1])
+    p1000 = protocol.load_instrument("flex_8channel_1000", "left",tip_racks=[tiprack_200_1,tiprack_200_2,tiprack_200_3,tiprack_200_4])
+    p50 = protocol.load_instrument("flex_8channel_50", "right",tip_racks=[tiprack_50_1])
             
     #tip and sample tracking
     if COLUMNS == 1:

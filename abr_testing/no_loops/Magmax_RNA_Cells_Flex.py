@@ -11,7 +11,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 metadata = {
-    'protocolName': 'MagMax_RNA_Cells_Flex DRYRUN.py',
+    'protocolName': 'MagMax_RNA_Cells_Flex.py',
     'author': 'Zach Galluzzo <zachary.galluzzo@opentrons.com>',
 }
 
