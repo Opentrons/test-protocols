@@ -29,17 +29,17 @@ def run(protocol: protocol_api.ProtocolContext):
         protocol.comment("THIS IS A REACTION RUN")
 
    # labware
-    tiprack_50_1    = protocol.load_labware('opentrons_ot3_96_tiprack_50ul', '1')
-    tiprack_200_1   = protocol.load_labware('opentrons_ot3_96_tiprack_200ul', '4')
+    tiprack_50_1    = protocol.load_labware('opentrons_flex_96_tiprack_50ul', '1')
+    tiprack_200_1   = protocol.load_labware('opentrons_flex_96_tiprack_200ul', '4')
     reagent_tube    = protocol.load_labware('opentrons_10_tuberack_falcon_4x50ml_6x15ml_conical','5')
-    sample_plate    = protocol.load_labware('nest_96_wellplate_100ul_pcr_full_skirt','2')
+    sample_plate    = protocol.load_labware('armadillo_96_wellplate_200ul_pcr_full_skirt','2')
 
     # reagent
     RSB               = reagent_tube.wells()[0]
 
     # pipette    
-    p1000    = protocol.load_instrument('p1000_single_gen3', 'right', tip_racks=[tiprack_200_1])
-    p50     = protocol.load_instrument('p50_single_gen3', 'left', tip_racks=[tiprack_50_1])
+    p1000    = protocol.load_instrument('flex_1channel_1000', 'right', tip_racks=[tiprack_200_1])
+    p50     = protocol.load_instrument('flex_1channel_50', 'left', tip_racks=[tiprack_50_1])
 
     MaxTubeVol      = 200
     RSBUsed         = 0

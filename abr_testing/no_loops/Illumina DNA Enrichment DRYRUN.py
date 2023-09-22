@@ -59,17 +59,17 @@ def run(protocol: protocol_api.ProtocolContext):
     # sample_plate_2      = heatershaker.load_labware('nest_96_wellplate_2ml_deep', adapter = 'opentrons_96_deep_well_adapter')
     # hs_adapter          = sample_plate_2.parent
 
-    tiprack_200_1       = protocol.load_labware('opentrons_ot3_96_tiprack_200ul', '2')
+    tiprack_200_1       = protocol.load_labware('opentrons_flex_96_tiprack_200ul', '2')
     temp_block          = protocol.load_module('temperature module gen2', '3')
-    reagent_plate       = temp_block.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')
+    reagent_plate       = temp_block.load_labware('armadillo_96_wellplate_200ul_pcr_full_skirt')
     # ========== SECOND ROW ==========
     MAG_PLATE_SLOT      = protocol.load_module('magneticBlockV1', '4')
     reservoir           = protocol.load_labware('nest_96_wellplate_2ml_deep','5')    
-    tiprack_200_2       = protocol.load_labware('opentrons_ot3_96_tiprack_200ul', '6')
+    tiprack_200_2       = protocol.load_labware('opentrons_flex_96_tiprack_200ul', '6')
     # ========== THIRD ROW ===========
     thermocycler        = protocol.load_module('thermocycler module gen2')
-    sample_plate_1      = thermocycler.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')
-    tiprack_20          = protocol.load_labware('opentrons_ot3_96_tiprack_50ul', '9')
+    sample_plate_1      = thermocycler.load_labware('armadillo_96_wellplate_200ul_pcr_full_skirt')
+    tiprack_20          = protocol.load_labware('opentrons_flex_96_tiprack_50ul', '9')
     # ========== FOURTH ROW ==========
 
 
@@ -97,8 +97,8 @@ def run(protocol: protocol_api.ProtocolContext):
     EPM                   = reagent_plate.wells_by_name()['A7']
 
     # pipette
-    p1000 = protocol.load_instrument("p1000_multi_gen3", "left", tip_racks=[tiprack_200_1,tiprack_200_2])
-    p50 = protocol.load_instrument("p50_multi_gen3", "right", tip_racks=[tiprack_20])
+    p1000 = protocol.load_instrument("flex_8channel_1000", "left", tip_racks=[tiprack_200_1,tiprack_200_2])
+    p50 = protocol.load_instrument("flex_8channel_50", "right", tip_racks=[tiprack_20])
 
     #tip and sample tracking
     sample_well   = 'A3'

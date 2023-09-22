@@ -11,7 +11,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 metadata = {
-    'protocolName': 'MagMax_RNA_Cells_Flex DRYRUN.py',
+    'protocolName': 'MagMax_RNA_Cells_Flex.py',
     'author': 'Zach Galluzzo <zachary.galluzzo@opentrons.com>',
 }
 
@@ -76,10 +76,10 @@ def run(ctx):
     num_cols = math.ceil(num_samples/8)
     
     #Load tips and combine all similar boxes
-    tips200 = ctx.load_labware('opentrons_ot3_96_tiprack_200ul', '5')
-    tips201 = ctx.load_labware('opentrons_ot3_96_tiprack_200ul', '6')
-    tips202 = ctx.load_labware('opentrons_ot3_96_tiprack_200ul', '7')
-    tips203 = ctx.load_labware('opentrons_ot3_96_tiprack_200ul', '8')
+    tips200 = ctx.load_labware('opentrons_flex_96_tiprack_200ul', '5')
+    tips201 = ctx.load_labware('opentrons_flex_96_tiprack_200ul', '6')
+    tips202 = ctx.load_labware('opentrons_flex_96_tiprack_200ul', '7')
+    tips203 = ctx.load_labware('opentrons_flex_96_tiprack_200ul', '8')
     tips = [*tips200.wells()[num_samples:96],*tips201.wells(),*tips202.wells(),*tips203.wells()]
     tips_sn = tips200.wells()[:num_samples]
 
