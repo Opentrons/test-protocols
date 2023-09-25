@@ -287,7 +287,7 @@ def run(ctx):
         for i, well in enumerate(samples_m):
             #Transfer cells+lysis/bind to wells with beads
             tiptrack(m1000,tips)
-            m1000.aspirate(175,cells_m[i].bottom(0.1))
+            m1000.aspirate(175,cells_m[i].bottom(0.5))
             m1000.air_gap(10)
             m1000.dispense(185,well.bottom(8))
             #Mix after transfer
@@ -365,7 +365,7 @@ def run(ctx):
             for n in range(num_trans):
                 if m1000.current_volume > 0:
                     m1000.dispense(m1000.current_volume, src.top())
-                m1000.aspirate(vol_per_trans, src.bottom(0.15))
+                m1000.aspirate(vol_per_trans, src.bottom(0.5))
                 m1000.dispense(vol_per_trans, m.top(-3))
             m1000.blow_out(m.top(-3))
             m1000.air_gap(20)
@@ -459,7 +459,7 @@ def run(ctx):
         ctx.comment("-----Trasnferring Sample to Elution Plate-----")
         for i, (m, e) in enumerate(zip(samples_m, elution_samples_m)):
             tiptrack(m1000,tips)
-            loc = m.bottom(0.1)
+            loc = m.bottom(0.5)
             m1000.transfer(vol, loc, e.bottom(5), air_gap=20, new_tip='never')
             m1000.blow_out(e.top(-2))
             m1000.air_gap(20)
