@@ -77,10 +77,10 @@ def run(protocol: protocol_api.ProtocolContext):
     tiprack_50_1        = protocol.load_labware('opentrons_flex_96_tiprack_50ul', '6')
     # ========== THIRD ROW ===========
     thermocycler        = protocol.load_module('thermocycler module gen2')
-    tiprack_200_2       = protocol.load_labware('opentrons_ot3_flex_tiprack_200ul', '8')
-    tiprack_50_2        = protocol.load_labware('opentrons_ot3_flex_tiprack_50ul', '9')
+    tiprack_200_2       = protocol.load_labware('opentrons_flex_96_tiprack_200ul', '8')
+    tiprack_50_2        = protocol.load_labware('opentrons_flex_96_tiprack_50ul', '9')
     # ========== FOURTH ROW ==========
-    tiprack_200_3       = protocol.load_labware('opentrons_ot3_flex_tiprack_200ul', '11')
+    tiprack_200_3       = protocol.load_labware('opentrons_flex_96_tiprack_200ul', '11')
 
     # =========== RESERVOIR ==========
     AMPure              = reservoir['A1']    
