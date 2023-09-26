@@ -15,7 +15,7 @@ requirements = {
 
 NUM_COL = 12
 
-ASP_HEIGHT = 0.2
+ASP_HEIGHT = 0.5
 BEADS_VOL = 100
 EQUILIBRATION_VOL1 = 400
 EQUILIBRATION_VOL2 = 500
@@ -45,7 +45,7 @@ def run(ctx):
     working_plate = h_s_adapter.load_labware('nest_96_wellplate_2ml_deep', 'working plate')
     temp = ctx.load_module('Temperature Module Gen2', 3)
 
-    tips = ctx.load_labware('opentrons_ot3_96_tiprack_1000ul', 5)
+    tips = ctx.load_labware('opentrons_flex_96_tiprack_1000ul', 5)
     p1000 = ctx.load_instrument('flex_8channel_1000', 'left', tip_racks=[tips]) 
 
     # liquids
