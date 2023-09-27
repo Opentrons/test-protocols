@@ -131,15 +131,15 @@ def run(protocol: protocol_api.ProtocolContext):
         protocol.comment('--> Adding NHB2')
         NHB2Vol    = 50
         p50.pick_up_tip()
-        p50.aspirate(NHB2Vol, NHB2.bottom())
-        p50.dispense(NHB2Vol, sample_plate_1[sample_well].bottom())
+        p50.aspirate(NHB2Vol, NHB2.bottom(z=0.5))
+        p50.dispense(NHB2Vol, sample_plate_1[sample_well].bottom(z=0.5))
         p50.return_tip()
 
         protocol.comment('--> Adding Panel')
         PanelVol    = 10
         p50.pick_up_tip()
-        p50.aspirate(PanelVol, Panel.bottom())
-        p50.dispense(PanelVol, sample_plate_1[sample_well].bottom())
+        p50.aspirate(PanelVol, Panel.bottom(z=0.5))
+        p50.dispense(PanelVol, sample_plate_1[sample_well].bottom(z=0.5))
         p50.return_tip()
 
         protocol.comment('--> Adding EHB2')
@@ -147,9 +147,9 @@ def run(protocol: protocol_api.ProtocolContext):
         EHB2MixRep = 10 if DRYRUN == 'NO' else 1
         EHB2MixVol = 90
         p1000.pick_up_tip()
-        p1000.aspirate(EHB2Vol, EHB2.bottom())
-        p1000.dispense(EHB2Vol, sample_plate_1[sample_well].bottom())
-        p1000.move_to(sample_plate_1[sample_well].bottom())
+        p1000.aspirate(EHB2Vol, EHB2.bottom(z=0.5))
+        p1000.dispense(EHB2Vol, sample_plate_1[sample_well].bottom(z=0.5))
+        p1000.move_to(sample_plate_1[sample_well].bottom(z=0.5))
         p1000.mix(EHB2MixRep,EHB2MixVol)
         p1000.return_tip()
 
@@ -195,14 +195,14 @@ def run(protocol: protocol_api.ProtocolContext):
         EEWVol = 120
         p1000.pick_up_tip()
         for loop, X in enumerate(['A8','A9','A10','A11']):
-            p1000.aspirate(EEWVol+1, EEW.bottom(z=0.25), rate=0.25)
+            p1000.aspirate(EEWVol+1, EEW.bottom(z=0.5), rate=0.25)
             p1000.dispense(EEWVol+5, sample_plate_1[sample_well].bottom(z=1))
         p1000.return_tip() #<---------------- Tip Return
 
         protocol.comment('--> Transfer Hybridization')
         TransferSup = 100
         p1000.pick_up_tip()
-        p1000.move_to(sample_plate_1[sample_well].bottom(z=0.25))
+        p1000.move_to(sample_plate_1[sample_well].bottom(z=0.5))
         p1000.aspirate(TransferSup+1, rate=0.25)
         p1000.dispense(TransferSup+5, sample_plate_2[sample_well].bottom(z=1))
         p1000.return_tip()
@@ -293,8 +293,8 @@ def run(protocol: protocol_api.ProtocolContext):
             protocol.comment('--> Adding EEW')
             EEWVol    = 200
             p1000.pick_up_tip()
-            p1000.aspirate(EEWVol, WASHES[wash].bottom())
-            p1000.dispense(EEWVol, sample_plate_2[sample_well].bottom())
+            p1000.aspirate(EEWVol, WASHES[wash].bottom(z=0.5))
+            p1000.dispense(EEWVol, sample_plate_2[sample_well].bottom(z=0.5))
             p1000.return_tip()
 
             heatershaker.close_labware_latch()
@@ -347,8 +347,8 @@ def run(protocol: protocol_api.ProtocolContext):
         protocol.comment('--> Adding EEW')
         EEWVol    = 200
         p1000.pick_up_tip()
-        p1000.aspirate(EEWVol, WASHES[3].bottom())
-        p1000.dispense(EEWVol, sample_plate_2[sample_well].bottom())
+        p1000.aspirate(EEWVol, WASHES[3].bottom(z=0.5))
+        p1000.dispense(EEWVol, sample_plate_2[sample_well].bottom(z=0.5))
         p1000.return_tip()
 
         heatershaker.set_and_wait_for_shake_speed(rpm=1600)
@@ -359,7 +359,7 @@ def run(protocol: protocol_api.ProtocolContext):
         protocol.comment('--> Transfer Hybridization')
         TransferSup = 200
         p1000.pick_up_tip()
-        p1000.move_to(sample_plate_2[sample_well].bottom(z=0.25))
+        p1000.move_to(sample_plate_2[sample_well].bottom(z=0.5))
         p1000.aspirate(TransferSup, rate=0.25)
         sample_well = 'A4'
         p1000.dispense(TransferSup, sample_plate_2[sample_well].bottom(z=1))
@@ -415,8 +415,8 @@ def run(protocol: protocol_api.ProtocolContext):
         protocol.comment('--> Adding EE1')
         EluteVol    = 23
         p50.pick_up_tip()
-        p50.aspirate(EluteVol, Elute.bottom())
-        p50.dispense(EluteVol, sample_plate_2[sample_well].bottom())
+        p50.aspirate(EluteVol, Elute.bottom(z=0.5))
+        p50.dispense(EluteVol, sample_plate_2[sample_well].bottom(z=0.5))
         p50.return_tip()
 
         #============================================================================================
@@ -454,7 +454,7 @@ def run(protocol: protocol_api.ProtocolContext):
         protocol.comment('--> Transfer Elution')
         TransferSup = 21
         p50.pick_up_tip()
-        p50.move_to(sample_plate_2[sample_well].bottom(z=0.25))
+        p50.move_to(sample_plate_2[sample_well].bottom(z=0.5))
         p50.aspirate(TransferSup+1, rate=0.25)
         sample_well = 'A5'
         p50.dispense(TransferSup+5, sample_plate_1[sample_well].bottom(z=1))
@@ -465,9 +465,9 @@ def run(protocol: protocol_api.ProtocolContext):
         ET2MixRep = 10 if DRYRUN == 'NO' else 1
         ET2MixVol = 20
         p50.pick_up_tip()
-        p50.aspirate(ET2Vol, ET2.bottom())
-        p50.dispense(ET2Vol, sample_plate_1[sample_well].bottom())
-        p50.move_to(sample_plate_1[X].bottom())
+        p50.aspirate(ET2Vol, ET2.bottom(z=0.5))
+        p50.dispense(ET2Vol, sample_plate_1[sample_well].bottom(z=0.5))
+        p50.move_to(sample_plate_1[X].bottom(z=0.5))
         p50.mix(ET2MixRep,ET2MixVol)
         p50.return_tip()
 
@@ -479,8 +479,8 @@ def run(protocol: protocol_api.ProtocolContext):
         protocol.comment('--> Adding PPC')
         PPCVol    = 5
         p50.pick_up_tip()
-        p50.aspirate(PPCVol, PPC.bottom())
-        p50.dispense(PPCVol, sample_plate_1[sample_well].bottom())
+        p50.aspirate(PPCVol, PPC.bottom(z=0.5))
+        p50.dispense(PPCVol, sample_plate_1[sample_well].bottom(z=0.5))
         p50.return_tip()
 
         protocol.comment('--> Adding EPM')
@@ -488,9 +488,9 @@ def run(protocol: protocol_api.ProtocolContext):
         EPMMixRep = 10 if DRYRUN == 'NO' else 1
         EPMMixVol = 45
         p50.pick_up_tip()
-        p50.aspirate(EPMVol, EPM.bottom())
-        p50.dispense(EPMVol, sample_plate_1[sample_well].bottom())
-        p50.move_to(sample_plate_1[sample_well].bottom())
+        p50.aspirate(EPMVol, EPM.bottom(z=0.5))
+        p50.dispense(EPMVol, sample_plate_1[sample_well].bottom(z=0.5))
+        p50.move_to(sample_plate_1[sample_well].bottom(z=0.5))
         p50.mix(EPMMixRep,EPMMixVol)
         p50.return_tip()
         
@@ -539,7 +539,7 @@ def run(protocol: protocol_api.ProtocolContext):
         protocol.comment('--> Transfer Elution')
         TransferSup = 45
         p50.pick_up_tip()
-        p50.move_to(sample_plate_1[sample_well].bottom(z=0.25))
+        p50.move_to(sample_plate_1[sample_well].bottom(z=0.5))
         p50.aspirate(TransferSup+1, rate=0.25)
         sample_well = 'A5'
         p50.dispense(TransferSup+5, sample_plate_2[sample_well].bottom(z=1))
@@ -733,7 +733,7 @@ def run(protocol: protocol_api.ProtocolContext):
         protocol.comment('--> Transferring Supernatant')
         TransferSup = 30
         p1000.pick_up_tip()
-        p1000.move_to(sample_plate_2[sample_well].bottom(z=0.25))
+        p1000.move_to(sample_plate_2[sample_well].bottom(z=0.5))
         p1000.aspirate(TransferSup+1, rate=0.25)
         p1000.dispense(TransferSup+5, sample_plate_2['A7'].bottom(z=1))
         p1000.return_tip()

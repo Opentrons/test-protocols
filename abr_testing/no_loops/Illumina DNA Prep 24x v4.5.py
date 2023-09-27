@@ -241,9 +241,9 @@ def run(protocol: protocol_api.ProtocolContext):
             for loop, X in enumerate(column_1_list):
                 tipcheck()
                 p50.pick_up_tip()
-                p50.aspirate(TAGSTOPVol, TAGSTOP.bottom())
-                p50.dispense(TAGSTOPVol, sample_plate_1[X].bottom())
-                p50.move_to(sample_plate_1[X].bottom())
+                p50.aspirate(TAGSTOPVol, TAGSTOP.bottom(z=0.5))
+                p50.dispense(TAGSTOPVol, sample_plate_1[X].bottom(z=0.5))
+                p50.move_to(sample_plate_1[X].bottom(z=0.5))
                 p50.mix(TAGSTOPMixRep,TAGSTOPMixVol)
                 p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
                 p50_tips += 1
@@ -362,7 +362,7 @@ def run(protocol: protocol_api.ProtocolContext):
                     p1000.move_to(sample_plate_1[X].bottom(4))
                     p1000.aspirate(TWBMaxVol, rate=0.25)
                     p1000.default_speed = 5
-                    p1000.move_to(sample_plate_1[X].bottom())
+                    p1000.move_to(sample_plate_1[X].bottom(z=0.5))
                     protocol.delay(minutes=0.1)
                     p1000.aspirate(200-TWBMaxVol, rate=0.25)
                     p1000.default_speed = 400
@@ -459,7 +459,7 @@ def run(protocol: protocol_api.ProtocolContext):
             for loop, X in enumerate(column_1_list):
                 tipcheck()
                 p50.pick_up_tip()
-                p50.aspirate(BarcodeVol, reagent_plate.wells_by_name()[barcodes[loop]].bottom(), rate=0.25)
+                p50.aspirate(BarcodeVol, reagent_plate.wells_by_name()[barcodes[loop]].bottom(z=0.5), rate=0.25)
                 p50.dispense(BarcodeVol, sample_plate_1.wells_by_name()[X].bottom(1))
                 p50.mix(BarcodeMixRep,BarcodeMixVol)
                 p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
@@ -533,7 +533,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 p50.pick_up_tip()
 
                 protocol.comment('--> Adding H20')
-                p50.aspirate(H20Vol, H20.bottom(), rate=1)
+                p50.aspirate(H20Vol, H20.bottom(z=0.5), rate=1)
                 p50.dispense(H20Vol, sample_plate_1[column_2_list[loop]].bottom(1))
 
                 protocol.comment('--> ADDING AMPure (0.8x)')
@@ -543,7 +543,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 p50.blow_out(sample_plate_1[column_2_list[loop]].top(z=-1))
 
                 protocol.comment('--> Adding SAMPLE')
-                p50.aspirate(SampleVol, sample_plate_1[column_1_list[loop]].bottom(), rate=1)
+                p50.aspirate(SampleVol, sample_plate_1[column_1_list[loop]].bottom(z=0.5), rate=1)
                 p50.dispense(SampleVol, sample_plate_1[column_2_list[loop]].bottom(1))
 
                 p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
@@ -728,7 +728,7 @@ def run(protocol: protocol_api.ProtocolContext):
             for loop, X in enumerate(column_2_list):
                 tipcheck()
                 p50.pick_up_tip()
-                p50.move_to(sample_plate_1[X].bottom(z=0.25))
+                p50.move_to(sample_plate_1[X].bottom(z=0.5))
                 p50.aspirate(TransferSup+1, rate=0.25)
                 p50.dispense(TransferSup+5, sample_plate_1[column_3_list[loop]].bottom(z=1))
                 p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
