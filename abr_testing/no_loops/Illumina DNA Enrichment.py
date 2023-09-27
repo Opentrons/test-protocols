@@ -195,14 +195,14 @@ def run(protocol: protocol_api.ProtocolContext):
         EEWVol = 120
         p1000.pick_up_tip()
         for loop, X in enumerate(['A8','A9','A10','A11']):
-            p1000.aspirate(EEWVol+1, EEW.bottom(.5), rate=0.25)
+            p1000.aspirate(EEWVol+1, EEW.bottom(z=0.5), rate=0.25)
             p1000.dispense(EEWVol+5, sample_plate_1[sample_well].bottom(z=1))
         p1000.return_tip() #<---------------- Tip Return
 
         protocol.comment('--> Transfer Hybridization')
         TransferSup = 100
         p1000.pick_up_tip()
-        p1000.move_to(sample_plate_1[sample_well].bottom(.5))
+        p1000.move_to(sample_plate_1[sample_well].bottom(z=0.5))
         p1000.aspirate(TransferSup+1, rate=0.25)
         p1000.dispense(TransferSup+5, sample_plate_2[sample_well].bottom(z=1))
         p1000.return_tip()
@@ -359,7 +359,7 @@ def run(protocol: protocol_api.ProtocolContext):
         protocol.comment('--> Transfer Hybridization')
         TransferSup = 200
         p1000.pick_up_tip()
-        p1000.move_to(sample_plate_2[sample_well].bottom(.5))
+        p1000.move_to(sample_plate_2[sample_well].bottom(z=0.5))
         p1000.aspirate(TransferSup, rate=0.25)
         sample_well = 'A4'
         p1000.dispense(TransferSup, sample_plate_2[sample_well].bottom(z=1))
@@ -454,7 +454,7 @@ def run(protocol: protocol_api.ProtocolContext):
         protocol.comment('--> Transfer Elution')
         TransferSup = 21
         p50.pick_up_tip()
-        p50.move_to(sample_plate_2[sample_well].bottom(.5))
+        p50.move_to(sample_plate_2[sample_well].bottom(z=0.5))
         p50.aspirate(TransferSup+1, rate=0.25)
         sample_well = 'A5'
         p50.dispense(TransferSup+5, sample_plate_1[sample_well].bottom(z=1))
@@ -539,7 +539,7 @@ def run(protocol: protocol_api.ProtocolContext):
         protocol.comment('--> Transfer Elution')
         TransferSup = 45
         p50.pick_up_tip()
-        p50.move_to(sample_plate_1[sample_well].bottom(.5))
+        p50.move_to(sample_plate_1[sample_well].bottom(z=0.5))
         p50.aspirate(TransferSup+1, rate=0.25)
         sample_well = 'A5'
         p50.dispense(TransferSup+5, sample_plate_2[sample_well].bottom(z=1))
@@ -733,7 +733,7 @@ def run(protocol: protocol_api.ProtocolContext):
         protocol.comment('--> Transferring Supernatant')
         TransferSup = 30
         p1000.pick_up_tip()
-        p1000.move_to(sample_plate_2[sample_well].bottom(.5))
+        p1000.move_to(sample_plate_2[sample_well].bottom(z=0.5))
         p1000.aspirate(TransferSup+1, rate=0.25)
         p1000.dispense(TransferSup+5, sample_plate_2['A7'].bottom(z=1))
         p1000.return_tip()
