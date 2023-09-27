@@ -13,7 +13,7 @@ requirements = {
 
 NUM_COL = 12
 
-ASP_HEIGHT = 0.2
+ASP_HEIGHT = 0.5
 MIX_SPEEND = 2000
 MIX_SEC = 10
 
@@ -51,12 +51,12 @@ def run(ctx):
     reagent_res = ctx.load_labware('opentrons_15_tuberack_nest_15ml_conical', 6, 'reagents')
     waste_res = ctx.load_labware('nest_1_reservoir_195ml', 2, 'waste')
 
-    tips = ctx.load_labware('opentrons_ot3_96_tiprack_1000ul', 9)
-    tips_sample = ctx.load_labware('opentrons_ot3_96_tiprack_1000ul', 11, 'sample tips')
+    tips = ctx.load_labware('opentrons_flex_96_tiprack_1000ul', 9)
+    tips_sample = ctx.load_labware('opentrons_flex_96_tiprack_1000ul', 11, 'sample tips')
     tips_sample_loc = tips_sample.wells()[:95]
-    tips_elu = ctx.load_labware('opentrons_ot3_96_tiprack_1000ul', 10, 'elution tips')
+    tips_elu = ctx.load_labware('opentrons_flex_96_tiprack_1000ul', 10, 'elution tips')
     tips_elu_loc = tips_elu.wells()[:95]
-    tips_reused = ctx.load_labware('opentrons_ot3_96_tiprack_1000ul', 5, 'reused tips')
+    tips_reused = ctx.load_labware('opentrons_flex_96_tiprack_1000ul', 5, 'reused tips')
     tips_reused_loc = tips_reused.wells()[:95]
     p1000 = ctx.load_instrument('flex_8channel_1000', 'left', tip_racks=[tips]) 
     p1000_single = ctx.load_instrument('flex_1channel_1000', 'right', tip_racks=[tips])
