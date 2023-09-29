@@ -25,10 +25,8 @@ ex. inspect
 import numpy as np
 import math
 # from types import *
-# import protocol_api
+# from protocol_api import *
 from typing import cast
-
-
 
 
 TIPRACK_LIST = ['opentrons_ot3_96_tiprack_50ul',
@@ -474,7 +472,7 @@ if ABR_TEST == True:
 else:
     RUN             = 1
 
-def run(protocol: protocol_api.ProtocolContext):
+def run(protocol):
 
     global p200_tips
     global p50_tips
@@ -838,19 +836,19 @@ def run(protocol: protocol_api.ProtocolContext):
                 p50.pick_up_tip()
                 p50.aspirate(EPMVol, EPM.bottom(z=1))
                 EPMVolCount += 1
-                p50.move_to((sample_plate_1.wells_by_name()[X].center().move(types.Point(x=1.3*0.8,y=0,z=-4))))
+                p50.move_to((sample_plate_1.wells_by_name()[X].center().move(Point(x=1.3*0.8,y=0,z=-4))))
                 p50.dispense(EPMMixVol, rate=1)
                 p50.move_to(sample_plate_1.wells_by_name()[X].bottom(z=1))
                 p50.aspirate(EPMMixVol, rate=1)
-                p50.move_to((sample_plate_1.wells_by_name()[X].center().move(types.Point(x=0,y=1.3*0.8,z=-4))))
+                p50.move_to((sample_plate_1.wells_by_name()[X].center().move(Point(x=0,y=1.3*0.8,z=-4))))
                 p50.dispense(EPMMixVol, rate=1)
                 p50.move_to(sample_plate_1.wells_by_name()[X].bottom(z=1))
                 p50.aspirate(EPMMixVol, rate=1)
-                p50.move_to((sample_plate_1.wells_by_name()[X].center().move(types.Point(x=1.3*-0.8,y=0,z=-4))))
+                p50.move_to((sample_plate_1.wells_by_name()[X].center().move(Point(x=1.3*-0.8,y=0,z=-4))))
                 p50.dispense(EPMMixVol, rate=1)
                 p50.move_to(sample_plate_1.wells_by_name()[X].bottom(z=1))
                 p50.aspirate(EPMMixVol, rate=1)
-                p50.move_to((sample_plate_1.wells_by_name()[X].center().move(types.Point(x=0,y=1.3*-0.8,z=-4))))
+                p50.move_to((sample_plate_1.wells_by_name()[X].center().move(Point(x=0,y=1.3*-0.8,z=-4))))
                 p50.dispense(EPMMixVol, rate=1)
                 p50.move_to(sample_plate_1.wells_by_name()[X].bottom(z=1))
                 p50.aspirate(EPMMixVol, rate=1)
@@ -1248,6 +1246,6 @@ def run(protocol: protocol_api.ProtocolContext):
 
 if __name__ == "__main__":
     a = Protocol('protocol')
-    cast(protocol_api.ProtocolContext, a)
+    # cast(protocol_api.ProtocolContext, a)
     run(a)
     a.print_labware()
