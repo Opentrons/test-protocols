@@ -124,9 +124,9 @@ def run(protocol: protocol_api.ProtocolContext):
         FRERATMixRep = 10 if DRYRUN == 'NO' else 1
         FRERATMixVol = 20
         p1000.pick_up_tip(tiprack_20_1['A1'])
-        p1000.aspirate(FRERATVol, FRERAT.bottom())
-        p1000.dispense(FRERATVol, sample_plate_1['A1'].bottom())
-        p1000.move_to(sample_plate_1['A1'].bottom())
+        p1000.aspirate(FRERATVol, FRERAT.bottom(z=1))
+        p1000.dispense(FRERATVol, sample_plate_1['A1'].bottom(z=1))
+        p1000.move_to(sample_plate_1['A1'].bottom(z=1))
         p1000.mix(FRERATMixRep,FRERATMixVol)
         p1000.return_tip()
 
@@ -164,8 +164,8 @@ def run(protocol: protocol_api.ProtocolContext):
         p1000.move_to(LIG.top(5))
         protocol.delay(seconds=0.2)
         p1000.default_speed = 400
-        p1000.dispense(LIGVol, sample_plate_1['A1'].bottom(), rate=0.25)
-        p1000.move_to(sample_plate_1['A1'].bottom())
+        p1000.dispense(LIGVol, sample_plate_1['A1'].bottom(z=1), rate=0.25)
+        p1000.move_to(sample_plate_1['A1'].bottom(z=1))
         p1000.mix(LIGMixRep,LIGMixVol, rate=0.5)
         p1000.blow_out(sample_plate_1['A1'].top(z=-5))
         p1000.return_tip()
@@ -307,7 +307,7 @@ def run(protocol: protocol_api.ProtocolContext):
         p1000.move_to(sample_plate_1['A1'].bottom(z=3.5))
         p1000.aspirate(RemoveSup-100, rate=0.25)
         protocol.delay(minutes=0.1)
-        p1000.move_to(sample_plate_1['A1'].bottom(z=0.5))
+        p1000.move_to(sample_plate_1['A1'].bottom(z=1))
         p1000.aspirate(100, rate=0.25)
         p1000.default_speed = 5
         p1000.move_to(sample_plate_1['A1'].top(z=2))
@@ -348,7 +348,7 @@ def run(protocol: protocol_api.ProtocolContext):
             p1000.move_to(sample_plate_1['A1'].bottom(z=3.5))
             p1000.aspirate(RemoveSup-100, rate=0.25)
             protocol.delay(minutes=0.1)
-            p1000.move_to(sample_plate_1['A1'].bottom(z=0.5))
+            p1000.move_to(sample_plate_1['A1'].bottom(z=1))
             p1000.aspirate(100, rate=0.25)
             p1000.default_speed = 5
             p1000.move_to(sample_plate_1['A1'].top(z=2))
@@ -366,7 +366,7 @@ def run(protocol: protocol_api.ProtocolContext):
 
         protocol.comment('--> Removing Residual ETOH')
         p1000.pick_up_tip(tiprack_200_1['A1']) #<---------------- Tip Pickup
-        p1000.move_to(sample_plate_1['A1'].bottom(z=0))
+        p1000.move_to(sample_plate_1['A1'].bottom(z=1))
         p1000.aspirate(50, rate=0.25)
         p1000.default_speed = 200
         p1000.dispense(100, Liquid_trash.top(z=0))
@@ -465,7 +465,7 @@ def run(protocol: protocol_api.ProtocolContext):
         protocol.comment('--> Transferring Supernatant')
         TransferSup = 20
         p1000.pick_up_tip(tiprack_20_1['A1']) #<---------------- Tip Pickup
-        p1000.move_to(sample_plate_1['A1'].bottom(z=0.25))
+        p1000.move_to(sample_plate_1['A1'].bottom(z=1))
         p1000.aspirate(TransferSup+1, rate=0.25)
         p1000.dispense(TransferSup+5, sample_plate_2['A1'].bottom(z=1))
         p1000.return_tip() #<---------------- Tip Return
@@ -628,7 +628,7 @@ def run(protocol: protocol_api.ProtocolContext):
         p1000.move_to(sample_plate_2['A1'].bottom(z=3.5))
         p1000.aspirate(RemoveSup-100, rate=0.25)
         protocol.delay(minutes=0.1)
-        p1000.move_to(sample_plate_2['A1'].bottom(z=0.5))
+        p1000.move_to(sample_plate_2['A1'].bottom(z=1))
         p1000.aspirate(100, rate=0.25)
         p1000.default_speed = 5
         p1000.move_to(sample_plate_2['A1'].top(z=2))
@@ -669,7 +669,7 @@ def run(protocol: protocol_api.ProtocolContext):
             p1000.move_to(sample_plate_2['A1'].bottom(z=3.5))
             p1000.aspirate(RemoveSup-100, rate=0.25)
             protocol.delay(minutes=0.1)
-            p1000.move_to(sample_plate_2['A1'].bottom(z=0.5))
+            p1000.move_to(sample_plate_2['A1'].bottom(z=1))
             p1000.aspirate(100, rate=0.25)
             p1000.default_speed = 5
             p1000.move_to(sample_plate_2['A1'].top(z=2))
@@ -687,7 +687,7 @@ def run(protocol: protocol_api.ProtocolContext):
 
         protocol.comment('--> Removing Residual ETOH')
         p1000.pick_up_tip(tiprack_200_1['A1']) #<---------------- Tip Pickup
-        p1000.move_to(sample_plate_2['A1'].bottom(z=0))
+        p1000.move_to(sample_plate_2['A1'].bottom(z=1))
         p1000.aspirate(50, rate=0.25)
         p1000.default_speed = 200
         p1000.dispense(100, Liquid_trash.top(z=0))
@@ -784,7 +784,7 @@ def run(protocol: protocol_api.ProtocolContext):
         protocol.comment('--> Transferring Supernatant')
         TransferSup = 20
         p1000.pick_up_tip(tiprack_20_1['A1']) #<---------------- Tip Pickup
-        p1000.move_to(sample_plate_2['A1'].bottom(z=0.25))
+        p1000.move_to(sample_plate_2['A1'].bottom(z=1))
         p1000.aspirate(TransferSup+1, rate=0.25)
         p1000.dispense(TransferSup+5, sample_plate_3['A1'].bottom(z=1))
         p1000.return_tip() #<---------------- Tip Return
