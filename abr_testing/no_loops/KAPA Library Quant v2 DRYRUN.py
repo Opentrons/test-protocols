@@ -108,19 +108,19 @@ def run(protocol: protocol_api.ProtocolContext):
         protocol.pause("ERROR?")
 
     # offset
-    p1000_offset_Deck        = 1
-    p1000_offset_Res         = 1
-    p1000_offset_Tube        = 1
-    p1000_offset_Thermo     = 1
-    p1000_offset_Mag        = 1
-    p1000_offset_Temp       = 1
+    p1000_offset_Deck        = .8
+    p1000_offset_Res         = .8
+    p1000_offset_Tube        = .8
+    p1000_offset_Thermo     = .8
+    p1000_offset_Mag        = .8
+    p1000_offset_Temp       = .8
 
-    p50_offset_Deck         = 1
-    p50_offset_Res          = 1
-    p50_offset_Tube         = 1
-    p50_offset_Thermo       = 1
-    p50_offset_Mag          = 1
-    p50_offset_Temp         = 1
+    p50_offset_Deck         = .8
+    p50_offset_Res          = .8
+    p50_offset_Tube         = .8
+    p50_offset_Thermo       = .8
+    p50_offset_Mag          = .8
+    p50_offset_Temp         = .8
     
     # commands
 

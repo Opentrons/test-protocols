@@ -193,7 +193,7 @@ def run(protocol: protocol_api.ProtocolContext):
             for Mix in range(HighVolMix):
                 p1000.move_to(sample_plate.wells_by_name()[CurrentWell].center())
                 p1000.aspirate(100)
-                p1000.move_to(sample_plate.wells_by_name()[CurrentWell].bottom(1))
+                p1000.move_to(sample_plate.wells_by_name()[CurrentWell].bottom(.8))
                 p1000.aspirate(100)
                 p1000.dispense(100)
                 p1000.move_to(sample_plate.wells_by_name()[CurrentWell].center())
@@ -216,7 +216,7 @@ def run(protocol: protocol_api.ProtocolContext):
                     p50.aspirate(20, RSB.bottom(RSBHeight-(HeightDrop)))
                     RSBHeight -= HeightDrop
                 p50.dispense(DilutionVol, sample_plate.wells_by_name()[CurrentWell])
-                p50.move_to(sample_plate.wells_by_name()[CurrentWell].bottom(1))
+                p50.move_to(sample_plate.wells_by_name()[CurrentWell].bottom(.8))
         # Mix volume <=20ul
                 if DilutionVol+InitialVol <= 20:
                     p50.mix(10,DilutionVol+InitialVol)
@@ -238,7 +238,7 @@ def run(protocol: protocol_api.ProtocolContext):
                     for Mix in range(HighVolMix):
                         p1000.move_to(sample_plate.wells_by_name()[CurrentWell].center())
                         p1000.aspirate(100)
-                        p1000.move_to(sample_plate.wells_by_name()[CurrentWell].bottom(1))
+                        p1000.move_to(sample_plate.wells_by_name()[CurrentWell].bottom(.8))
                         p1000.aspirate(DilutionVol+InitialVol-100)
                         p1000.dispense(100)
                         p1000.move_to(sample_plate.wells_by_name()[CurrentWell].center())
@@ -246,7 +246,7 @@ def run(protocol: protocol_api.ProtocolContext):
                         Mix += 1
                 else:
                     p1000.dispense(DilutionVol, sample_plate.wells_by_name()[CurrentWell])
-                    p1000.move_to(sample_plate.wells_by_name()[CurrentWell].bottom(1))
+                    p1000.move_to(sample_plate.wells_by_name()[CurrentWell].bottom(.8))
                     p1000.mix(10,DilutionVol+InitialVol)
                     p1000.move_to(sample_plate.wells_by_name()[CurrentWell].top())
                 protocol.delay(seconds=3)
