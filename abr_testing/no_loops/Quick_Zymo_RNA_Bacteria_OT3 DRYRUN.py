@@ -97,8 +97,8 @@ def run(ctx):
     elution_res = elutionplate.wells()[0].bottom(2)
     
     # Load tips
-    tips = ctx.load_labware('opentrons_flex_96_tiprack_1000ul_rss', '10').wells()[0]
-    tips1 = ctx.load_labware('opentrons_flex_96_tiprack_1000ul_rss', '11').wells()[0]
+    tips = ctx.load_labware('opentrons_ot3_96_tiprack_1000ul_rss', '10').wells()[0]
+    tips1 = ctx.load_labware('opentrons_ot3_96_tiprack_1000ul_rss', '11').wells()[0]
 
     # load instruments
     pip = ctx.load_instrument('flex_96_channel_1000', mount='left')
