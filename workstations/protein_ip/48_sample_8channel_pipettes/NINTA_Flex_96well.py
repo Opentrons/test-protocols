@@ -5,8 +5,8 @@ metadata = {
 }
 
 requirements = {
-    "robotType": "OT-3",
-    "apiLevel": "2.15"
+    "robotType": "Flex",
+    "apiLevel": "2.15",
 }
 
 ########################
@@ -27,7 +27,7 @@ INCUBATION_MIN = 60
 
 MAG_DELAY_MIN = 2
 
-BEADS_PRELOAD = 1
+BEADS_PRELOAD = 0
 # beads pre-loaded by plate prep protocol
 # Yes: 1; No: 0
 BEADS_VOL = 100
@@ -39,37 +39,40 @@ WASH_VOL = 500
 ELUTION_TIMES = 1
 ELUTION_VOL = 250
 
-WASTE_VOL_MAX = 125000
+WASTE_VOL_MAX = 275000
 
 COOLING_DELAY_MIN = 3
 
-MAG_PLATE_SLOT = 4
 USE_GRIPPER = True
+
+waste_vol_chk = 0
 
 #########################
 
 def run(ctx):
 
     # load labware 
-    sample_plate = ctx.load_labware('nest_96_wellplate_2ml_deep', 9, 'samples')
-    if BEADS_PRELOAD == 0: beads_res = ctx.load_labware('nest_96_wellplate_2ml_deep', 7, 'beads')
-    eql_res = ctx.load_labware('nest_96_wellplate_2ml_deep', 8, 'equilibration buffer')
-    wash_res = ctx.load_labware('nest_96_wellplate_2ml_deep', 6, 'wash buffer')
-    elution_res = ctx.load_labware('nest_96_wellplate_2ml_deep', 11, 'elution buffer')
-    waste_res = ctx.load_labware('nest_1_reservoir_195ml', 2, 'waste')
+    sample_plate = ctx.load_labware('nest_96_wellplate_2ml_deep', 'B3', 'samples')
+    if BEADS_PRELOAD == 0: beads_res = ctx.load_labware('nest_96_wellplate_2ml_deep', 'B1', 'beads')
+    eql_res = ctx.load_labware('nest_96_wellplate_2ml_deep', 'B2', 'equilibration buffer')
+    wash_res = ctx.load_labware('nest_96_wellplate_2ml_deep', 'C3', 'wash buffer')
+    elution_res = ctx.load_labware('nest_96_wellplate_2ml_deep', 'A2', 'elution buffer')
+    waste_res = ctx.load_labware('agilent_1_reservoir_290ml', 'D2', 'waste')
  
-    tips_reused = ctx.load_labware('opentrons_ot3_96_tiprack_1000ul', 5)
+    tips_reused = ctx.load_labware('opentrons_flex_96_tiprack_1000ul', 'C2')
     tips_reused_loc = tips_reused.wells()[:96]
-    tips_elu = ctx.load_labware('opentrons_ot3_96_tiprack_1000ul', 10, 'elution tips')
+    tips_elu = ctx.load_labware('opentrons_flex_96_tiprack_1000ul', 'A1', 'elution tips')
     tips_elu_loc = tips_elu.wells()[:96]
     p1000 = ctx.load_instrument('flex_8channel_1000', 'left') 
 
-    h_s = ctx.load_module('heaterShakerModuleV1',1)
+    h_s = ctx.load_module('heaterShakerModuleV1', 'D1')
     h_s_adapter = h_s.load_adapter('opentrons_96_deep_well_adapter')
-    working_plate = h_s_adapter.load_labware("nest_96_wellplate_2ml_deep", 'working plate') 
+    working_plate = h_s_adapter.load_labware("nest_96_wellplate_2ml_deep", 'wokring plate')
 
-    temp = ctx.load_module('Temperature Module Gen2', 3)
-    final_plate = temp.load_labware('nest_96_wellplate_2ml_deep', 'final plate')
+    temp = ctx.load_module('Temperature Module Gen2', 'D3')
+    final_plate = temp.load_labware('opentrons_96_deep_well_adapter_nest_wellplate_2ml_deep', 'final plate')
+
+    mag = ctx.load_module('magneticBlockV1', 'C1')
 
     # liquids
     samples = sample_plate.rows()[0][:NUM_COL]
@@ -79,19 +82,21 @@ def run(ctx):
     elu = elution_res.rows()[0][:NUM_COL] # reagent 1
     waste = waste_res.wells()[0]
     
-    working_cols = working_plate.rows()[0][:NUM_COL]
+    working_cols = working_plate.rows()[0][:NUM_COL] # reagent 3
     final_cols = final_plate.rows()[0][:NUM_COL]
 
     def transfer(vol1, start, end, reagent=0):
         for i in range(NUM_COL):
-                if reagent==1: p1000.pick_up_tip(tips_elu_loc[i*8])
+                if reagent==1 or reagent==3: p1000.pick_up_tip(tips_elu_loc[i*8])
                 else: p1000.pick_up_tip(tips_reused_loc[i*8])
                 start_loc = start[i]
                 end_loc = end[i]
                 if reagent==2: p1000.mix(5, vol1*0.75, start_loc.bottom(z=ASP_HEIGHT*2), rate = 2)
-                p1000.aspirate(vol1, start_loc.bottom(z=ASP_HEIGHT), rate = 2)
+                if reagent==3: p1000.aspirate(vol1, start_loc.bottom(z=ASP_HEIGHT), rate = 0.3)
+                else: p1000.aspirate(vol1, start_loc.bottom(z=ASP_HEIGHT), rate = 2) 
                 p1000.air_gap(10)
                 p1000.dispense(vol1+10, end_loc.top(z=-5), rate = 2)
+                p1000.touch_tip()
                 p1000.blow_out()
                 p1000.return_tip()
             
@@ -103,6 +108,10 @@ def run(ctx):
 
     def discard(vol2, start):
         global waste_vol
+        global waste_vol_chk
+        if waste_vol_chk >= WASTE_VOL_MAX: 
+            ctx.pause('Empty Liquid Waste')
+            waste_vol_chk = 0
         waste_vol = 0   
         for j in range(NUM_COL):  
             p1000.pick_up_tip(tips_reused_loc[j*8])  
@@ -110,14 +119,13 @@ def run(ctx):
             end_loc = waste
             p1000.aspirate(vol2, start_loc.bottom(z=ASP_HEIGHT), rate = 0.3)
             p1000.air_gap(10)
-            p1000.dispense(vol2+10, end_loc.top(z=5), rate = 2)
+            p1000.dispense(vol2+10, end_loc.top(z=2), rate = 2)
             p1000.blow_out()
             p1000.return_tip()
         waste_vol = vol2 * NUM_COL * 8
+        waste_vol_chk = waste_vol_chk + waste_vol
         
     # protocol
-
-    waste_vol_chk = 0
 
     ## Equilibration
     h_s.open_labware_latch()
@@ -130,24 +138,20 @@ def run(ctx):
 
     h_s.open_labware_latch()
     #ctx.pause('Move the Working Plate to the Magnet')
-    ctx.move_labware(working_plate,
-                     MAG_PLATE_SLOT,
+    ctx.move_labware(labware = working_plate,
+                     new_location = mag,
                      use_gripper=USE_GRIPPER
-                    )
+                     )
     h_s.close_labware_latch()
     ctx.delay(minutes=MAG_DELAY_MIN)
     discard(EQUILIBRATION_VOL1*1.1+BEADS_VOL, working_cols)
-    waste_vol_chk = waste_vol_chk + waste_vol
-    if waste_vol_chk >= WASTE_VOL_MAX: 
-        ctx.pause('Empty Liquid Waste')
-        waste_vol_chk = 0
 
     h_s.open_labware_latch()
     #ctx.pause('Move the Working Plate to the Shaker')
-    ctx.move_labware(working_plate,
-                     h_s_adapter,
+    ctx.move_labware(labware = working_plate,
+                     new_location = h_s_adapter,
                      use_gripper=USE_GRIPPER
-                    )
+                     )
     h_s.close_labware_latch()
 
     transfer(EQUILIBRATION_VOL2, eql, working_cols)
@@ -155,25 +159,21 @@ def run(ctx):
 
     h_s.open_labware_latch()
     #ctx.pause('Move the Working Plate to the Magnet')
-    ctx.move_labware(working_plate,
-                     MAG_PLATE_SLOT,
+    ctx.move_labware(labware = working_plate,
+                     new_location = mag,
                      use_gripper=USE_GRIPPER
-                    )
+                     )
     h_s.close_labware_latch()
     ctx.delay(minutes=MAG_DELAY_MIN)
     discard(EQUILIBRATION_VOL2*1.1, working_cols)
-    waste_vol_chk = waste_vol_chk + waste_vol
-    if waste_vol_chk >= WASTE_VOL_MAX: 
-        ctx.pause('Empty Liquid Waste')
-        waste_vol_chk = 0
 
     ## Protein Capture
     h_s.open_labware_latch()
     #ctx.pause('Move the Working Plate to the Shaker')
-    ctx.move_labware(working_plate,
-                     h_s_adapter,
+    ctx.move_labware(labware = working_plate,
+                     new_location = h_s_adapter,
                      use_gripper=USE_GRIPPER
-                    )
+                     )
     h_s.close_labware_latch()
 
     transfer(SAMPLE_VOL, samples, working_cols)
@@ -192,28 +192,23 @@ def run(ctx):
         ctx.pause('Remove the Seal, Move the Plate back to Shaker')
  
     #ctx.pause('Move the Working Plate to the Magnet')
-    ctx.move_labware(working_plate,
-                    MAG_PLATE_SLOT,
-                    use_gripper=USE_GRIPPER
-                    )
+    ctx.move_labware(labware = working_plate,
+                     new_location = mag,
+                     use_gripper=USE_GRIPPER
+                     )
     h_s.close_labware_latch()
 
     ctx.delay(minutes=MAG_DELAY_MIN)
     discard(SAMPLE_VOL*1.1, working_cols)
-    waste_vol_chk = waste_vol_chk + waste_vol
-    if waste_vol_chk >= WASTE_VOL_MAX: 
-        ctx.pause('Empty Liquid Waste')
-        waste_vol_chk = 0
-
 
     ## Wash
     for _ in range(WASH_TIMES):
         h_s.open_labware_latch()
         #ctx.pause('Move the Working Plate to the Shaker')
-        ctx.move_labware(working_plate,
-                     h_s_adapter,
-                     use_gripper=USE_GRIPPER
-                    )
+        ctx.move_labware(labware = working_plate,
+                         new_location = h_s_adapter,
+                         use_gripper=USE_GRIPPER
+                         )
         h_s.close_labware_latch()
 
         transfer(WASH_VOL, wash, working_cols)
@@ -221,26 +216,22 @@ def run(ctx):
 
         h_s.open_labware_latch()
         #ctx.pause('Move the Working Plate to the Magnet')
-        ctx.move_labware(working_plate,
-                     MAG_PLATE_SLOT,
-                     use_gripper=USE_GRIPPER
-                    )
+        ctx.move_labware(labware = working_plate,
+                         new_location = mag,
+                         use_gripper=USE_GRIPPER
+                         )
         h_s.close_labware_latch()
         ctx.delay(minutes=MAG_DELAY_MIN)
         discard(WASH_VOL*1.1, working_cols)
-        waste_vol_chk = waste_vol_chk + waste_vol
-        if waste_vol_chk >= WASTE_VOL_MAX: 
-            ctx.pause('Empty Liquid Waste')
-            waste_vol_chk = 0
 
     ## Elution
     for j in range(ELUTION_TIMES):  
         h_s.open_labware_latch()
         #ctx.pause('Move the Working Plate to the Shaker')
-        ctx.move_labware(working_plate,
-                     h_s_adapter,
-                     use_gripper=USE_GRIPPER
-                    )
+        ctx.move_labware(labware = working_plate,
+                         new_location = h_s_adapter,
+                         use_gripper=USE_GRIPPER
+                         )
         h_s.close_labware_latch()
 
         transfer(ELUTION_VOL, elu, working_cols, 1)
@@ -258,13 +249,13 @@ def run(ctx):
 
         h_s.open_labware_latch()
         #ctx.pause('Move the Working Plate to the Magnet')
-        ctx.move_labware(working_plate,
-                     MAG_PLATE_SLOT,
-                     use_gripper=USE_GRIPPER
-                    )
+        ctx.move_labware(labware = working_plate,
+                         new_location = mag,
+                         use_gripper=USE_GRIPPER
+                         )
         h_s.close_labware_latch()
         ctx.delay(minutes=MAG_DELAY_MIN)
-        transfer(ELUTION_VOL*1.1, working_cols, final_cols, 1)
+        transfer(ELUTION_VOL*1.1, working_cols, final_cols, 3)
     
     ctx.pause('Protocol Complete')
     temp.deactivate()

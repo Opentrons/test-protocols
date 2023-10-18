@@ -7,7 +7,7 @@ metadata = {
 }
 
 requirements = {
-    "robotType": "OT-3",
+    "robotType": "Flex",
     "apiLevel": "2.15",
 }
 
@@ -15,7 +15,7 @@ requirements = {
 
 NUM_COL = 12
 
-ASP_HEIGHT = 0.5
+ASP_HEIGHT = 0.2
 BEADS_VOL = 100
 EQUILIBRATION_VOL1 = 400
 EQUILIBRATION_VOL2 = 500
@@ -25,27 +25,32 @@ WASH_VOL = 500
 ELUTION_TIMES = 1
 ELUTION_VOL = 250
 
+BEADS_PRELOAD = 1
+# NO: 0; YES: 1
+
 #########################
 
 def run(ctx):
 
     # load labware
 
-    eql_res = ctx.load_labware('nest_96_wellplate_2ml_deep', 8, 'equilibration buffer')
-    wash_res = ctx.load_labware('nest_96_wellplate_2ml_deep', 6, 'wash buffer')
-    elution_res = ctx.load_labware('nest_96_wellplate_2ml_deep', 11, 'elution buffer')
+    eql_res = ctx.load_labware('nest_96_wellplate_2ml_deep', 'B2', 'equilibration buffer')
+    wash_res = ctx.load_labware('nest_96_wellplate_2ml_deep', 'C3', 'wash buffer')
+    elution_res = ctx.load_labware('nest_96_wellplate_2ml_deep', 'A2', 'elution buffer')
 
-    eql_stock = ctx.load_labware('nest_1_reservoir_195ml', 7, 'equilibration buffer')
-    wash_stock = ctx.load_labware('nest_1_reservoir_195ml', 9, 'wash buffer')
-    elution_stock = ctx.load_labware('nest_1_reservoir_195ml', 10, 'elution buffer')
-   
-    beads_stock = ctx.load_labware('nest_12_reservoir_15ml', 2, 'beads')
-    h_s = ctx.load_module('heaterShakerModuleV1',1)
-    h_s_adapter = h_s.load_adapter('opentrons_96_deep_well_adapter')
-    working_plate = h_s_adapter.load_labware('nest_96_wellplate_2ml_deep', 'working plate')
-    temp = ctx.load_module('Temperature Module Gen2', 3)
+    eql_stock = ctx.load_labware('agilent_1_reservoir_290ml', 'B1', 'equilibration buffer')
+    wash_stock = ctx.load_labware('agilent_1_reservoir_290ml', 'B3', 'wash buffer')
+    elution_stock = ctx.load_labware('agilent_1_reservoir_290ml', 'A1', 'elution buffer')
+    
+    if BEADS_PRELOAD == 1: 
+        beads_stock = ctx.load_labware('nest_12_reservoir_15ml', 'D2', 'beads')
+        h_s = ctx.load_module('heaterShakerModuleV1', 'D1')
+        h_s_adapter = h_s.load_adapter('opentrons_96_deep_well_adapter')
+        working_plate = h_s_adapter.load_labware("nest_96_wellplate_2ml_deep", 'wokring plate')
+    
+    temp = ctx.load_module('Temperature Module Gen2', 'D3')
 
-    tips = ctx.load_labware('opentrons_flex_96_tiprack_1000ul', 5)
+    tips = ctx.load_labware('opentrons_flex_96_tiprack_1000ul', 'C2')
     p1000 = ctx.load_instrument('flex_8channel_1000', 'left', tip_racks=[tips]) 
 
     # liquids
@@ -57,8 +62,9 @@ def run(ctx):
     wash_source = wash_stock.wells()[0]
     elu_source = elution_stock.wells()[0]
 
-    beads = beads_stock.wells()[0:2]
-    working_cols = working_plate.rows()[0][:NUM_COL]
+    if BEADS_PRELOAD == 1: 
+        beads = beads_stock.wells()[0:2]
+        working_cols = working_plate.rows()[0][:NUM_COL]
 
     def transfer_beads(vol, end):
         if NUM_COL <= 6:
@@ -129,12 +135,13 @@ def run(ctx):
 
     # protocol
 
-    ## working plate w/ beads
-    h_s.open_labware_latch()
-    ctx.pause('Move the Working Plate to the Shaker')
-    h_s.close_labware_latch()
-    transfer_beads(BEADS_VOL, working_cols)
-    h_s.open_labware_latch()
+    if BEADS_PRELOAD == 1: 
+        ## working plate w/ beads
+        h_s.open_labware_latch()
+        ctx.pause('Move the Working Plate to the Shaker')
+        h_s.close_labware_latch()
+        transfer_beads(BEADS_VOL, working_cols)
+        h_s.open_labware_latch()
 
     ## wash buffer
     transfer_buffer(WASH_VOL*WASH_TIMES+50, wash_source, wash)
@@ -142,5 +149,3 @@ def run(ctx):
     transfer_buffer(EQUILIBRATION_VOL1+EQUILIBRATION_VOL2+50, eql_source, eql)  
     ## elution buffer
     transfer_buffer(ELUTION_VOL*ELUTION_TIMES+50, elu_source, elu)
-
-    
