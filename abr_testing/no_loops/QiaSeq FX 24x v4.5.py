@@ -80,7 +80,8 @@ def run(protocol: protocol_api.ProtocolContext):
     if RES_TYPE == '96x2ml':
         reservoir       = protocol.load_labware('nest_96_wellplate_2ml_deep','2')    
     temp_block          = protocol.load_module('temperature module gen2', '3')
-    reagent_plate       = temp_block.load_labware('armadillo_96_wellplate_200ul_pcr_full_skirt')
+    temp_block_adapter  = temp_block.load_adapter('opentrons_96_well_aluminum_block')
+    reagent_plate       = temp_block_adapter.load_labware('armadillo_96_wellplate_200ul_pcr_full_skirt')
     # ========== SECOND ROW ==========
   #  MAG_PLATE_SLOT      = 4       #DVT
     MAG_PLATE_SLOT      = protocol.load_module('magneticBlockV1', '4')

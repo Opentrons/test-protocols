@@ -59,7 +59,8 @@ def run(protocol: protocol_api.ProtocolContext):
     reservoir_1         = protocol.load_labware('nest_96_wellplate_2ml_deep','2')
     if MODULES == True:
         temp_block          = protocol.load_module('temperature module gen2', '3')
-        reagent_plate_2     = temp_block.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')
+        temp_block_adapter  = temp_block.load_adapter('opentrons_96_well_aluminum_block')
+        reagent_plate_2     = temp_block_adapter.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')
     else:
         reagent_plate_2     = protocol.load_labware('armadillo_96_wellplate_200ul_pcr_full_skirt','3')
     # ========== SECOND ROW ==========
