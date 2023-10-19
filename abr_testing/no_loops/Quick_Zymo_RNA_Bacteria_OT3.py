@@ -122,7 +122,7 @@ def run(ctx):
             x = 1
         transfer_vol = vol/x
         for i in range(x):
-            pip.aspirate(transfer_vol,samples_m.bottom(1))
+            pip.aspirate(transfer_vol,samples_m.bottom(.7))
             pip.dispense(transfer_vol,waste)
         pip.return_tip()
 
