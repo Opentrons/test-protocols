@@ -11,12 +11,12 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 metadata = {
-    'protocolName': 'Thermo MagMax RNA Extraction: Cells',
+    'protocolName': 'Thermo MagMax RNA Extraction: Cells Multi-Channel',
     'author': 'Zach Galluzzo <zachary.galluzzo@opentrons.com>',
 }
 
 requirements = {
-    "robotType": "OT-3",
+    "robotType": "Flex",
     "apiLevel": "2.15",
 }
 
@@ -40,7 +40,6 @@ def run(ctx):
     #Same for all Extractions
     num_samples = 48
     deepwell_type = "nest_96_wellplate_2ml_deep"
-    adapter_type = "opentrons_96_deep_well_adapter"
     res_type="nest_12_reservoir_15ml"
     wash_vol= 150
     if not dry_run:
@@ -52,25 +51,25 @@ def run(ctx):
     elution_vol= 50
     starting_vol= sample_vol+lysis_vol
     
-    h_s = ctx.load_module('heaterShakerModuleV1','1')
-    h_s_adapter = h_s.load_adapter(adapter_type)
+    h_s = ctx.load_module('heaterShakerModuleV1','D1')
+    h_s_adapter = h_s.load_adapter('opentrons_96_deep_well_adapter')
     sample_plate = h_s_adapter.load_labware(deepwell_type)
     h_s.close_labware_latch()
-    temp = ctx.load_module('temperature module gen2','3')
-    temp_adapter = temp.load_adapter('opentrons_96_pcr_adapter')
-    elutionplate = temp_adapter.load_labware('armadillo_96_wellplate_200ul_pcr_full_skirt')
+    temp = ctx.load_module('temperature module gen2','D3')
+    temp_block = temp.load_adapter('opentrons_96_well_aluminum_block')
+    elutionplate = temp_block.load_labware('opentrons_96_wellplate_200ul_pcr_full_skirt')
     if not dry_run:
         temp.set_temperature(4)
-    MAG_PLATE_SLOT = ctx.load_module('magneticBlockV1','4')
-    waste = ctx.load_labware('nest_1_reservoir_195ml', '9','Liquid Waste').wells()[0].top()
-    res1 = ctx.load_labware(res_type, '2', 'reagent reservoir 1')
+    magblock = ctx.load_module('magneticBlockV1','C1')
+    waste = ctx.load_labware('nest_1_reservoir_195ml', 'B3','Liquid Waste').wells()[0].top()
+    res1 = ctx.load_labware(res_type, 'D2', 'reagent reservoir 1')
     num_cols = math.ceil(num_samples/8)
     
     #Load tips and combine all similar boxes
-    tips200 = ctx.load_labware('opentrons_ot3_96_tiprack_200ul', '5')
-    tips201 = ctx.load_labware('opentrons_ot3_96_tiprack_200ul', '6')
-    tips202 = ctx.load_labware('opentrons_ot3_96_tiprack_200ul', '7')
-    tips203 = ctx.load_labware('opentrons_ot3_96_tiprack_200ul', '8')
+    tips200 = ctx.load_labware('opentrons_flex_96_tiprack_200ul', 'C2')
+    tips201 = ctx.load_labware('opentrons_flex_96_tiprack_200ul', 'C3')
+    tips202 = ctx.load_labware('opentrons_flex_96_tiprack_200ul', 'B1')
+    tips203 = ctx.load_labware('opentrons_flex_96_tiprack_200ul', 'B2')
     tips = [*tips200.wells()[num_samples:96],*tips201.wells(),*tips202.wells(),*tips203.wells()]
     tips_sn = tips200.wells()[:num_samples]
 
@@ -145,7 +144,10 @@ def run(ctx):
         m1000.flow_rate.aspirate = 300
         #Move Plate From Magnet to H-S
         h_s.open_labware_latch()
-        ctx.move_labware(sample_plate,h_s_adapter,use_gripper=USE_GRIPPER)
+        ctx.move_labware(
+            sample_plate,
+            h_s_adapter,
+            use_gripper=USE_GRIPPER)
         h_s.close_labware_latch()
 
     def bead_mixing(well, pip, mvol, reps=8):
@@ -292,7 +294,10 @@ def run(ctx):
 
         #Transfer from H-S plate to Magdeck plate
         h_s.open_labware_latch()
-        ctx.move_labware(sample_plate,MAG_PLATE_SLOT,use_gripper=USE_GRIPPER)
+        ctx.move_labware(
+            sample_plate,
+            magblock,
+            use_gripper=USE_GRIPPER)
         h_s.close_labware_latch()
 
         for bindi in np.arange(settling_time,0,-0.5): #Settling time delay with countdown timer
@@ -337,7 +342,10 @@ def run(ctx):
 
         #Transfer from H-S plate to Magdeck plate
         h_s.open_labware_latch()
-        ctx.move_labware(sample_plate,MAG_PLATE_SLOT,use_gripper=USE_GRIPPER)
+        ctx.move_labware(
+            sample_plate,
+            magblock,
+            use_gripper=USE_GRIPPER)
         h_s.close_labware_latch()
 
         for washi in np.arange(settling_time,0,-0.5): #settling time timer for washes
@@ -398,7 +406,10 @@ def run(ctx):
 
         #Transfer from H-S plate to Magdeck plate
         h_s.open_labware_latch()
-        ctx.move_labware(sample_plate,MAG_PLATE_SLOT,use_gripper=USE_GRIPPER)
+        ctx.move_labware(
+            sample_plate,
+            magblock,
+            use_gripper=USE_GRIPPER)
         h_s.close_labware_latch()
 
         for stop in np.arange(settling_time,0,-0.5):
@@ -441,7 +452,10 @@ def run(ctx):
         
         #Transfer from H-S plate to Magdeck plate
         h_s.open_labware_latch()
-        ctx.move_labware(sample_plate,MAG_PLATE_SLOT,use_gripper=USE_GRIPPER)
+        ctx.move_labware(
+            sample_plate,
+            magblock,
+            use_gripper=USE_GRIPPER)
         h_s.close_labware_latch()
 
         for elutei in np.arange(settling_time,0,-0.5):

@@ -16,7 +16,7 @@ metadata = {
 }
 
 requirements = {
-    "robotType": "OT-3",
+    "robotType": "Flex",
     "apiLevel": "2.15",
 }
 whichwash = 1
@@ -36,7 +36,6 @@ def run(ctx):
     #48 Sample max
     num_samples = 48
     deepwell_type = "nest_96_wellplate_2ml_deep"
-    adapter_type = "opentrons_96_deep_well_adapter"
     res_type = "nest_12_reservoir_15ml"
     if not dry_run:
         settling_time = 2
@@ -50,33 +49,32 @@ def run(ctx):
     elution_vol = 100
     starting_vol= 600 # This is sample volume (400 in shield) + lysis volume
 
-    h_s = ctx.load_module('heaterShakerModuleV1','1')
-    h_s_adapter = h_s.load_adapter(adapter_type)
+    h_s = ctx.load_module('heaterShakerModuleV1','D1')
+    h_s_adapter = h_s.load_adapter('opentrons_96_deep_well_adapter')
     sample_plate = h_s_adapter.load_labware(deepwell_type)
     h_s.close_labware_latch()
-    tempdeck = ctx.load_module('Temperature Module Gen2','3')
-    MAG_PLATE_SLOT = ctx.load_module('magneticBlockV1','4')
+    tempdeck = ctx.load_module('Temperature Module Gen2','D3')
+    temp_block = tempdeck.load_adapter('opentrons_96_well_aluminum_block')
+    magblock = ctx.load_module('magneticBlockV1','C1')
     if not dry_run:
         tempdeck.set_temperature(4)
-    temp_adapter = tempdeck.load_adapter('opentrons_96_pcr_adapter')
-    elutionplate = temp_adapter.load_labware('armadillo_96_wellplate_200ul_pcr_full_skirt')
-    waste = ctx.load_labware('nest_1_reservoir_195ml', '9','Liquid Waste').wells()[0].top()
-    res1 = ctx.load_labware(res_type, '2', 'reagent reservoir 1')
-    res2 = ctx.load_labware(res_type, '5', 'reagent reservoir 2')
-    res3 = ctx.load_labware(res_type, '6', 'reagent reservoir 3')
+    elutionplate = temp_block.load_labware('opentrons_96_wellplate_200ul_pcr_full_skirt')
+    waste = ctx.load_labware('nest_1_reservoir_195ml', 'B3','Liquid Waste').wells()[0].top()
+    res1 = ctx.load_labware(res_type, 'D2', 'reagent reservoir 1')
+    res2 = ctx.load_labware(res_type, 'C2', 'reagent reservoir 2')
+    res3 = ctx.load_labware(res_type, 'C3', 'reagent reservoir 3')
     num_cols = math.ceil(num_samples/8)
     
     # Load tips and combine all similar boxes
-    t1000 = ctx.load_labware('opentrons_ot3_96_tiprack_1000ul', '7')
-    t1001 = ctx.load_labware('opentrons_ot3_96_tiprack_1000ul', '8')
-    t1002 = ctx.load_labware('opentrons_ot3_96_tiprack_1000ul', '10')
-    t1003 = ctx.load_labware('opentrons_ot3_96_tiprack_1000ul', '11')
+    t1000 = ctx.load_labware('opentrons_flex_96_tiprack_1000ul', 'B1')
+    t1001 = ctx.load_labware('opentrons_flex_96_tiprack_1000ul', 'B2')
+    t1002 = ctx.load_labware('opentrons_flex_96_tiprack_1000ul', 'A1')
+    t1003 = ctx.load_labware('opentrons_flex_96_tiprack_1000ul', 'A2')
     t1k = [*t1000.wells()[num_samples:96],*t1001.wells(),*t1002.wells(),*t1003.wells()]
     t1k_super = t1000.wells()[:num_samples]
     
     # load instruments
     m1000 = ctx.load_instrument('flex_8channel_1000', 'left')
-    #s50 = ctx.load_instrument('flex_1channel_50', 'right',tip_racks=[t200])
 
     """
     Here is where you can define the locations of your reagents.
@@ -101,7 +99,7 @@ def run(ctx):
     m1000.flow_rate.aspirate = 300
     m1000.flow_rate.dispense = 300
     m1000.flow_rate.blow_out = 300
-    
+
     def tiptrack(pip, tipbox):
         global tip1k
         global tip200
@@ -151,7 +149,10 @@ def run(ctx):
         m1000.flow_rate.aspirate = 300
         #Move Plate From Magnet to H-S
         h_s.open_labware_latch()
-        ctx.move_labware(sample_plate,h_s_adapter,use_gripper=USE_GRIPPER)
+        ctx.move_labware(
+            sample_plate,
+            h_s_adapter,
+            use_gripper=USE_GRIPPER)
         h_s.close_labware_latch()
 
     def bead_mixing(well, pip, mvol, reps=8):
@@ -300,7 +301,10 @@ def run(ctx):
         h_s.deactivate_shaker()
 
         h_s.open_labware_latch()
-        ctx.move_labware(sample_plate,MAG_PLATE_SLOT,use_gripper=USE_GRIPPER)
+        ctx.move_labware(
+            sample_plate,
+            magblock,
+            use_gripper=USE_GRIPPER)
         h_s.close_labware_latch()
 
         for bindi in np.arange(settling_time+1,0,-0.5): # Settling time delay with countdown timer
@@ -361,7 +365,10 @@ def run(ctx):
         h_s.deactivate_shaker()
 
         h_s.open_labware_latch()
-        ctx.move_labware(sample_plate,MAG_PLATE_SLOT,use_gripper=USE_GRIPPER)
+        ctx.move_labware(
+            sample_plate,
+            magblock,
+            use_gripper=USE_GRIPPER)
         h_s.close_labware_latch()
 
         for washi in np.arange(settling_time,0,-0.5): # settling time timer for washes
@@ -417,7 +424,10 @@ def run(ctx):
         h_s.deactivate_shaker()
 
         h_s.open_labware_latch()
-        ctx.move_labware(sample_plate,MAG_PLATE_SLOT,use_gripper=USE_GRIPPER)
+        ctx.move_labware(
+            sample_plate,
+            magblock,
+            use_gripper=USE_GRIPPER)
         h_s.close_labware_latch()
 
         for stop in np.arange(settling_time,0,-0.5):
@@ -440,7 +450,10 @@ def run(ctx):
         h_s.deactivate_shaker()
 
         h_s.open_labware_latch()
-        ctx.move_labware(sample_plate,MAG_PLATE_SLOT,use_gripper=USE_GRIPPER)
+        ctx.move_labware(
+            sample_plate,
+            magblock,
+            use_gripper=USE_GRIPPER)
         h_s.close_labware_latch()
 
         for elutei in np.arange(settling_time,0,-0.5):
