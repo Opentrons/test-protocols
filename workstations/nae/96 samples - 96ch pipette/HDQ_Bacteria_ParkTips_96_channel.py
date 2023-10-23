@@ -263,10 +263,10 @@ def run(ctx):
     #Remove Supernatant and move off magnet
     ctx.comment('------- Removing Supernatant -------')
     pip.pick_up_tip(tips)
-    pip.aspirate(1000,samples_m.bottom(0.5))
+    pip.aspirate(1000,samples_m.bottom(0.7))
     pip.dispense(1000,bind_res)
     if starting_vol+binding_buffer_vol > 1000:
-        pip.aspirate(1000,samples_m.bottom(0.5))
+        pip.aspirate(1000,samples_m.bottom(0.7))
         pip.dispense(1000,bind_res)
     pip.return_tip()
 
@@ -317,10 +317,10 @@ def run(ctx):
         #Remove Supernatant and move off magnet
         ctx.comment('------- Removing Supernatant -------')
         pip.pick_up_tip(tips)
-        pip.aspirate(1000,samples_m.bottom(0.5))
+        pip.aspirate(1000,samples_m.bottom(0.7))
         pip.dispense(1000,waste_res.top())
         if wash_vol > 1000:
-            pip.aspirate(1000,samples_m.bottom(0.5))
+            pip.aspirate(1000,samples_m.bottom(0.7))
             pip.dispense(1000,waste_res.top())
         pip.return_tip()
 

@@ -216,10 +216,10 @@ def run(ctx):
 
     # Remove Supernatant and move off magnet
     pip.pick_up_tip(tips)
-    pip.aspirate(1000, samples_m.bottom(0.3))
+    pip.aspirate(1000, samples_m.bottom(0.7))
     pip.dispense(1000, waste)
     if starting_vol + binding_buffer_vol > 1000:
-        pip.aspirate(1000, samples_m.bottom(0.1))
+        pip.aspirate(1000, samples_m.bottom(0.7))
         pip.dispense(1000, waste)
     pip.return_tip()
 
