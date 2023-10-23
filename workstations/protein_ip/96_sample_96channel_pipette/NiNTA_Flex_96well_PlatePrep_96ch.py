@@ -13,7 +13,7 @@ requirements = {
 
 NUM_SAMPLES = 96
 
-ASP_HEIGHT = 0.2
+ASP_HEIGHT = 0.7
 BEADS_VOL = 100
 EQUILIBRATION_VOL1 = 400
 EQUILIBRATION_VOL2 = 500
@@ -28,6 +28,15 @@ BEADS_PRELOAD = 0
 
 TIPS_REUSE = 1
 # NO: 0; YES:1
+
+ABR_TEST                = True
+if ABR_TEST == True:
+    DRYRUN              = True          # True = skip incubation times, shorten mix, for testing purposes
+    TIP_TRASH           = False         # True = Used tips go in Trash, False = Used tips go back into rack
+else:
+    DRYRUN              = False          # True = skip incubation times, shorten mix, for testing purposes
+    TIP_TRASH           = True 
+
 
 #########################
 

@@ -28,6 +28,14 @@ dry_run = False
 USE_GRIPPER = True
 waste_vol = 0
 
+ABR_TEST                = True
+if ABR_TEST == True:
+    DRYRUN              = True          # True = skip incubation times, shorten mix, for testing purposes
+    TIP_TRASH           = False         # True = Used tips go in Trash, False = Used tips go back into rack
+else:
+    DRYRUN              = False          # True = skip incubation times, shorten mix, for testing purposes
+    TIP_TRASH           = True 
+
 # Start protocol
 def run(ctx):
     """
@@ -131,7 +139,7 @@ def run(ctx):
 
         for i, m in enumerate(samples_m):
             m1000.pick_up_tip(tips_sn[8*i])
-            loc = m.bottom(0.5)
+            loc = m.bottom(0.7)
             for _ in range(num_trans):
                 if m1000.current_volume > 0:
                     # void air gap if necessary
@@ -462,7 +470,7 @@ def run(ctx):
         tiptrack(m1000,tips)
         m1000.flow_rate.aspirate = 20  
         for i, m in enumerate(samples_m):  
-            m1000.aspirate(vol, elution_samples_m[i].bottom(0.1))
+            m1000.aspirate(vol, elution_samples_m[i].bottom(0.7))
             m1000.air_gap(20)
             m1000.dispense(m1000.current_volume, m.top(-3))
             #mixing(m,m1000,90,reps=8 if not dry_run else 1)  
@@ -491,7 +499,7 @@ def run(ctx):
             tiptrack(m1000,tips)
             m1000.flow_rate.dispense = 100
             m1000.flow_rate.aspirate = 150
-            m1000.transfer(vol, m.bottom(0.1), e.bottom(5), air_gap=20, new_tip='never')
+            m1000.transfer(vol, m.bottom(0.7), e.bottom(5), air_gap=20, new_tip='never')
             m1000.blow_out(e.top(-2))
             m1000.air_gap(20)
             m1000.drop_tip()

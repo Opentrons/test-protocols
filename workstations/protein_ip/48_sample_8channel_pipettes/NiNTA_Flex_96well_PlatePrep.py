@@ -15,7 +15,7 @@ requirements = {
 
 NUM_COL = 12
 
-ASP_HEIGHT = 0.2
+ASP_HEIGHT = 0.7
 BEADS_VOL = 100
 EQUILIBRATION_VOL1 = 400
 EQUILIBRATION_VOL2 = 500
@@ -27,6 +27,14 @@ ELUTION_VOL = 250
 
 BEADS_PRELOAD = 1
 # NO: 0; YES: 1
+
+ABR_TEST                = True
+if ABR_TEST == True:
+    DRYRUN              = True          # True = skip incubation times, shorten mix, for testing purposes
+    TIP_TRASH           = False         # True = Used tips go in Trash, False = Used tips go back into rack
+else:
+    DRYRUN              = False          # True = skip incubation times, shorten mix, for testing purposes
+    TIP_TRASH           = True 
 
 #########################
 

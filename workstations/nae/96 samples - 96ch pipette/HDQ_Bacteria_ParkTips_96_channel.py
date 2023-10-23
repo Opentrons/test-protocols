@@ -20,6 +20,13 @@ dry_run = False
 HS_SLOT = 1
 USE_GRIPPER = True
 
+ABR_TEST                = True
+if ABR_TEST == True:
+    DRYRUN              = True          # True = skip incubation times, shorten mix, for testing purposes
+    TIP_TRASH           = False         # True = Used tips go in Trash, False = Used tips go back into rack
+else:
+    DRYRUN              = False          # True = skip incubation times, shorten mix, for testing purposes
+    TIP_TRASH           = True 
 
 # Start protocol
 def run(ctx):
@@ -263,10 +270,10 @@ def run(ctx):
     #Remove Supernatant and move off magnet
     ctx.comment('------- Removing Supernatant -------')
     pip.pick_up_tip(tips)
-    pip.aspirate(1000,samples_m.bottom(0.5))
+    pip.aspirate(1000,samples_m.bottom(0.7))
     pip.dispense(1000,bind_res)
     if starting_vol+binding_buffer_vol > 1000:
-        pip.aspirate(1000,samples_m.bottom(0.5))
+        pip.aspirate(1000,samples_m.bottom(0.7))
         pip.dispense(1000,bind_res)
     pip.return_tip()
 
@@ -317,10 +324,10 @@ def run(ctx):
         #Remove Supernatant and move off magnet
         ctx.comment('------- Removing Supernatant -------')
         pip.pick_up_tip(tips)
-        pip.aspirate(1000,samples_m.bottom(0.5))
+        pip.aspirate(1000,samples_m.bottom(0.7))
         pip.dispense(1000,waste_res.top())
         if wash_vol > 1000:
-            pip.aspirate(1000,samples_m.bottom(0.5))
+            pip.aspirate(1000,samples_m.bottom(0.7))
             pip.dispense(1000,waste_res.top())
         pip.return_tip()
 

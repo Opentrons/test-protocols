@@ -13,7 +13,7 @@ requirements = {
 
 NUM_COL = 12
 
-ASP_HEIGHT = 0.2
+ASP_HEIGHT = 0.7
 MIX_SPEEND = 2000
 MIX_SEC = 10
 ELUTION_SPEEND = 1000
@@ -46,6 +46,14 @@ COOLING_DELAY_MIN = 3
 USE_GRIPPER = True
 
 waste_vol_chk = 0
+
+ABR_TEST                = True
+if ABR_TEST == True:
+    DRYRUN              = True          # True = skip incubation times, shorten mix, for testing purposes
+    TIP_TRASH           = False         # True = Used tips go in Trash, False = Used tips go back into rack
+else:
+    DRYRUN              = False          # True = skip incubation times, shorten mix, for testing purposes
+    TIP_TRASH           = True 
 
 #########################
 

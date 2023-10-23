@@ -55,7 +55,7 @@ if ABR_TEST == True:
     COLUMNS         = 3              # Overrides to 3 columns
     DRYRUN          = True           # Overrides to only DRYRUN
     TIP_TRASH       = False          # Overrides to only REUSING TIPS
-    RUN             = 3              # Repetitions
+    RUN             = 1              # Repetitions
 else:
     RUN             = 1
 
@@ -255,8 +255,8 @@ def run(protocol: protocol_api.ProtocolContext):
             for loop, X in enumerate(column_1_list):
                 tipcheck()
                 p50.pick_up_tip()
-                p50.aspirate(BarcodeVol+3, reagent_plate.wells_by_name()[barcodes[loop]].bottom(), rate=0.25)
-                p50.dispense(3, reagent_plate.wells_by_name()[barcodes[loop]].bottom(), rate=0.25)
+                p50.aspirate(BarcodeVol+3, reagent_plate.wells_by_name()[barcodes[loop]].bottom(.7), rate=0.25)
+                p50.dispense(3, reagent_plate.wells_by_name()[barcodes[loop]].bottom(.7), rate=0.25)
                 p50.dispense(BarcodeVol+2, sample_plate_1.wells_by_name()[X].bottom(1))
                 p50.mix(BarcodeMixRep,BarcodeMixVol)
                 p50.move_to(sample_plate_1[X].top(z=-3))
@@ -637,10 +637,10 @@ def run(protocol: protocol_api.ProtocolContext):
             for loop, X in enumerate(column_1_list):
                 tipcheck()
                 p50.pick_up_tip()
-                p50.move_to(sample_plate_1[X].bottom(z=0.5))
+                p50.move_to(sample_plate_1[X].bottom(z=0.7))
                 p50.aspirate(TransferSup/2, rate=0.25)
                 protocol.delay(seconds=0.2)
-                p50.move_to(sample_plate_1[X].bottom(z=0.3))
+                p50.move_to(sample_plate_1[X].bottom(z=0.7))
                 p50.aspirate(TransferSup/2, rate=0.25)
                 p50.dispense(TransferSup+3, sample_plate_1[column_2_list[loop]].bottom(z=1))
                 p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
@@ -944,10 +944,10 @@ def run(protocol: protocol_api.ProtocolContext):
             for loop, X in enumerate(column_2_list):
                 tipcheck()
                 p50.pick_up_tip()
-                p50.move_to(sample_plate_1[X].bottom(z=0.5))
+                p50.move_to(sample_plate_1[X].bottom(z=0.7))
                 p50.aspirate(TransferSup/2, rate=0.25)
                 protocol.delay(seconds=0.2)
-                p50.move_to(sample_plate_1[X].bottom(z=0.3))
+                p50.move_to(sample_plate_1[X].bottom(z=0.7))
                 p50.aspirate(TransferSup/2, rate=0.25)
                 p50.dispense(TransferSup+3, sample_plate_1[column_3_list[loop]].bottom(z=1))
                 p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
@@ -1308,10 +1308,10 @@ def run(protocol: protocol_api.ProtocolContext):
             for loop, X in enumerate(column_3_list):
                 tipcheck()
                 p50.pick_up_tip()
-                p50.move_to(sample_plate_1[X].bottom(z=0.5))
+                p50.move_to(sample_plate_1[X].bottom(z=0.7))
                 p50.aspirate(TransferSup/2, rate=0.25)
                 protocol.delay(seconds=0.2)
-                p50.move_to(sample_plate_1[X].bottom(z=0.3))
+                p50.move_to(sample_plate_1[X].bottom(z=0.7))
                 p50.aspirate(TransferSup/2, rate=0.25)
                 p50.dispense(TransferSup+3, sample_plate_1[column_4_list[loop]].bottom(z=1))
                 p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
