@@ -43,7 +43,7 @@ ABR_TEST            = True
 if ABR_TEST == True:
     DRYRUN          = True           # Overrides to only DRYRUN
     TIP_TRASH       = False          # Overrides to only REUSING TIPS
-    RUN             = 3              # Repetitions
+    RUN             = 1              # Repetitions
 else:
     RUN             = 1
 
