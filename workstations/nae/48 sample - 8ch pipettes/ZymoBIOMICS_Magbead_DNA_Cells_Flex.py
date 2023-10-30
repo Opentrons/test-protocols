@@ -151,7 +151,8 @@ def run(ctx):
                 m1000.transfer(vol_per_trans, loc, waste, new_tip='never',air_gap=20)
                 m1000.blow_out(waste)
                 m1000.air_gap(20)
-            m1000.drop_tip(tips_sn[8*i])
+                m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip(tips_sn[8*i])
+
         m1000.flow_rate.aspirate = 300
 
         #Transfer from Magdeck plate to H-S
@@ -270,7 +271,7 @@ def run(ctx):
             if i != 0:
                 tiptrack(m1000,tips)
             mixing(samples_m[i],m1000,tvol,reps=5 if not dry_run else 1)
-            m1000.drop_tip()
+            m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip()
 
         h_s.set_and_wait_for_shake_speed(2000)
         ctx.delay(minutes=lysis_incubation if not dry_run else 0.25, msg='Shake at 1800 rpm for 30 minutes.')
@@ -312,7 +313,7 @@ def run(ctx):
             bead_mixing(well,m1000,vol_per_trans,reps=8 if not dry_run else 1)
             m1000.blow_out()
             m1000.air_gap(10)
-            m1000.drop_tip()
+            m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip()
 
         h_s.set_and_wait_for_shake_speed(1800)
         ctx.delay(minutes=10 if not dry_run else 0.25, msg='Shake at 1800 rpm for 10 minutes.')
@@ -355,7 +356,7 @@ def run(ctx):
             if i != 0:
                 tiptrack(m1000,tips)
             bead_mixing(samples_m[i],m1000,vol_per_trans,reps=3 if not dry_run else 1)
-            m1000.drop_tip()
+            m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip()
 
         h_s.set_and_wait_for_shake_speed(2000)
         ctx.delay(minutes=1 if not dry_run else 0.25, msg='Shake at 2000 rpm for 1 minutes.')
@@ -409,7 +410,7 @@ def run(ctx):
                 if m1000.current_volume > 0:
                     m1000.dispense(m1000.current_volume, src.top())
                 m1000.transfer(vol_per_trans, src.bottom(height), m.top(), air_gap=20,new_tip='never')
-        m1000.drop_tip()
+        m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip()
 
         h_s.set_and_wait_for_shake_speed(1800)
         ctx.delay(minutes=5 if not dry_run else 0.25)
@@ -434,7 +435,7 @@ def run(ctx):
             m1000.aspirate(vol, elution_solution)
             m1000.air_gap(20)
             m1000.dispense(m1000.current_volume, m.top(-3))
-        m1000.drop_tip()
+        m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip()
 
         h_s.set_and_wait_for_shake_speed(2000)
         ctx.delay(minutes=5 if not dry_run else 0.25,msg='Shake on H-S for 5 minutes at 2000 rpm.')
@@ -459,7 +460,7 @@ def run(ctx):
             m1000.transfer(vol, m.bottom(0.6), e.bottom(5), air_gap=20, new_tip='never')
             m1000.blow_out(e.top(-2))
             m1000.air_gap(20)
-            m1000.drop_tip()
+            m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip()
 
 
         m1000.flow_rate.aspirate = 150
