@@ -13,7 +13,7 @@ requirements = {
 
 NUM_COL = 12
 
-ASP_HEIGHT = 0.7
+ASP_HEIGHT = 0.6
 MIX_SPEEND = 2000
 MIX_SEC = 10
 
@@ -41,7 +41,7 @@ USE_GRIPPER = True
 
 waste_vol_chk = 0
 
-ABR_TEST                = False
+ABR_TEST                = True
 if ABR_TEST == True:
     DRYRUN              = True          # True = skip incubation times, shorten mix, for testing purposes
     TIP_TRASH           = False         # True = Used tips go in Trash, False = Used tips go back into rack
@@ -68,12 +68,12 @@ def run(ctx):
         tips_elu_loc = tips_elu.wells()[:95]
     tips_reused = ctx.load_labware('opentrons_flex_96_tiprack_1000ul', 'C2', 'reused tips')
     tips_reused_loc = tips_reused.wells()[:95]
-    p1000 = ctx.load_instrument('flex_8channel_1000', 'right', tip_racks=[tips]) 
-    p1000_single = ctx.load_instrument('flex_1channel_1000', 'left', tip_racks=[tips])
+    p1000 = ctx.load_instrument('flex_8channel_1000', 'left', tip_racks=[tips]) 
+    p1000_single = ctx.load_instrument('flex_1channel_1000', 'right', tip_racks=[tips])
 
     h_s = ctx.load_module('heaterShakerModuleV1', 'D1')
     h_s_adapter = h_s.load_adapter('opentrons_96_deep_well_adapter')
-    working_plate = h_s_adapter.load_labware("nest_96_wellplate_2ml_deep", 'working plate')
+    working_plate = h_s_adapter.load_labware("nest_96_wellplate_2ml_deep", 'wokring plate')
 
     if READY_FOR_SDSPAGE == 0:
         temp = ctx.load_module('Temperature Module Gen2', 'D3')

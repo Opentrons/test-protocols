@@ -167,8 +167,8 @@ def run(protocol: protocol_api.ProtocolContext):
         p1000.pick_up_tip()
         for loop, X in enumerate(column_1_list):
             p1000.aspirate(200, DIL.bottom(z=2))
-            p1000.dispense(98, dilution_plate[column_DIL1_list[loop]].bottom(z=0.3))
-            p1000.dispense(95, dilution_plate[column_DIL2_list[loop]].bottom(z=0.3))
+            p1000.dispense(98, dilution_plate[column_DIL1_list[loop]].bottom(z=0.6))
+            p1000.dispense(95, dilution_plate[column_DIL2_list[loop]].bottom(z=0.6))
             p1000.move_to(DIL.top())
             p1000.blow_out()
             if loop == COLUMNS-1:
@@ -247,7 +247,7 @@ def run(protocol: protocol_api.ProtocolContext):
             p50.pick_up_tip()      
             for loop, X in enumerate(column_3_list):
                 p50.aspirate(qPCRVol, qPCR.bottom(z=1))
-                p50.dispense(qPCRVol, mix_plate.wells_by_name()[X].bottom(z=0.3))
+                p50.dispense(qPCRVol, mix_plate.wells_by_name()[X].bottom(z=0.6))
                 p50.default_speed = 50
                 p50.move_to(mix_plate.wells_by_name()[X].top(z=-1))
                 protocol.delay(seconds=2)
@@ -269,8 +269,8 @@ def run(protocol: protocol_api.ProtocolContext):
             #===============================================
             tipcheck()
             p50.pick_up_tip()
-            p50.aspirate(SampleVol, STD.bottom(z=0.3))
-            p50.dispense(SampleVol, mix_plate['A1'].bottom(z=0.3))
+            p50.aspirate(SampleVol, STD.bottom(z=0.6))
+            p50.dispense(SampleVol, mix_plate['A1'].bottom(z=0.6))
             p50.flow_rate.aspirate = p50_flow_rate_aspirate_default*0.5
             p50.flow_rate.dispense = p50_flow_rate_dispense_default*0.5
             p50.mix(5,30, mix_plate['A1'].bottom(z=1))
@@ -295,7 +295,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 tipcheck()
                 p50.pick_up_tip()
                 p50.aspirate(SampleVol, dilution_plate.wells_by_name()[column_DIL2_list[loop]].bottom(z=1))
-                p50.dispense(SampleVol, mix_plate.wells_by_name()[column_4_list[loop]].bottom(z=0.5))
+                p50.dispense(SampleVol, mix_plate.wells_by_name()[column_4_list[loop]].bottom(z=0.6))
                 p50.flow_rate.aspirate = p50_flow_rate_aspirate_default*0.5
                 p50.flow_rate.dispense = p50_flow_rate_dispense_default*0.5
                 p50.mix(5,30, mix_plate.wells_by_name()[column_4_list[loop]].bottom(z=1))
@@ -324,7 +324,7 @@ def run(protocol: protocol_api.ProtocolContext):
                     tipcheck()
                     p50.pick_up_tip()
                     p50.mix(5,MixqPCRVol-5, mix_plate[X].bottom(z=1))
-                    p50.aspirate(MixqPCRVol+2, mix_plate[X].bottom(z=0.3))
+                    p50.aspirate(MixqPCRVol+2, mix_plate[X].bottom(z=0.6))
                     protocol.delay(seconds=0.2)
                     #===============================================
                     p50.move_to(qpcrplate[X].center())
@@ -354,8 +354,8 @@ def run(protocol: protocol_api.ProtocolContext):
                     tipcheck()
                     p50.pick_up_tip()
                     p50.mix(5,MixqPCRVol-5, mix_plate[X].bottom(z=1))
-                    p50.aspirate(MixqPCRVol+5, mix_plate[X].bottom(z=0.3))
-                    p50.dispense(2, mix_plate[X].bottom(z=0.3))
+                    p50.aspirate(MixqPCRVol+5, mix_plate[X].bottom(z=0.6))
+                    p50.dispense(2, mix_plate[X].bottom(z=0.6))
                     protocol.delay(seconds=0.2)
                     #===============================================
                     for loop2, X in enumerate(column_5_list[loop]):
@@ -388,8 +388,8 @@ def run(protocol: protocol_api.ProtocolContext):
                 #===============================================
                 tipcheck()
                 p1000.pick_up_tip()
-                p1000.aspirate(qPCRRefill, DIL.bottom(z=0.1))
-                p1000.dispense(qPCRRefill, qPCR.bottom(z=0.1))
+                p1000.aspirate(qPCRRefill, DIL.bottom(z=0.6))
+                p1000.dispense(qPCRRefill, qPCR.bottom(z=0.6))
                 p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip()
                 p200_tips += 1
                 #===============================================
