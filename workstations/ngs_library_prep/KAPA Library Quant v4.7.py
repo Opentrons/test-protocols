@@ -238,7 +238,7 @@ def run(protocol: protocol_api.ProtocolContext):
         protocol.comment('==============================================')
         SampleVol = 10
         p50.pick_up_tip()
-        p50.aspirate(SampleVol, STD.bottom(z=0.7), rate=0.5)
+        p50.aspirate(SampleVol, STD.bottom(z=0.6), rate=0.5)
         p50.dispense(SampleVol, mix_plate['A1'].bottom(z=1), rate=0.5)
         p50.aspirate(SampleVol, mix_plate['A1'].bottom(z=1), rate=0.5)
         p50.dispense(SampleVol, mix_plate['A1'].bottom(z=1), rate=0.5)
@@ -282,8 +282,8 @@ def run(protocol: protocol_api.ProtocolContext):
                 tipcheck()
                 p50.pick_up_tip()
                 p50.mix(5,qPCRVol-5, mix_plate[X].bottom(z=1),rate=0.5)
-                p50.aspirate(qPCRVol+5, mix_plate[X].bottom(z=0.7), rate=0.25)
-                p50.dispense(2, mix_plate[X].bottom(z=0.7), rate=0.25)
+                p50.aspirate(qPCRVol+5, mix_plate[X].bottom(z=0.6), rate=0.25)
+                p50.dispense(2, mix_plate[X].bottom(z=0.6), rate=0.25)
                 protocol.delay(seconds=0.2)
                 #===============================================
                 for loop2, X in enumerate(column_5_list[loop]):
