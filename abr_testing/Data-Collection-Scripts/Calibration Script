@@ -1,0 +1,87 @@
+import os
+import json
+import pandas as pd
+from datetime import datetime
+import numpy as np
+
+# Initialize an empty DataFrame to store the final data
+final_df = pd.DataFrame()
+
+# INPUT Folder path containing JSON files
+folder_path = "/Users/RhyannClarke/Documents/Calibration Logs/30OCT23"
+
+# OUTPUT Folder path to save .csv file
+output_folder = '/Users/RhyannClarke/Documents/SavedCalibration'
+
+# Iterate through all files in the folder
+for filename in os.listdir(folder_path):
+    if filename.endswith(".json"):
+        path = os.path.join(folder_path, filename)
+        robot = filename.split('-')[1]
+        with open(path, 'r') as file:
+            data = json.load(file)
+        df1 = pd.json_normalize(data)
+        column_names = df1.columns.tolist()
+        if 'instrumentData.data' in column_names:
+            instruments = df1['instrumentData.data']
+            n = 0
+            # Gripper and Pipettes
+            for data in instruments:
+                for i in range(len(data)):
+                    data_row = data[i]
+                    mount = data_row['mount']
+                    insType = data_row['instrumentType']
+                    insModel = data_row['instrumentModel']
+                    serial = data_row['serialNumber']
+                    firm = data_row['firmwareVersion']
+                    x = data_row['data']['calibratedOffset']['offset']['x']
+                    y = data_row['data']['calibratedOffset']['offset']['y']
+                    z = data_row['data']['calibratedOffset']['offset']['z']
+                    timestamp = data_row['data']['calibratedOffset']['last_modified']
+                    current_temp = 'NaN'
+                    df = pd.DataFrame({'Robot': robot, 'Date': timestamp, 'Instrument': insType, 'Instrument Model': insModel, 'Serial #': serial, 'Firmware': firm, 'Current Temp (degC)': current_temp, 'Location': mount, 'X': x, 'Y': y, 'Z': z}, index = [n])
+                    n = n + 1
+                    final_df = pd.concat([final_df, df], ignore_index = True)
+        else:
+            mount = 0
+            insType = 0
+            insModel = 0
+            serial = 0
+            firm = 0
+            x = 0
+            y = 0
+            z = 0
+            timestamp = 0
+            current_temp = 0
+            df = pd.DataFrame({'Robot': robot, 'Date': timestamp, 'Instrument': insType, 'Instrument Model': insModel, 'Serial #': serial, 'Firmware': firm, 'Current Temp (degC)': current_temp, 'Location': mount, 'X': x, 'Y': y, 'Z': z}, index = [n])
+            n = n + 1
+            final_df = pd.concat([final_df, df], ignore_index = True)
+        # Modules
+        modules = df1['moduleData.data']
+        for data2 in modules:
+            for p in range(len(data2)):
+                n = n + 1
+                data2_row = data2[p]
+                mount = data2_row['moduleOffset']['slot']
+                modType = data2_row['moduleType']
+                modModel = data2_row['moduleModel']
+                serial = data2_row['serialNumber']
+                firm = data2_row['firmwareVersion']
+                x = data2_row['moduleOffset']['offset']['x']
+                y = data2_row['moduleOffset']['offset']['y']
+                z = data2_row['moduleOffset']['offset']['z']
+                timestamp = data2_row['moduleOffset']['last_modified']
+                current_temp = data2_row['data']['currentTemperature']
+                df = pd.DataFrame({'Robot': robot, 'Date': timestamp, 'Instrument': modType, 'Instrument Model': modModel, 'Serial #': serial, 'Firmware': firm, 'Current Temp (degC)': current_temp, 'Location': mount, 'X': x, 'Y': y, 'Z': z}, index = [n])
+                final_df = pd.concat([final_df, df], ignore_index = True)
+
+final_df['Distance'] = np.sqrt(final_df['X']**2 + final_df['Y']**2 + final_df['Z']**2)  
+# Save the combined DataFrame to a CSV file in the folder with today's date
+date = str(datetime.now()).split(' ')[0]
+saved_file = '-'.join([date, 'calibration-offsets.csv'])
+csv_filename = os.path.join(output_folder, saved_file)
+final_df.to_csv(csv_filename, index=False)
+    
+
+
+
