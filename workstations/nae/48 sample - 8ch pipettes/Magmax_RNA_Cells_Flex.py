@@ -147,7 +147,7 @@ def run(ctx):
                 m1000.transfer(vol_per_trans, loc, waste, new_tip='never',air_gap=20)
                 m1000.blow_out(waste)
                 m1000.air_gap(20)
-            m1000.drop_tip(tips_sn[8*i])
+            m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip(tips_sn[8*i])
         m1000.flow_rate.aspirate = 300
         #Move Plate From Magnet to H-S
         h_s.open_labware_latch()
@@ -262,7 +262,7 @@ def run(ctx):
                 if x == 3:
                     ctx.delay(minutes=0.0167)
                     m1000.blow_out(cells_m[i].bottom(1))
-            m1000.drop_tip()
+            m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip()
 
         h_s.set_and_wait_for_shake_speed(2200)
         ctx.delay(minutes=1 if not dry_run else 0.25,msg='Please allow 1 minute incubation for cells to lyse')
@@ -293,7 +293,7 @@ def run(ctx):
             #Mix after transfer
             bead_mixing(well,m1000,130, reps=5 if not dry_run else 1)
             m1000.air_gap(10)
-            m1000.drop_tip()
+            m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip()
 
         h_s.set_and_wait_for_shake_speed(2000)
         ctx.delay(minutes=5 if not dry_run else 0.25,msg='Please allow 5 minute incubation for beads to bind to DNA')
@@ -340,7 +340,7 @@ def run(ctx):
                 ctx.delay(seconds=2)
                 m1000.blow_out(m.top(-2))
             m1000.air_gap(10)
-        m1000.drop_tip()
+        m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip()
 
         #Shake for 5 minutes to mix wash with beads
         h_s.set_and_wait_for_shake_speed(2000)
@@ -383,7 +383,7 @@ def run(ctx):
             if i != 0:
                 tiptrack(m1000,tips)
             mixing(samples_m[i], m1000, 45, reps=5 if not dry_run else 1)
-            m1000.drop_tip()
+            m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip()
 
         #Shake for 10 minutes to mix DNAseI
         h_s.set_and_wait_for_shake_speed(2000)
@@ -404,7 +404,7 @@ def run(ctx):
             m1000.blow_out(m.top(-3))
             m1000.air_gap(20)
         
-        m1000.drop_tip()
+        m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip()
             
         #Shake for 3 minutes to mix wash with beads
         h_s.set_and_wait_for_shake_speed(2000)
@@ -450,7 +450,7 @@ def run(ctx):
                     m1000.aspirate(elution_vol-10, samples_m[i])
                     m1000.dispense(elution_vol-10, samples_m[i].bottom(10))
                     m1000.flow_rate.dispense = 300
-            m1000.drop_tip()
+            m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip()
 
         #Shake for 3 minutes to mix wash with beads
         h_s.set_and_wait_for_shake_speed(2000)
@@ -475,7 +475,7 @@ def run(ctx):
             m1000.transfer(vol, loc, e.bottom(5), air_gap=20, new_tip='never')
             m1000.blow_out(e.top(-2))
             m1000.air_gap(20)
-            m1000.drop_tip()
+            m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip()
 
     """
     Here is where you can call the methods defined above to fit your specific

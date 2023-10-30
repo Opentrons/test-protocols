@@ -90,7 +90,7 @@ def run(ctx):
             p1000.air_gap(10)
             p1000.dispense(vol/n+10, end_loc.top(z=-5), rate = 2)     
             p1000.blow_out() 
-        p1000.drop_tip() 
+        p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip() 
 
     def transfer_buffer_reusetips(vol, start, end):
         vol = vol + 100
@@ -129,7 +129,7 @@ def run(ctx):
             p1000.dispense(10, end_loc.top(z=-5), rate = 2)
             p1000.dispense(BEADS_VOL, end_loc.bottom(z=7.5), rate = 1)     
             p1000.blow_out()
-            p1000.drop_tip()
+            p1000.return_tip if TIP_TRASH == False else p1000.drop_tip()
 
             h_s.open_labware_latch()
 
@@ -153,4 +153,4 @@ def run(ctx):
 
             h_s.open_labware_latch()
         
-        p1000.drop_tip()
+        p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip()
