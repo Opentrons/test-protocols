@@ -114,7 +114,7 @@ def run(ctx):
             tip1k = tip1k + 8
 
         drop_count = drop_count + 8
-        if drop_count >= 150:
+        if (drop_count >= 150) & (ABR_TEST == False):
             drop_count = 0
             ctx.pause("Please empty the waste bin of all the tips before continuing.")
 
@@ -134,7 +134,7 @@ def run(ctx):
         def _waste_track(vol):
             global waste_vol 
             waste_vol = waste_vol + (vol*8)
-            if waste_vol >= 185000:
+            if (waste_vol >= 185000) & (ABR_TEST == False):
                 m1000.home()
                 blink()
                 ctx.pause('Please empty liquid waste before resuming.')
