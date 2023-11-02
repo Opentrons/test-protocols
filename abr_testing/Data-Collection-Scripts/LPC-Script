@@ -5,7 +5,7 @@ import pandas as pd
 from datetime import datetime, date
 import math
 
-# Initialize an empty DataFrame to store the final data
+# Initialize an empty DataFrame to store the final data 
 final_df = pd.DataFrame()
 
 # Folder path containing JSON files 
