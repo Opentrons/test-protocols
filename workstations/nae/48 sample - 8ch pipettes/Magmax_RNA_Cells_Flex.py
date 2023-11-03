@@ -30,6 +30,13 @@ tip = 0
 drop_count = 0
 waste_vol = 0
 
+ABR_TEST                = True
+if ABR_TEST == True:
+    DRYRUN              = True          # True = skip incubation times, shorten mix, for testing purposes
+    TIP_TRASH           = False         # True = Used tips go in Trash, False = Used tips go back into rack
+else:
+    DRYRUN              = False          # True = skip incubation times, shorten mix, for testing purposes
+    TIP_TRASH           = True 
 
 # Start protocol
 def run(ctx):
@@ -103,7 +110,7 @@ def run(ctx):
         pip.pick_up_tip(tipbox[int(tip)])
         tip = tip + 8
         drop_count = drop_count + 8
-        if drop_count >= 250:
+        if (drop_count >= 250) & (ABR_TEST == False):
             drop_count = 0
             ctx.pause("Please empty the waste bin of all the tips before continuing.")
 
@@ -123,7 +130,7 @@ def run(ctx):
         def _waste_track(vol):
             global waste_vol 
             waste_vol = waste_vol + (vol*8)
-            if waste_vol >= 185000:
+            if (waste_vol >= 185000) & (ABR_TEST == False):
                 m1000.home()
                 blink()
                 ctx.pause('Please empty liquid waste before resuming.')
@@ -131,7 +138,7 @@ def run(ctx):
 
         for i, m in enumerate(samples_m):
             m1000.pick_up_tip(tips_sn[8*i])
-            loc = m.bottom(0.5)
+            loc = m.bottom(0.6)
             for _ in range(num_trans):
                 if m1000.current_volume > 0:
                     # void air gap if necessary
@@ -140,7 +147,7 @@ def run(ctx):
                 m1000.transfer(vol_per_trans, loc, waste, new_tip='never',air_gap=20)
                 m1000.blow_out(waste)
                 m1000.air_gap(20)
-            m1000.drop_tip(tips_sn[8*i])
+            m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip(tips_sn[8*i])
         m1000.flow_rate.aspirate = 300
         #Move Plate From Magnet to H-S
         h_s.open_labware_latch()
@@ -208,7 +215,7 @@ def run(ctx):
         dispensing at the bottom
         """
         center = well.top(5)
-        asp = well.bottom(0.5)
+        asp = well.bottom(0.6)
         disp = well.top(-8)
 
         if mvol > 1000:
@@ -250,12 +257,12 @@ def run(ctx):
             if i != 0:
                 tiptrack(m1000,tips)
             for x in range(8 if not dry_run else 1):
-                m1000.aspirate(tvol*.75,cells_m[i].bottom(0.5))
+                m1000.aspirate(tvol*.75,cells_m[i].bottom(0.6))
                 m1000.dispense(tvol*.75,cells_m[i].bottom(8))
                 if x == 3:
                     ctx.delay(minutes=0.0167)
                     m1000.blow_out(cells_m[i].bottom(1))
-            m1000.drop_tip()
+            m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip()
 
         h_s.set_and_wait_for_shake_speed(2200)
         ctx.delay(minutes=1 if not dry_run else 0.25,msg='Please allow 1 minute incubation for cells to lyse')
@@ -280,13 +287,13 @@ def run(ctx):
         for i, well in enumerate(samples_m):
             #Transfer cells+lysis/bind to wells with beads
             tiptrack(m1000,tips)
-            m1000.aspirate(175,cells_m[i].bottom(0.1))
+            m1000.aspirate(175,cells_m[i].bottom(0.6))
             m1000.air_gap(10)
             m1000.dispense(185,well.bottom(8))
             #Mix after transfer
             bead_mixing(well,m1000,130, reps=5 if not dry_run else 1)
             m1000.air_gap(10)
-            m1000.drop_tip()
+            m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip()
 
         h_s.set_and_wait_for_shake_speed(2000)
         ctx.delay(minutes=5 if not dry_run else 0.25,msg='Please allow 5 minute incubation for beads to bind to DNA')
@@ -333,7 +340,7 @@ def run(ctx):
                 ctx.delay(seconds=2)
                 m1000.blow_out(m.top(-2))
             m1000.air_gap(10)
-        m1000.drop_tip()
+        m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip()
 
         #Shake for 5 minutes to mix wash with beads
         h_s.set_and_wait_for_shake_speed(2000)
@@ -364,7 +371,7 @@ def run(ctx):
             for n in range(num_trans):
                 if m1000.current_volume > 0:
                     m1000.dispense(m1000.current_volume, src.top())
-                m1000.aspirate(vol_per_trans, src.bottom(0.15))
+                m1000.aspirate(vol_per_trans, src.bottom(0.6))
                 m1000.dispense(vol_per_trans, m.top(-3))
             m1000.blow_out(m.top(-3))
             m1000.air_gap(20)
@@ -376,7 +383,7 @@ def run(ctx):
             if i != 0:
                 tiptrack(m1000,tips)
             mixing(samples_m[i], m1000, 45, reps=5 if not dry_run else 1)
-            m1000.drop_tip()
+            m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip()
 
         #Shake for 10 minutes to mix DNAseI
         h_s.set_and_wait_for_shake_speed(2000)
@@ -397,7 +404,7 @@ def run(ctx):
             m1000.blow_out(m.top(-3))
             m1000.air_gap(20)
         
-        m1000.drop_tip()
+        m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip()
             
         #Shake for 3 minutes to mix wash with beads
         h_s.set_and_wait_for_shake_speed(2000)
@@ -443,7 +450,7 @@ def run(ctx):
                     m1000.aspirate(elution_vol-10, samples_m[i])
                     m1000.dispense(elution_vol-10, samples_m[i].bottom(10))
                     m1000.flow_rate.dispense = 300
-            m1000.drop_tip()
+            m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip()
 
         #Shake for 3 minutes to mix wash with beads
         h_s.set_and_wait_for_shake_speed(2000)
@@ -464,11 +471,11 @@ def run(ctx):
         ctx.comment("-----Trasnferring Sample to Elution Plate-----")
         for i, (m, e) in enumerate(zip(samples_m, elution_samples_m)):
             tiptrack(m1000,tips)
-            loc = m.bottom(0.1)
+            loc = m.bottom(0.6)
             m1000.transfer(vol, loc, e.bottom(5), air_gap=20, new_tip='never')
             m1000.blow_out(e.top(-2))
             m1000.air_gap(20)
-            m1000.drop_tip()
+            m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip()
 
     """
     Here is where you can call the methods defined above to fit your specific

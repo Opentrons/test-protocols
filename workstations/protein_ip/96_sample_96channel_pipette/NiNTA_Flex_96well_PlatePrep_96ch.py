@@ -13,7 +13,7 @@ requirements = {
 
 NUM_SAMPLES = 96
 
-ASP_HEIGHT = 0.2
+ASP_HEIGHT = 0.6
 BEADS_VOL = 100
 EQUILIBRATION_VOL1 = 400
 EQUILIBRATION_VOL2 = 500
@@ -28,6 +28,15 @@ BEADS_PRELOAD = 0
 
 TIPS_REUSE = 1
 # NO: 0; YES:1
+
+ABR_TEST                = True
+if ABR_TEST == True:
+    DRYRUN              = True          # True = skip incubation times, shorten mix, for testing purposes
+    TIP_TRASH           = False         # True = Used tips go in Trash, False = Used tips go back into rack
+else:
+    DRYRUN              = False          # True = skip incubation times, shorten mix, for testing purposes
+    TIP_TRASH           = True 
+
 
 #########################
 
@@ -81,7 +90,7 @@ def run(ctx):
             p1000.air_gap(10)
             p1000.dispense(vol/n+10, end_loc.top(z=-5), rate = 2)     
             p1000.blow_out() 
-        p1000.drop_tip() 
+        p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip() 
 
     def transfer_buffer_reusetips(vol, start, end):
         vol = vol + 100
@@ -120,7 +129,7 @@ def run(ctx):
             p1000.dispense(10, end_loc.top(z=-5), rate = 2)
             p1000.dispense(BEADS_VOL, end_loc.bottom(z=7.5), rate = 1)     
             p1000.blow_out()
-            p1000.drop_tip()
+            p1000.return_tip if TIP_TRASH == False else p1000.drop_tip()
 
             h_s.open_labware_latch()
 
@@ -144,4 +153,4 @@ def run(ctx):
 
             h_s.open_labware_latch()
         
-        p1000.drop_tip()
+        p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip()
