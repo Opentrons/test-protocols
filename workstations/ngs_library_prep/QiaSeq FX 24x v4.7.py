@@ -50,7 +50,7 @@ p50_tips            = 0
 WasteVol            = 0
 Resetcount          = 0
 
-ABR_TEST            = True
+ABR_TEST            = False
 if ABR_TEST == True:
     COLUMNS         = 3              # Overrides to 3 columns
     DRYRUN          = True           # Overrides to only DRYRUN
@@ -193,7 +193,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 p50.mix(FXBuffPremix,FXBuffVol+3, FX.bottom(z=1))
                 p50.aspirate(FXBuffVol+3, FX.bottom(z=1))
                 p50.dispense(3, FX.bottom(z=1))
-                p50.dispense(FXBuffVol+1, sample_plate_1.wells_by_name()[X].bottom(z=1))
+                p50.dispense(FXBuffVol, sample_plate_1.wells_by_name()[X].bottom(z=1)) #Changed FXBuffVol+1 to FXBuffVol
                 p50.move_to(sample_plate_1[X].top(z=-3))
                 protocol.delay(minutes=0.1)
                 p50.blow_out(sample_plate_1[X].top(z=-3))
@@ -255,9 +255,9 @@ def run(protocol: protocol_api.ProtocolContext):
             for loop, X in enumerate(column_1_list):
                 tipcheck()
                 p50.pick_up_tip()
-                p50.aspirate(BarcodeVol+3, reagent_plate.wells_by_name()[barcodes[loop]].bottom(.6), rate=0.25)
-                p50.dispense(3, reagent_plate.wells_by_name()[barcodes[loop]].bottom(.6), rate=0.25)
-                p50.dispense(BarcodeVol+2, sample_plate_1.wells_by_name()[X].bottom(1))
+                p50.aspirate(BarcodeVol+3, reagent_plate.wells_by_name()[barcodes[loop]].bottom(.7), rate=0.25)
+                p50.dispense(3, reagent_plate.wells_by_name()[barcodes[loop]].bottom(.7), rate=0.25)
+                p50.dispense(BarcodeVol, sample_plate_1.wells_by_name()[X].bottom(1)) #Changed BarcodeVol+2 to BarcodeVol
                 p50.mix(BarcodeMixRep,BarcodeMixVol)
                 p50.move_to(sample_plate_1[X].top(z=-3))
                 protocol.delay(minutes=0.1)
@@ -282,7 +282,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 p1000.move_to(LIG.top(z=5))
                 protocol.delay(seconds=0.2)
                 p1000.default_speed = 400
-                p1000.dispense(LIGVol+2, sample_plate_1[X].bottom(z=1), rate=0.25)
+                p1000.dispense(LIGVol, sample_plate_1[X].bottom(z=1), rate=0.25) #changed LIGVol+2 to LIGVol
                 p1000.move_to(sample_plate_1[X].bottom(z=1))
                 p1000.mix(LIGMixRep,LIGMixVol, rate=0.5)
                 p1000.move_to(sample_plate_1[X].top(z=-3))
@@ -637,12 +637,12 @@ def run(protocol: protocol_api.ProtocolContext):
             for loop, X in enumerate(column_1_list):
                 tipcheck()
                 p50.pick_up_tip()
-                p50.move_to(sample_plate_1[X].bottom(z=0.6))
+                p50.move_to(sample_plate_1[X].bottom(z=0.5))
                 p50.aspirate(TransferSup/2, rate=0.25)
                 protocol.delay(seconds=0.2)
-                p50.move_to(sample_plate_1[X].bottom(z=0.6))
+                p50.move_to(sample_plate_1[X].bottom(z=0.5))
                 p50.aspirate(TransferSup/2, rate=0.25)
-                p50.dispense(TransferSup+3, sample_plate_1[column_2_list[loop]].bottom(z=1))
+                p50.dispense(TransferSup, sample_plate_1[column_2_list[loop]].bottom(z=1)) #Changed TransferSup+3 to TransferSup
                 p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
                 p50_tips += 1
             #===============================================
@@ -944,12 +944,12 @@ def run(protocol: protocol_api.ProtocolContext):
             for loop, X in enumerate(column_2_list):
                 tipcheck()
                 p50.pick_up_tip()
-                p50.move_to(sample_plate_1[X].bottom(z=0.6))
+                p50.move_to(sample_plate_1[X].bottom(z=0.5))
                 p50.aspirate(TransferSup/2, rate=0.25)
                 protocol.delay(seconds=0.2)
-                p50.move_to(sample_plate_1[X].bottom(z=0.6))
+                p50.move_to(sample_plate_1[X].bottom(z=0.5))
                 p50.aspirate(TransferSup/2, rate=0.25)
-                p50.dispense(TransferSup+3, sample_plate_1[column_3_list[loop]].bottom(z=1))
+                p50.dispense(TransferSup, sample_plate_1[column_3_list[loop]].bottom(z=1)) #Changed TransferSup+3 to TransferSup
                 p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
                 p50_tips += 1
             #===============================================
@@ -1308,12 +1308,12 @@ def run(protocol: protocol_api.ProtocolContext):
             for loop, X in enumerate(column_3_list):
                 tipcheck()
                 p50.pick_up_tip()
-                p50.move_to(sample_plate_1[X].bottom(z=0.6))
+                p50.move_to(sample_plate_1[X].bottom(z=0.5))
                 p50.aspirate(TransferSup/2, rate=0.25)
                 protocol.delay(seconds=0.2)
-                p50.move_to(sample_plate_1[X].bottom(z=0.6))
+                p50.move_to(sample_plate_1[X].bottom(z=0.5))
                 p50.aspirate(TransferSup/2, rate=0.25)
-                p50.dispense(TransferSup+3, sample_plate_1[column_4_list[loop]].bottom(z=1))
+                p50.dispense(TransferSup, sample_plate_1[column_4_list[loop]].bottom(z=1)) #Changed TransferSup+3 to TransferSup
                 p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
                 p50_tips += 1
             #===============================================
@@ -1359,8 +1359,8 @@ def run(protocol: protocol_api.ProtocolContext):
                 p1000.dispense(150, EtOH_3.bottom(z=1))
             # Resetting AMPURE
             for X in range(COLUMNS):
-                p1000.aspirate(COLUMNS*80, Liquid_trash_well_1.bottom(z=1))
-                p1000.dispense(COLUMNS*80, AMPure.bottom(z=1))
+                p1000.aspirate(COLUMNS*65, Liquid_trash_well_1.bottom(z=1))
+                p1000.dispense(COLUMNS*65, AMPure.bottom(z=1))
             for X in range(COLUMNS):
                 p1000.aspirate(COLUMNS*50, Liquid_trash_well_2.bottom(z=1))
                 p1000.dispense(COLUMNS*50, AMPure.bottom(z=1))
