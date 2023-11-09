@@ -138,7 +138,7 @@ def run(ctx):
 
         for i, m in enumerate(samples_m):
             m1000.pick_up_tip(tips_sn[8*i])
-            loc = m.bottom(0.5)
+            loc = m.bottom(0.5) #original = 0.5
             for _ in range(num_trans):
                 if m1000.current_volume > 0:
                     # void air gap if necessary
@@ -215,7 +215,7 @@ def run(ctx):
         dispensing at the bottom
         """
         center = well.top(5)
-        asp = well.bottom(0.5)
+        asp = well.bottom(0.5) #original = 0.5
         disp = well.top(-8)
 
         if mvol > 1000:
@@ -257,7 +257,7 @@ def run(ctx):
             if i != 0:
                 tiptrack(m1000,tips)
             for x in range(8 if not dry_run else 1):
-                m1000.aspirate(tvol*.75,cells_m[i].bottom(0.5))
+                m1000.aspirate(tvol*.75,cells_m[i].bottom(0.5)) #original = 0.5
                 m1000.dispense(tvol*.75,cells_m[i].bottom(8))
                 if x == 3:
                     ctx.delay(minutes=0.0167)
@@ -287,7 +287,7 @@ def run(ctx):
         for i, well in enumerate(samples_m):
             #Transfer cells+lysis/bind to wells with beads
             tiptrack(m1000,tips)
-            m1000.aspirate(175,cells_m[i].bottom(0.5))
+            m1000.aspirate(175,cells_m[i].bottom(0.5)) #original = 0.1
             m1000.air_gap(10)
             m1000.dispense(185,well.bottom(8))
             #Mix after transfer
@@ -371,7 +371,7 @@ def run(ctx):
             for n in range(num_trans):
                 if m1000.current_volume > 0:
                     m1000.dispense(m1000.current_volume, src.top())
-                m1000.aspirate(vol_per_trans, src.bottom(0.5))
+                m1000.aspirate(vol_per_trans, src.bottom(0.5)) #original = 0.15
                 m1000.dispense(vol_per_trans, m.top(-3))
             m1000.blow_out(m.top(-3))
             m1000.air_gap(20)
@@ -471,7 +471,7 @@ def run(ctx):
         ctx.comment("-----Trasnferring Sample to Elution Plate-----")
         for i, (m, e) in enumerate(zip(samples_m, elution_samples_m)):
             tiptrack(m1000,tips)
-            loc = m.bottom(0.5)
+            loc = m.bottom(0.5) #original = 0.1
             m1000.transfer(vol, loc, e.bottom(5), air_gap=20, new_tip='never')
             m1000.blow_out(e.top(-2))
             m1000.air_gap(20)
