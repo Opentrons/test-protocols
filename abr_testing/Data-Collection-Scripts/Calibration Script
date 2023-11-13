@@ -8,10 +8,10 @@ import numpy as np
 final_df = pd.DataFrame()
 
 # INPUT Folder path containing JSON files
-folder_path = "/Users/RhyannClarke/Documents/Calibration Logs/30OCT23"
+folder_path = "/Users/Rhyann Clarke/Documents/Calibration Logs/13NOV23"
 
 # OUTPUT Folder path to save .csv file
-output_folder = '/Users/RhyannClarke/Documents/SavedCalibration'
+output_folder = '/Users/Rhyann Clarke/Documents/Calibration Logs/13NOV23'
 
 # Iterate through all files in the folder
 for filename in os.listdir(folder_path):
