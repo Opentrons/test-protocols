@@ -637,10 +637,10 @@ def run(protocol: protocol_api.ProtocolContext):
             for loop, X in enumerate(column_1_list):
                 tipcheck()
                 p50.pick_up_tip()
-                p50.move_to(sample_plate_1[X].bottom(z=0.5))  #original = .5
+                p50.move_to(sample_plate_1[X].bottom(z=0.4))  #original = .5
                 p50.aspirate(TransferSup/2, rate=0.25)
                 protocol.delay(seconds=0.2)
-                p50.move_to(sample_plate_1[X].bottom(z=0.5))  #original = .3
+                p50.move_to(sample_plate_1[X].bottom(z=0.4))  #original = .3
                 p50.aspirate(TransferSup/2, rate=0.25)
                 p50.dispense(TransferSup, sample_plate_1[column_2_list[loop]].bottom(z=1)) #Changed TransferSup+3 to TransferSup
                 p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
@@ -944,10 +944,10 @@ def run(protocol: protocol_api.ProtocolContext):
             for loop, X in enumerate(column_2_list):
                 tipcheck()
                 p50.pick_up_tip()
-                p50.move_to(sample_plate_1[X].bottom(z=0.5))  #original = .5
+                p50.move_to(sample_plate_1[X].bottom(z=0.4))  #original = .5
                 p50.aspirate(TransferSup/2, rate=0.25)
                 protocol.delay(seconds=0.2)
-                p50.move_to(sample_plate_1[X].bottom(z=0.5))  #original = .3
+                p50.move_to(sample_plate_1[X].bottom(z=0.4))  #original = .3
                 p50.aspirate(TransferSup/2, rate=0.25)
                 p50.dispense(TransferSup, sample_plate_1[column_3_list[loop]].bottom(z=1)) #Changed TransferSup+3 to TransferSup
                 p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
@@ -1308,10 +1308,10 @@ def run(protocol: protocol_api.ProtocolContext):
             for loop, X in enumerate(column_3_list):
                 tipcheck()
                 p50.pick_up_tip()
-                p50.move_to(sample_plate_1[X].bottom(z=0.5))  #original = .5
+                p50.move_to(sample_plate_1[X].bottom(z=0.4))  #original = .5
                 p50.aspirate(TransferSup/2, rate=0.25)
                 protocol.delay(seconds=0.2)
-                p50.move_to(sample_plate_1[X].bottom(z=0.5))  #original = .3
+                p50.move_to(sample_plate_1[X].bottom(z=0.4))  #original = .3
                 p50.aspirate(TransferSup/2, rate=0.25)
                 p50.dispense(TransferSup, sample_plate_1[column_4_list[loop]].bottom(z=1)) #Changed TransferSup+3 to TransferSup
                 p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
