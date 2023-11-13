@@ -216,6 +216,7 @@ def run(protocol: protocol_api.ProtocolContext):
                     p50.aspirate(20, RSB.bottom(RSBHeight-(HeightDrop)))
                     RSBHeight -= HeightDrop
                 p50.dispense(DilutionVol, sample_plate.wells_by_name()[CurrentWell])
+
                 p50.move_to(sample_plate.wells_by_name()[CurrentWell].bottom(.4)) #original = ()
         # Mix volume <=20ul
                 if DilutionVol+InitialVol <= 20:
