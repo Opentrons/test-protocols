@@ -9,9 +9,9 @@ import math
 final_df = pd.DataFrame()
 
 # Folder path containing JSON files 
-folder_path = "/Users/RhyannClarke/Documents/Protocol Run Logs/30OCT23"
+folder_path = "/Users/Rhyann Clarke/Documents/Run Logs/13NOV23"
 # Location of .csv file to save LPC data
-output_folder = '/Users/RhyannClarke/Documents/SavedLPC/'
+output_folder = '/Users/Rhyann Clarke/Documents/Run Logs/13NOV23/'
 
 # Labware Replacement Names
 log_labware_names = ['opentrons_flex_96_tiprack_50ul', 'opentrons_flex_96_tiprack_200ul', 'opentrons_flex_96_tiprack_1000ul', 'armadillo_96_wellplate_200ul_pcr_full_skirt',  'nest_12_reservoir_15ml','nest_96_wellplate_2ml_deep',  'nest_1_reservoir_195ml', 'nest_1_reservoir_290ml','opentrons_10_tuberack_falcon_4x50ml_6x15ml_conical', 'opentrons_15_tuberack_nest_15ml_conical',  'appliedbiosystemsmicroamp_384_wellplate_40ul']

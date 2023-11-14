@@ -103,7 +103,8 @@ def run(ctx):
             p1000.dispense(vol1+10, end_loc.bottom(z=15), rate = 2)
             p1000.blow_out()
             p1000.touch_tip()
-            p1000.drop_tip()
+            p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip()
+
     
     def transfer_well_to_plate(vol2, start, end, liquid, drop_height=-20):
         if liquid == 5:
@@ -115,7 +116,8 @@ def run(ctx):
                 p1000.air_gap(10)
                 p1000.dispense(vol2+10, end_loc.top(z=drop_height), rate = 2)    
                 p1000.blow_out()
-            p1000.drop_tip()
+            p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip()
+
         else:
             p1000_single.pick_up_tip()
             start_loc = start
@@ -133,8 +135,8 @@ def run(ctx):
                     p1000_single.dispense(vol2, end_loc.bottom(z=10), rate = 0.75)  
                 p1000_single.touch_tip()
             p1000_single.blow_out()
-            p1000_single.drop_tip()
-                   
+            p1000_single.return_tip() if TIP_TRASH == False else p1000.drop_tip()
+            
     def mix(speend, time):
         ctx.comment('\n\n\n~~~~~~~~Shake to mix~~~~~~~~\n')
         h_s.set_and_wait_for_shake_speed(rpm=speend)
@@ -273,5 +275,5 @@ def run(ctx):
         h_s.close_labware_latch()
         ctx.delay(minutes=MAG_DELAY_MIN)
         transfer_plate_to_plate(ELUTION_VOL*1.1, working_cols, final_cols, 6, -5)
-        ctx.pause('Protocol Complete')
+        #ctx.pause('Protocol Complete')
         temp.deactivate()
