@@ -13,7 +13,7 @@ requirements = {
 
 NUM_COL = 12
 
-ASP_HEIGHT = 0.6 #original = .2
+ASP_HEIGHT = 0.3 #original = .2
 MIX_SPEEND = 2000
 MIX_SEC = 10
 ELUTION_SPEEND = 1000

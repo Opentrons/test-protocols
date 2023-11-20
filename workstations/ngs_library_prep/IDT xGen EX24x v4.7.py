@@ -168,9 +168,9 @@ def run(protocol: protocol_api.ProtocolContext):
             FRERATMixVol = 25
             for loop, X in enumerate(column_1_list):
                 p50.pick_up_tip()
-                p50.aspirate(FRERATVol, FRERAT.bottom(z=0.6)) #original = .3
-                p50.dispense(FRERATVol, sample_plate_1[X].bottom(z=0.6)) #original = .3
-                p50.move_to(sample_plate_1[X].bottom(z=0.6)) #original = .5
+                p50.aspirate(FRERATVol, FRERAT.bottom(z=0.3)) #original = .3
+                p50.dispense(FRERATVol, sample_plate_1[X].bottom(z=0.3)) #original = .3
+                p50.move_to(sample_plate_1[X].bottom(z=0.5)) #original = .5
                 p50.mix(FRERATMixRep,FRERATMixVol)
                 p50.blow_out(sample_plate_1[X].top(z=-1))
                 p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
@@ -203,14 +203,14 @@ def run(protocol: protocol_api.ProtocolContext):
             LIGMixVol = 55
             for loop, X in enumerate(column_1_list):
                 p1000.pick_up_tip()
-                p1000.mix(3,LIGVol, LIG.bottom(z=0.6), rate=0.5) #original = .5
-                p1000.aspirate(LIGVol, LIG.bottom(z=0.6), rate=0.2) #original = .3
+                p1000.mix(3,LIGVol, LIG.bottom(z=0.5), rate=0.5) #original = .5
+                p1000.aspirate(LIGVol, LIG.bottom(z=0.3), rate=0.2) #original = .3
                 p1000.default_speed = 5
                 p1000.move_to(LIG.top(5))
                 protocol.delay(seconds=0.2)
                 p1000.default_speed = 400
-                p1000.dispense(LIGVol, sample_plate_1[X].bottom(z=0.6), rate=0.25) #original = .3
-                p1000.move_to(sample_plate_1[X].bottom(z=0.6)) #original = .5
+                p1000.dispense(LIGVol, sample_plate_1[X].bottom(z=0.3), rate=0.25) #original = .3
+                p1000.move_to(sample_plate_1[X].bottom(z=0.5)) #original = .5
                 p1000.mix(LIGMixRep,LIGMixVol, rate=0.5)
                 p1000.blow_out(sample_plate_1[X].top(z=-1))
                 protocol.delay(seconds=0.2)
@@ -515,7 +515,7 @@ def run(protocol: protocol_api.ProtocolContext):
             BarcodeMixVol = 10
             for loop, X in enumerate(column_2_list):
                 p50.pick_up_tip()
-                p50.aspirate(BarcodeVol, reagent_plate.wells_by_name()[barcodes[loop]].bottom(.6), rate=0.25) #original = ()
+                p50.aspirate(BarcodeVol, reagent_plate.wells_by_name()[barcodes[loop]].bottom(.3), rate=0.25) #original = ()
                 p50.dispense(BarcodeVol, sample_plate_1.wells_by_name()[X].bottom(1))
                 p50.mix(BarcodeMixRep,BarcodeMixVol)
                 p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
@@ -528,11 +528,11 @@ def run(protocol: protocol_api.ProtocolContext):
             PCRMixVol = 50
             for loop, X in enumerate(column_2_list):
                 p50.pick_up_tip()
-                p50.mix(2,PCRVol, PCR.bottom(.6), rate=0.5) #original = ()
-                p50.aspirate(PCRVol, PCR.bottom(.6), rate=0.25) #original = ()
-                p50.dispense(PCRVol, sample_plate_1[X].bottom(.6), rate=0.25) #original = ()
+                p50.mix(2,PCRVol, PCR.bottom(.3), rate=0.5) #original = ()
+                p50.aspirate(PCRVol, PCR.bottom(.3), rate=0.25) #original = ()
+                p50.dispense(PCRVol, sample_plate_1[X].bottom(.3), rate=0.25) #original = ()
                 p50.mix(PCRMixRep, PCRMixVol, rate=1)
-                p50.move_to(sample_plate_1[X].bottom(.6)) #original = ()
+                p50.move_to(sample_plate_1[X].bottom(.3)) #original = ()
                 protocol.delay(minutes=0.1)
                 p50.blow_out(sample_plate_1[X].top(z=-5))
                 p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
