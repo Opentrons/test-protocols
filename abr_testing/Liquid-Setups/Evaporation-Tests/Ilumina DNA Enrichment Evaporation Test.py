@@ -35,7 +35,7 @@ def run(protocol: protocol_api.ProtocolContext):
     reagent_plate       = temp_block_adapter.load_labware('armadillo_96_wellplate_200ul_pcr_full_skirt')
     # ========== SECOND ROW ==========
     MAG_PLATE_SLOT      = protocol.load_module('magneticBlockV1', '4')
-    reservoir           = protocol.load_labware('nest_96_wellplate_2ml_deep','5')    
+    reservoir           = protocol.load_labware('nest_12_reservoir_15ml','5')    
     tiprack_200_2       = protocol.load_labware('opentrons_flex_96_tiprack_200ul', '6')
     # ========== THIRD ROW ===========
     thermocycler        = protocol.load_module('thermocycler module gen2')
@@ -67,7 +67,7 @@ def run(protocol: protocol_api.ProtocolContext):
             sample_plate_1['A12'].bottom(z=0.5)]
     volumes = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
     protocol.pause('Weight Armadillo Plate, place on thermocycler')
-    p50.distribute(volume = volumes, source = reservoir['A1'], dest = locations, return_tips = True, blow_out = False)
+    p50.distribute(volume = volumes, source = reservoir['A1'].bottom(z=0.4), dest = locations, return_tips = True, blow_out = False)
     #-weigh filled Armadillo, place onto thermocycler-
     protocol.pause('Weight Armadillo Plate, place on thermocycler')
     #Close lid

@@ -70,7 +70,7 @@ def run(protocol: protocol_api.ProtocolContext):
             sample_plate_1['A12'].bottom(z=0.5)]
     volumes = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
     protocol.pause('Weight Armadillo Plate, place on thermocycler')
-    p50.distribute(volume = volumes, source = reservoir['A1'], dest = locations, return_tips = True)
+    p50.distribute(volume = volumes, source = reservoir['A1'].bottom(z=0.5), dest = locations, return_tips = True)
     #-weigh filled Armadillo, place onto thermocycler-
     protocol.pause('Weight Armadillo Plate, place on thermocycler')
     #Close lid
