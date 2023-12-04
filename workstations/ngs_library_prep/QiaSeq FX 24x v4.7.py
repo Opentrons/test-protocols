@@ -255,8 +255,8 @@ def run(protocol: protocol_api.ProtocolContext):
             for loop, X in enumerate(column_1_list):
                 tipcheck()
                 p50.pick_up_tip()
-                p50.aspirate(BarcodeVol+3, reagent_plate.wells_by_name()[barcodes[loop]].bottom(.2), rate=0.25)  #original = ()
-                p50.dispense(3, reagent_plate.wells_by_name()[barcodes[loop]].bottom(.2), rate=0.25)  #original = ()
+                p50.aspirate(BarcodeVol+3, reagent_plate.wells_by_name()[barcodes[loop]].bottom(.1), rate=0.25)  #original = ()
+                p50.dispense(3, reagent_plate.wells_by_name()[barcodes[loop]].bottom(.1), rate=0.25)  #original = ()
                 p50.dispense(BarcodeVol, sample_plate_1.wells_by_name()[X].bottom(1)) #Changed BarcodeVol+2 to BarcodeVol
                 p50.mix(BarcodeMixRep,BarcodeMixVol)
                 p50.move_to(sample_plate_1[X].top(z=-3))

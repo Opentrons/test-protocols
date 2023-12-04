@@ -217,7 +217,7 @@ def run(ctx):
     pip.dispense(re_vol,bind_res)
     if re_vol > 1000:
         dif = (starting_vol+binding_buffer_vol)-1000
-        pip.aspirate(dif+50,samples_m.bottom(0.2)) #original = .1
+        pip.aspirate(dif+50,samples_m.bottom(0.1))
         pip.dispense(dif+50,bind_res)
     pip.return_tip()
 
@@ -372,7 +372,7 @@ def run(ctx):
 
     ctx.comment('------Transfer DNA to Final Elution Plate-----')
     pip.pick_up_tip(tips1)
-    pip.aspirate(elution_vol,samples_m.bottom(0.2)) #original = .15
+    pip.aspirate(elution_vol,samples_m.bottom(0.15)) 
     pip.dispense(elution_vol,elutionplate.wells()[0])
     pip.return_tip()
 
