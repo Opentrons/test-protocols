@@ -224,7 +224,7 @@ def run(ctx):
     pip.dispense(1000,waste_)
     if starting_vol+binding_buffer_vol > 1000:
         rest = (starting_vol+binding_buffer_vol)-900
-        pip.aspirate(rest,samples_m.bottom(0.2)) #original = .1
+        pip.aspirate(rest,samples_m.bottom(0.1))
         pip.dispense(rest,waste_)
     pip.return_tip()
     pip.flow_rate.aspirate = 100
@@ -342,7 +342,7 @@ def run(ctx):
     ctx.delay(minutes=settling_time,msg='Please wait ' + str(settling_time) + ' minute(s) for beads to pellet.')
 
     pip.pick_up_tip(tips1)
-    pip.aspirate(elution_vol,samples_m.bottom(0.2)) #original = .15
+    pip.aspirate(elution_vol,samples_m.bottom(0.15)) 
     pip.dispense(elution_vol,elutionplate.wells()[0])
     pip.return_tip()
 

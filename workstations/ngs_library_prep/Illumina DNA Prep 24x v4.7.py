@@ -240,10 +240,10 @@ def run(protocol: protocol_api.ProtocolContext):
             for loop, X in enumerate(column_1_list):
                 tipcheck()
                 p50.pick_up_tip()
-                p50.aspirate(TAGSTOPVol+3, TAGSTOP.bottom(.2))  #original = ()
-                p50.dispense(3, TAGSTOP.bottom(.2))  #original = ()
-                p50.dispense(TAGSTOPVol, sample_plate_1[X].bottom(.2))  #original = ()
-                p50.move_to(sample_plate_1[X].bottom(.2))  #original = ()
+                p50.aspirate(TAGSTOPVol+3, TAGSTOP.bottom(.1))  #original = ()
+                p50.dispense(3, TAGSTOP.bottom(.1))  #original = ()
+                p50.dispense(TAGSTOPVol, sample_plate_1[X].bottom(.1))  #original = ()
+                p50.move_to(sample_plate_1[X].bottom(.1))  #original = ()
                 p50.mix(TAGSTOPMixRep,TAGSTOPMixVol)
                 p50.blow_out(sample_plate_1[X].top(z=-2))
                 p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
@@ -372,7 +372,7 @@ def run(protocol: protocol_api.ProtocolContext):
                     p1000.move_to(sample_plate_1[X].bottom(4))
                     p1000.aspirate(TWBMaxVol, rate=0.25)
                     p1000.default_speed = 5
-                    p1000.move_to(sample_plate_1[X].bottom(.2))  #original = ()
+                    p1000.move_to(sample_plate_1[X].bottom(.1))  #original = ()
                     protocol.delay(minutes=0.1)
                     p1000.aspirate(200-TWBMaxVol, rate=0.25)
                     p1000.default_speed = 400
@@ -556,8 +556,8 @@ def run(protocol: protocol_api.ProtocolContext):
                 p50.pick_up_tip()
 
                 protocol.comment('--> Adding H20')
-                p50.aspirate(H20Vol+5, H20.bottom(.2), rate=1)  #original = ()
-                p50.dispense(5, H20.bottom(.2), rate=1)  #original = ()
+                p50.aspirate(H20Vol+5, H20.bottom(.1), rate=1)  #original = ()
+                p50.dispense(5, H20.bottom(.1), rate=1)  #original = ()
                 p50.dispense(H20Vol+5, sample_plate_1[column_2_list[loop]].bottom(z=0.75))
 
                 protocol.comment('--> ADDING AMPure (0.8x)')
