@@ -197,7 +197,7 @@ def run(protocol: protocol_api.ProtocolContext):
         p1000.pick_up_tip()
         for loop, X in enumerate(['A8','A9','A10','A11']):
             p1000.aspirate(EEWVol+1, EEW.bottom(z=.1), rate=0.25)
-            p1000.dispense(EEWVol+5, sample_plate_1[sample_well].bottom(z=1))
+            p1000.dispense(EEWVol+1, sample_plate_1[sample_well].bottom(z=1))
         p1000.return_tip() #<---------------- Tip Return
 
         protocol.comment('--> Transfer Hybridization')
@@ -205,7 +205,7 @@ def run(protocol: protocol_api.ProtocolContext):
         p1000.pick_up_tip()
         p1000.move_to(sample_plate_1[sample_well].bottom(z=.1))
         p1000.aspirate(TransferSup+1, rate=0.25)
-        p1000.dispense(TransferSup+5, sample_plate_2[sample_well].bottom(z=1))
+        p1000.dispense(TransferSup+1, sample_plate_2[sample_well].bottom(z=1))
         p1000.return_tip()
 
         thermocycler.close_lid()
@@ -400,7 +400,7 @@ def run(protocol: protocol_api.ProtocolContext):
         p50.move_to(sample_plate_2[sample_well].bottom(z=.1))
         p50.aspirate(50, rate=0.25)
         p50.default_speed = 200
-        p50.dispense(100, Liquid_trash.top(z=0))
+        p50.dispense(50, Liquid_trash.top(z=0))
         protocol.delay(minutes=0.1)
         p50.touch_tip()
         p50.blow_out()
@@ -458,7 +458,7 @@ def run(protocol: protocol_api.ProtocolContext):
         p50.move_to(sample_plate_2[sample_well].bottom(z=.1))
         p50.aspirate(TransferSup+1, rate=0.25)
         sample_well = 'A5'
-        p50.dispense(TransferSup+5, sample_plate_1[sample_well].bottom(z=1))
+        p50.dispense(TransferSup+1, sample_plate_1[sample_well].bottom(z=1))
         p50.return_tip()
 
         protocol.comment('--> Adding ET2')
@@ -543,7 +543,7 @@ def run(protocol: protocol_api.ProtocolContext):
         p50.move_to(sample_plate_1[sample_well].bottom(z=.1))
         p50.aspirate(TransferSup+1, rate=0.25)
         sample_well = 'A5'
-        p50.dispense(TransferSup+5, sample_plate_2[sample_well].bottom(z=1))
+        p50.dispense(TransferSup+1, sample_plate_2[sample_well].bottom(z=1))
         p50.return_tip()
 
         protocol.comment('--> ADDING AMPure (0.8x)')
@@ -660,7 +660,7 @@ def run(protocol: protocol_api.ProtocolContext):
         p1000.move_to(sample_plate_2[sample_well].bottom(z=.1))
         p1000.aspirate(50, rate=0.25)
         p1000.default_speed = 200
-        p1000.dispense(100, Liquid_trash.top(z=0))
+        p1000.dispense(50, Liquid_trash.top(z=0))
         protocol.delay(minutes=0.1)
         p1000.touch_tip()
         p1000.blow_out()
@@ -736,5 +736,5 @@ def run(protocol: protocol_api.ProtocolContext):
         p1000.pick_up_tip()
         p1000.move_to(sample_plate_2[sample_well].bottom(z=.1))
         p1000.aspirate(TransferSup+1, rate=0.25)
-        p1000.dispense(TransferSup+5, sample_plate_2['A7'].bottom(z=1))
+        p1000.dispense(TransferSup+1, sample_plate_2['A7'].bottom(z=1))
         p1000.return_tip()
