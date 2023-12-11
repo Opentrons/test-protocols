@@ -184,8 +184,8 @@ def run(protocol: protocol_api.ProtocolContext):
             NHB2Vol    = 50
             for loop, X in enumerate(column_1_list):
                 p50.pick_up_tip()
-                p50.aspirate(NHB2Vol, NHB2.bottom(.1)) #original = ()
-                p50.dispense(NHB2Vol, sample_plate_1[X].bottom(.1)) #original = ()
+                p50.aspirate(NHB2Vol, NHB2.bottom(.2)) #original = ()
+                p50.dispense(NHB2Vol, sample_plate_1[X].bottom(.2)) #original = ()
                 p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
                 p50_tips += 1
                 tipcheck()
@@ -194,8 +194,8 @@ def run(protocol: protocol_api.ProtocolContext):
             PanelVol    = 10
             for loop, X in enumerate(column_1_list):
                 p50.pick_up_tip()
-                p50.aspirate(PanelVol, Panel.bottom(.1)) #original = ()
-                p50.dispense(PanelVol, sample_plate_1[X].bottom(.1)) #original = ()
+                p50.aspirate(PanelVol, Panel.bottom(.2)) #original = ()
+                p50.dispense(PanelVol, sample_plate_1[X].bottom(.2)) #original = ()
                 p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
                 p50_tips += 1
                 tipcheck()
@@ -206,9 +206,9 @@ def run(protocol: protocol_api.ProtocolContext):
             EHB2MixVol = 90
             for loop, X in enumerate(column_1_list):
                 p1000.pick_up_tip()
-                p1000.aspirate(EHB2Vol, EHB2.bottom(.1)) #original = ()
-                p1000.dispense(EHB2Vol, sample_plate_1[X].bottom(.1))  #original = ()
-                p1000.move_to(sample_plate_1[X].bottom(.1))  #original = ()
+                p1000.aspirate(EHB2Vol, EHB2.bottom(.2)) #original = ()
+                p1000.dispense(EHB2Vol, sample_plate_1[X].bottom(.2))  #original = ()
+                p1000.move_to(sample_plate_1[X].bottom(.2))  #original = ()
                 p1000.mix(EHB2MixRep,EHB2MixVol)
                 p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip()
                 p50_tips += 1
@@ -375,8 +375,8 @@ def run(protocol: protocol_api.ProtocolContext):
                 EEWVol    = 200
                 for loop, X in enumerate(column_2_list):
                     p1000.pick_up_tip()
-                    p1000.aspirate(EEWVol, WASHES[loop].bottom(.1))  #original = ()
-                    p1000.dispense(EEWVol, sample_plate_2[X].bottom(.1))  #original = ()
+                    p1000.aspirate(EEWVol, WASHES[loop].bottom(.2))  #original = ()
+                    p1000.dispense(EEWVol, sample_plate_2[X].bottom(.2))  #original = ()
                     p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip()
                     p200_tips += 1
                     tipcheck()
@@ -442,8 +442,8 @@ def run(protocol: protocol_api.ProtocolContext):
             EEWVol    = 200
             for loop, X in enumerate(column_2_list):
                 p1000.pick_up_tip()
-                p1000.aspirate(EEWVol, WASHES[loop].bottom(.1))  #original = ()
-                p1000.dispense(EEWVol, sample_plate_2[X].bottom(.1))  #original = ()
+                p1000.aspirate(EEWVol, WASHES[loop].bottom(.2))  #original = ()
+                p1000.dispense(EEWVol, sample_plate_2[X].bottom(.2))  #original = ()
                 p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip()
                 p200_tips += 1
                 tipcheck()
@@ -505,7 +505,7 @@ def run(protocol: protocol_api.ProtocolContext):
             protocol.comment('--> Removing Residual')
             for loop, X in enumerate(column_3_list):
                 p50.pick_up_tip()
-                p50.move_to(sample_plate_2[X].bottom(z=.1))  #original = z=0
+                p50.move_to(sample_plate_2[X].bottom(z=0.2))  #original = z=0
                 p50.aspirate(50, rate=0.25)
                 p50.default_speed = 200
                 p50.dispense(100, Liquid_trash.top(z=-7))
@@ -526,8 +526,8 @@ def run(protocol: protocol_api.ProtocolContext):
             EluteVol    = 23
             for loop, X in enumerate(column_3_list):
                 p50.pick_up_tip()
-                p50.aspirate(EluteVol, Elute.bottom(.1))  #original = ()
-                p50.dispense(EluteVol, sample_plate_2[X].bottom(.1))  #original = ()
+                p50.aspirate(EluteVol, Elute.bottom(.2))  #original = ()
+                p50.dispense(EluteVol, sample_plate_2[X].bottom(.2))  #original = ()
                 p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
                 p50_tips += 1
                 tipcheck()
@@ -581,9 +581,9 @@ def run(protocol: protocol_api.ProtocolContext):
             ET2MixVol = 20
             for loop, X in enumerate(column_4_list):
                 p50.pick_up_tip()
-                p50.aspirate(ET2Vol, ET2.bottom(.1))  #original = ()
-                p50.dispense(ET2Vol, sample_plate_1[X].bottom(.1))  #original = ()
-                p50.move_to(sample_plate_1[X].bottom(.1))  #original = ()
+                p50.aspirate(ET2Vol, ET2.bottom(.2))  #original = ()
+                p50.dispense(ET2Vol, sample_plate_1[X].bottom(.2))  #original = ()
+                p50.move_to(sample_plate_1[X].bottom(.2))  #original = ()
                 p50.mix(ET2MixRep,ET2MixVol)
                 p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
                 p50_tips += 1
@@ -598,8 +598,8 @@ def run(protocol: protocol_api.ProtocolContext):
             PPCVol    = 5
             for loop, X in enumerate(column_4_list):
                 p50.pick_up_tip()
-                p50.aspirate(PPCVol, PPC.bottom(.1))  #original = ()
-                p50.dispense(PPCVol, sample_plate_1[X].bottom(.1))  #original = ()
+                p50.aspirate(PPCVol, PPC.bottom(.2))  #original = ()
+                p50.dispense(PPCVol, sample_plate_1[X].bottom(.2))  #original = ()
                 p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
                 p50_tips += 1
                 tipcheck()
@@ -610,9 +610,9 @@ def run(protocol: protocol_api.ProtocolContext):
             EPMMixVol = 45
             for loop, X in enumerate(column_4_list):
                 p50.pick_up_tip()
-                p50.aspirate(EPMVol, EPM.bottom(.1))  #original = ()
-                p50.dispense(EPMVol, sample_plate_1[X].bottom(.1))  #original = ()
-                p50.move_to(sample_plate_1[X].bottom(.1))  #original = ()
+                p50.aspirate(EPMVol, EPM.bottom(.2))  #original = ()
+                p50.dispense(EPMVol, sample_plate_1[X].bottom(.2))  #original = ()
+                p50.move_to(sample_plate_1[X].bottom(.2))  #original = ()
                 p50.mix(EPMMixRep,EPMMixVol)
                 p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
                 p50_tips += 1
@@ -794,7 +794,7 @@ def run(protocol: protocol_api.ProtocolContext):
             protocol.comment('--> Removing Residual ETOH')
             for loop, X in enumerate(column_5_list):
                 p1000.pick_up_tip()
-                p1000.move_to(sample_plate_2[X].bottom(z=.1))  #original = (z=0)
+                p1000.move_to(sample_plate_2[X].bottom(z=0.2))  #original = (z=0)
                 p1000.aspirate(50, rate=0.25)
                 p1000.default_speed = 200
                 p1000.dispense(100, Liquid_trash.top(z=-7))
