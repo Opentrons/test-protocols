@@ -220,11 +220,11 @@ def run(ctx):
     ctx.comment("-------Removing Supernatant-------")
     pip.pick_up_tip(tips)
     pip.flow_rate.aspirate = 35
-    pip.aspirate(1000,samples_m.bottom(0.6)) #original = .3
+    pip.aspirate(1000,samples_m.bottom(0.3))
     pip.dispense(1000,waste_)
     if starting_vol+binding_buffer_vol > 1000:
         rest = (starting_vol+binding_buffer_vol)-900
-        pip.aspirate(rest,samples_m.bottom(0.6)) #original = .1
+        pip.aspirate(rest,samples_m.bottom(0.2))
         pip.dispense(rest,waste_)
     pip.return_tip()
     pip.flow_rate.aspirate = 100
@@ -280,7 +280,7 @@ def run(ctx):
         ctx.comment("-------Removing Supernatant-------")
         pip.pick_up_tip(tips)
         pip.flow_rate.aspirate = 35
-        pip.aspirate(wash_vol+50,samples_m.bottom(0.6)) #original = .3
+        pip.aspirate(wash_vol+50,samples_m.bottom(0.3))
         pip.dispense(wash_vol+50,waste_)
         pip.flow_rate.aspirate = 100
         if i == 0:
@@ -305,7 +305,7 @@ def run(ctx):
         pip.flow_rate.dispense = 150
 
         #Clear Wash 3 from samples
-        pip.aspirate(wash3_vol,samples_m.bottom(.6)) #original = .15
+        pip.aspirate(wash3_vol,samples_m.bottom(.2)) 
         pip.dispense(wash3_vol,wash3_res)
         pip.blow_out(wash3_res)
         pip.air_gap(10)
@@ -342,7 +342,7 @@ def run(ctx):
     ctx.delay(minutes=settling_time,msg='Please wait ' + str(settling_time) + ' minute(s) for beads to pellet.')
 
     pip.pick_up_tip(tips1)
-    pip.aspirate(elution_vol,samples_m.bottom(0.6)) #original = .15
+    pip.aspirate(elution_vol,samples_m.bottom(0.2)) 
     pip.dispense(elution_vol,elutionplate.wells()[0])
     pip.return_tip()
 

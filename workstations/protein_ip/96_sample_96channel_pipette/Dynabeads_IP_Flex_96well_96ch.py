@@ -13,7 +13,7 @@ requirements = {
 
 NUM_SAMPLES = 96
 
-ASP_HEIGHT = 0.6 #original = .2
+ASP_HEIGHT = 0.2
 MIX_SPEEND = 2000
 MIX_SEC = 10
 
