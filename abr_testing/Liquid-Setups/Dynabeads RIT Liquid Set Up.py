@@ -23,16 +23,19 @@ def run(protocol: protocol_api.ProtocolContext):
 
     columns =['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10', 'A11', 'A12']
     # 1 column 6000 uL
+    p1000.pick_up_tip()
     for i in columns:
-        p1000.pick_up_tip()
+        
         #p1000.well_bottom_clearance.aspirate = 1
         p1000.aspirate(750, master_reservoir['A1'].bottom(z=0.5))
-        p1000.dispense(750, reservoir_wash[i].bottom(z=1))
-        p1000.return_tip()
+        p1000.dispense(750, reservoir_wash[i].top())
+        p1000.blow_out(location = master_reservoir['A1'].top())
+    p1000.return_tip()
     # Nest 96 Deep Well Plate 2 mL: 250 uL per well
+    p1000.pick_up_tip()
     for n in columns:
-        p1000.pick_up_tip()
         #p1000.well_bottom_clearance.aspirate = 1
         p1000.aspirate(250, master_reservoir['A1'].bottom(z=0.5))
         p1000.dispense(250, sample_plate[n].bottom(z=1))
-        p1000.return_tip()
+        p1000.blow_out(location = master_reservoir['A1'].top())
+    p1000.return_tip()

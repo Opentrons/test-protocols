@@ -74,7 +74,7 @@ def run(protocol: protocol_api.ProtocolContext):
     profile_TAG = [{'temperature': 95, 'hold_time_minutes': 3}]
     thermocycler.execute_profile(steps = profile_TAG, repetitions = 1,block_max_volume=50)
     #30x cycles of: 70° for 30s 72° for 30s 95° for 10s 
-    profile_TAG2 = [{'temperature': 70, 'hold_time_seconds': 30}, {'temperature': 72, 'hold_time_seconds': 0.5}, {'temperature': 95, 'hold_time_seconds': 10}]
+    profile_TAG2 = [{'temperature': 70, 'hold_time_seconds': 30}, {'temperature': 72, 'hold_time_seconds': 30}, {'temperature': 95, 'hold_time_seconds': 10}]
     thermocycler.execute_profile(steps = profile_TAG2, repetitions = 30,block_max_volume=50)
     #hold at 72° for 5min 
     profile_TAG3 = [{'temperature': 72, 'hold_time_minutes': 5}]

@@ -195,7 +195,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 p1000.mix(TagPremix,TagVol+10, TAGMIX.bottom(z=1))
                 p1000.aspirate(TagVol+3, TAGMIX.bottom(z=1), rate=0.25)
                 p1000.dispense(3, TAGMIX.bottom(z=1), rate=0.25)
-                p1000.dispense(TagVol+1, sample_plate_1[X].bottom(z=1), rate=0.25)
+                p1000.dispense(TagVol, sample_plate_1[X].bottom(z=1), rate=0.25)
                 p1000.mix(2,SampleVol, sample_plate_1[X].bottom(z=0.75))
                 p1000.move_to(sample_plate_1[X].top(z=-3))
                 protocol.delay(minutes=0.1)
@@ -558,7 +558,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 protocol.comment('--> Adding H20')
                 p50.aspirate(H20Vol+5, H20.bottom(.4), rate=1)  #original = ()
                 p50.dispense(5, H20.bottom(.4), rate=1)  #original = ()
-                p50.dispense(H20Vol+5, sample_plate_1[column_2_list[loop]].bottom(z=0.75))
+                p50.dispense(H20Vol, sample_plate_1[column_2_list[loop]].bottom(z=0.75))
 
                 protocol.comment('--> ADDING AMPure (0.8x)')
                 p50.move_to(AMPure.bottom(z=0.75))
@@ -776,7 +776,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 p50.pick_up_tip()
                 p50.move_to(sample_plate_1[X].bottom(z=0.4))  #original = .5
                 p50.aspirate(TransferSup+1, rate=0.25)
-                p50.dispense(TransferSup+5, sample_plate_1[column_3_list[loop]].bottom(z=1))
+                p50.dispense(TransferSup+1, sample_plate_1[column_3_list[loop]].bottom(z=1))
                 p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
                 p50_tips += 1
             #===============================================

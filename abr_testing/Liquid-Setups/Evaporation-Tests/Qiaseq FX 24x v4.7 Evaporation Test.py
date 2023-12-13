@@ -56,18 +56,18 @@ def run(protocol: protocol_api.ProtocolContext):
     thermocycler.set_lid_temperature(105)
     #pipette 10uL into Armadillo wells
     #pipette 10uL into Armadillo wells
-    locations = [sample_plate_1['A1'].bottom(z=0.5),
-            sample_plate_1['A2'].bottom(z=0.5),
-            sample_plate_1['A3'].bottom(z=0.5),
-            sample_plate_1['A4'].bottom(z=0.5),
-            sample_plate_1['A5'].bottom(z=0.5),
-            sample_plate_1['A6'].bottom(z=0.5),
-            sample_plate_1['A7'].bottom(z=0.5),
-            sample_plate_1['A8'].bottom(z=0.5),
-            sample_plate_1['A9'].bottom(z=0.5),
-            sample_plate_1['A10'].bottom(z=0.5),
-            sample_plate_1['A11'].bottom(z=0.5),
-            sample_plate_1['A12'].bottom(z=0.5)]
+    locations = [sample_plate_1['A1'].bottom(z=0.2),
+            sample_plate_1['A2'].bottom(z=0.2),
+            sample_plate_1['A3'].bottom(z=0.2),
+            sample_plate_1['A4'].bottom(z=0.2),
+            sample_plate_1['A5'].bottom(z=0.2),
+            sample_plate_1['A6'].bottom(z=0.2),
+            sample_plate_1['A7'].bottom(z=0.2),
+            sample_plate_1['A8'].bottom(z=0.2),
+            sample_plate_1['A9'].bottom(z=0.2),
+            sample_plate_1['A10'].bottom(z=0.2),
+            sample_plate_1['A11'].bottom(z=0.2),
+            sample_plate_1['A12'].bottom(z=0.2)]
     volumes = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
     protocol.pause('Weight Armadillo Plate, place on thermocycler')
     p50.distribute(volume = volumes, source = reservoir['A1'], dest = locations, return_tips = True)
@@ -79,7 +79,7 @@ def run(protocol: protocol_api.ProtocolContext):
     profile_TAG = [{'temperature': 95, 'hold_time_minutes': 3}]
     thermocycler.execute_profile(steps = profile_TAG, repetitions = 1)
     #30x cycles of: 70° for 30s 72° for 30s 95° for 10s 
-    profile_TAG2 = [{'temperature': 70, 'hold_time_seconds': 30}, {'temperature': 72, 'hold_time_seconds': 0.5}, {'temperature': 95, 'hold_time_seconds': 10}]
+    profile_TAG2 = [{'temperature': 70, 'hold_time_seconds': 30}, {'temperature': 72, 'hold_time_seconds': 30}, {'temperature': 95, 'hold_time_seconds': 10}]
     thermocycler.execute_profile(steps = profile_TAG2, repetitions = 30)
     #hold at 72° for 5min 
     profile_TAG3 = [{'temperature': 72, 'hold_time_minutes': 5}]

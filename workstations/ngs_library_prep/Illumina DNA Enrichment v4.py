@@ -8,7 +8,7 @@ metadata = {
     }
 
 requirements = {
-    "robotType": "OT-3",
+    "robotType": "Flex",
     "apiLevel": "2.15",
 }
 
@@ -61,20 +61,22 @@ def run(protocol: protocol_api.ProtocolContext):
     # ========== FIRST ROW ===========
     heatershaker        = protocol.load_module('heaterShakerModuleV1','1')
     sample_plate_2      = heatershaker.load_labware('thermoscientificnunc_96_wellplate_1300ul')
+    
+    
     reservoir           = protocol.load_labware('nest_96_wellplate_2ml_deep','2')    
     temp_block          = protocol.load_module('temperature module gen2', '3')
     reagent_plate       = temp_block.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')
     # ========== SECOND ROW ==========
     MAG_PLATE_SLOT      = protocol.load_module('magneticBlockV1', 'C1')
-    tiprack_200_1       = protocol.load_labware('opentrons_ot3_96_tiprack_200ul', '5')
-    tiprack_50_1        = protocol.load_labware('opentrons_ot3_96_tiprack_50ul', '6')
+    tiprack_200_1       = protocol.load_labware('opentrons_flex_96_tiprack_200ul', '5')
+    tiprack_50_1        = protocol.load_labware('opentrons_flex_96_tiprack_50ul', '6')
     # ========== THIRD ROW ===========
     thermocycler        = protocol.load_module('thermocycler module gen2')
     sample_plate_1      = thermocycler.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')
-    tiprack_200_2       = protocol.load_labware('opentrons_ot3_96_tiprack_200ul', '8')
-    tiprack_50_2        = protocol.load_labware('opentrons_ot3_96_tiprack_50ul', '9')
+    tiprack_200_2       = protocol.load_labware('opentrons_flex_96_tiprack_200ul', '8')
+    tiprack_50_2        = protocol.load_labware('opentrons_flex_96_tiprack_50ul', '9')
     # ========== FOURTH ROW ==========
-    tiprack_200_3       = protocol.load_labware('opentrons_ot3_96_tiprack_200ul', '11')
+    tiprack_200_3       = protocol.load_labware('opentrons_flex_96_tiprack_200ul', '11')
 
     # reagent
     AMPure              = reservoir['A1']
@@ -271,7 +273,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 p1000.pick_up_tip()
                 p1000.move_to(sample_plate_1[X].bottom(z=0.6))  #original = .25
                 p1000.aspirate(TransferSup+1, rate=0.25)
-                p1000.dispense(TransferSup+5, sample_plate_2[column_2_list[loop]].bottom(z=1))
+                p1000.dispense(TransferSup+1, sample_plate_2[column_2_list[loop]].bottom(z=1))
                 p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip()
                 p200_tips += 1
                 tipcheck()
@@ -485,7 +487,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 protocol.delay(seconds=1*60)
 
             protocol.comment('--> Removing Supernatant')
-            RemoveSup = 150
+            RemoveSup = 200
             for loop, X in enumerate(column_3_list):
                 p1000.pick_up_tip()
                 p1000.move_to(sample_plate_2[X].bottom(z=3.5))
@@ -508,7 +510,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 p50.move_to(sample_plate_2[X].bottom(z=7))  #original = z=0
                 p50.aspirate(50, rate=0.25)
                 p50.default_speed = 200
-                p50.dispense(100, Liquid_trash.top(z=-7))
+                p50.dispense(50, Liquid_trash.top(z=-7))
                 protocol.delay(minutes=0.1)
                 p50.blow_out()
                 p50.default_speed = 400
@@ -570,7 +572,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 p50.pick_up_tip()
                 p50.move_to(sample_plate_2[X].bottom(z=0.6))  #original = .25
                 p50.aspirate(TransferSup+1, rate=0.25)
-                p50.dispense(TransferSup+5, sample_plate_1[column_4_list[loop]].bottom(z=1))
+                p50.dispense(TransferSup+1, sample_plate_1[column_4_list[loop]].bottom(z=1))
                 p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
                 p50_tips += 1
                 tipcheck()
@@ -667,7 +669,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 p50.pick_up_tip()
                 p50.move_to(sample_plate_1[X].bottom(z=0.6))  #original = .25
                 p50.aspirate(TransferSup+1, rate=0.25)
-                p50.dispense(TransferSup+5, sample_plate_2[column_5_list[loop]].bottom(z=1))
+                p50.dispense(TransferSup+1, sample_plate_2[column_5_list[loop]].bottom(z=1))
                 p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
                 p50_tips += 1
                 tipcheck()
@@ -797,7 +799,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 p1000.move_to(sample_plate_2[X].bottom(z=.7))  #original = (z=0)
                 p1000.aspirate(50, rate=0.25)
                 p1000.default_speed = 200
-                p1000.dispense(100, Liquid_trash.top(z=-7))
+                p1000.dispense(50, Liquid_trash.top(z=-7))
                 protocol.delay(minutes=0.1)
                 p1000.blow_out()
                 p1000.default_speed = 400
@@ -878,7 +880,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 p1000.pick_up_tip()
                 p1000.move_to(sample_plate_2[X].bottom(z=0.6))  #original = .25
                 p1000.aspirate(TransferSup+1, rate=0.25)
-                p1000.dispense(TransferSup+5, sample_plate_1[column_6_list[loop]].bottom(z=1))
+                p1000.dispense(TransferSup+1, sample_plate_1[column_6_list[loop]].bottom(z=1))
                 p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip()
                 p200_tips += 1
                 tipcheck()
