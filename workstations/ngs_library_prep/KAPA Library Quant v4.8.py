@@ -388,8 +388,8 @@ def run(protocol: protocol_api.ProtocolContext):
                 #===============================================
                 tipcheck()
                 p1000.pick_up_tip()
-                p1000.aspirate(qPCRRefill, DIL.bottom(z=0.2)) 
-                p1000.dispense(qPCRRefill, qPCR.bottom(z=0.2)) 
+                p1000.aspirate(qPCRRefill, DIL.bottom(z=0.3)) 
+                p1000.dispense(qPCRRefill, qPCR.bottom(z=0.3)) 
                 p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip()
                 p200_tips += 1
                 #===============================================

@@ -515,7 +515,7 @@ def run(protocol: protocol_api.ProtocolContext):
             BarcodeMixVol = 10
             for loop, X in enumerate(column_2_list):
                 p50.pick_up_tip()
-                p50.aspirate(BarcodeVol, reagent_plate.wells_by_name()[barcodes[loop]].bottom(.2), rate=0.25) #original = ()
+                p50.aspirate(BarcodeVol, reagent_plate.wells_by_name()[barcodes[loop]].bottom(.3), rate=0.25) #original = ()
                 p50.dispense(BarcodeVol, sample_plate_1.wells_by_name()[X].bottom(1))
                 p50.mix(BarcodeMixRep,BarcodeMixVol)
                 p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
@@ -528,11 +528,11 @@ def run(protocol: protocol_api.ProtocolContext):
             PCRMixVol = 50
             for loop, X in enumerate(column_2_list):
                 p50.pick_up_tip()
-                p50.mix(2,PCRVol, PCR.bottom(.2), rate=0.5) #original = ()
-                p50.aspirate(PCRVol, PCR.bottom(.2), rate=0.25) #original = ()
-                p50.dispense(PCRVol, sample_plate_1[X].bottom(.2), rate=0.25) #original = ()
+                p50.mix(2,PCRVol, PCR.bottom(.3), rate=0.5) #original = ()
+                p50.aspirate(PCRVol, PCR.bottom(.3), rate=0.25) #original = ()
+                p50.dispense(PCRVol, sample_plate_1[X].bottom(.3), rate=0.25) #original = ()
                 p50.mix(PCRMixRep, PCRMixVol, rate=1)
-                p50.move_to(sample_plate_1[X].bottom(.2)) #original = ()
+                p50.move_to(sample_plate_1[X].bottom(.3)) #original = ()
                 protocol.delay(minutes=0.1)
                 p50.blow_out(sample_plate_1[X].top(z=-5))
                 p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
