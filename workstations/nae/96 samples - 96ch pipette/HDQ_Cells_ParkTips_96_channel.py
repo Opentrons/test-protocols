@@ -227,7 +227,7 @@ def run(ctx):
     pip.aspirate(1000, samples_m.bottom(0.3))
     pip.dispense(1000, waste)
     if starting_vol + binding_buffer_vol > 1000:
-        pip.aspirate(1000, samples_m.bottom(0.2)) 
+        pip.aspirate(1000, samples_m.bottom(0.3)) 
         pip.dispense(1000, waste)
     pip.return_tip()
 
