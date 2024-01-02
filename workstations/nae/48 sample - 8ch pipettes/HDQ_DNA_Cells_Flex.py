@@ -427,7 +427,7 @@ def run(ctx):
             tiptrack(m1000,tips)
             m1000.flow_rate.dispense = 100
             m1000.flow_rate.aspirate = 150
-            m1000.transfer(vol, m.bottom(0.3), e.bottom(5), air_gap=20, new_tip='never') 
+            m1000.transfer(vol, m.bottom(0.5), e.bottom(5), air_gap=20, new_tip='never') 
             m1000.blow_out(e.top(-2))
             m1000.air_gap(20)
             m1000.drop_tip()
