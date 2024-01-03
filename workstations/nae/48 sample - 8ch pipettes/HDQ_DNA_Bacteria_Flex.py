@@ -149,7 +149,7 @@ def run(ctx):
                 _waste_track(vol_per_trans)
                 m1000.blow_out(waste)
                 m1000.air_gap(20)
-            m1000.drop_tip(tips_sn[8*i])
+            m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip(tips_sn[8*i])
         m1000.flow_rate.aspirate = 300
 
     def bead_mixing(well, pip, mvol, reps=8):
@@ -256,7 +256,7 @@ def run(ctx):
             if i != 0:
                 tiptrack(m1000,tips)
             mixing(TL_samples_m[i],m1000,tvol-50,reps=10 if not dry_run else 1)
-            m1000.drop_tip()
+            m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip()
 
         ctx.comment("-----Mixing Buffer and Sample-----")
         h_s.set_and_wait_for_shake_speed(1800)
@@ -274,7 +274,7 @@ def run(ctx):
             m1000.aspirate(200,TL_samples_m[t].bottom(3))
             m1000.dispense(m1000.current_volume,samples_m[t].top())
             m1000.air_gap(10)
-            m1000.drop_tip()
+            m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip()
 
     def AL_lysis(vol, source):
         ctx.comment("-----Transferring AL to samples-----")
@@ -299,7 +299,7 @@ def run(ctx):
             if i != 0:
                 tiptrack(m1000, tips)
             mixing(samples_m[i],m1000,tvol-50,reps=10 if not dry_run else 1)
-            m1000.drop_tip()
+            m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip()
 
         ctx.comment("-----Mixing in AL Buffer-----")
         h_s.set_and_wait_for_shake_speed(2000)
@@ -352,7 +352,7 @@ def run(ctx):
             if i != 0:
                 tiptrack(m1000, tips)
             bead_mixing(samples_m[i],m1000,starting_vol,reps=5 if not dry_run else 1)
-            m1000.drop_tip()
+            m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip()
 
         ctx.comment("-----Mixing beads, bind and sample on plate-----")
         h_s.set_and_wait_for_shake_speed(1800)
@@ -405,7 +405,7 @@ def run(ctx):
                     m1000.dispense(m1000.current_volume, src.top())
                 m1000.transfer(vol_per_trans, src, m.top(), air_gap=20,new_tip='never')
 
-        m1000.drop_tip()
+        m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip()
         ctx.comment("-----Mixing Wash Buffer and Sample-----")
         h_s.set_and_wait_for_shake_speed(2000)
         ctx.delay(minutes=5 if not dry_run else 0.25,msg='Please wait 5 minutes while wash buffer shakes on H-S')
@@ -450,7 +450,7 @@ def run(ctx):
             m1000.dispense(370,m.top(-3))
             m1000.blow_out()
 
-        m1000.drop_tip()
+        m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip()
         if num_cols == 1:
             secs = 25
         else:
@@ -477,7 +477,7 @@ def run(ctx):
         
         m1000.flow_rate.aspirate = 300        
 
-        m1000.drop_tip()
+        m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip()
 
         h_s.set_and_wait_for_shake_speed(2000)
         ctx.delay(minutes=5 if not dry_run else 0.25,msg='Shake on H-S for 5 minutes at 2000 rpm.')
@@ -502,7 +502,7 @@ def run(ctx):
             m1000.transfer(vol, m.bottom(0.3), e.bottom(5), air_gap=20, new_tip='never')
             m1000.blow_out(e.top(-2))
             m1000.air_gap(20)
-            m1000.drop_tip()
+            m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip()
 
     """
     Here is where you can call the methods defined above to fit your specific

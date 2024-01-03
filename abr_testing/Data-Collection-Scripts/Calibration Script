@@ -17,7 +17,8 @@ output_folder = '/Users/Rhyann Clarke/Documents/Calibration Logs/13NOV23'
 for filename in os.listdir(folder_path):
     if filename.endswith(".json"):
         path = os.path.join(folder_path, filename)
-        robot = filename.split('-')[1]
+        robot = filename.split('_')[0]
+        pull_date = filename.split('_')[1]
         with open(path, 'r') as file:
             data = json.load(file)
         df1 = pd.json_normalize(data)
