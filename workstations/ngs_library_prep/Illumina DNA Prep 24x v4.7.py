@@ -556,10 +556,11 @@ def run(protocol: protocol_api.ProtocolContext):
                 p50.pick_up_tip()
 
                 protocol.comment('--> Adding H20')
-
+                
                 p50.aspirate(H20Vol+5, H20.bottom(z=0.5), rate=1)  #original = ()
                 p50.dispense(5, H20.bottom(z=0.5), rate=1)  #original = ()
-                p50.dispense(H20Vol+5, sample_plate_1[column_2_list[loop]].bottom(z=0.75))
+                p50.dispense(H20Vol, sample_plate_1[column_2_list[loop]].bottom(z=0.75))
+
 
                 protocol.comment('--> ADDING AMPure (0.8x)')
                 p50.move_to(AMPure.bottom(z=0.75))

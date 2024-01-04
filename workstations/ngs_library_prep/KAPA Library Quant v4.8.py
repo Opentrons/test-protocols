@@ -17,7 +17,7 @@ requirements = {
 
 # SCRIPT SETTINGS
 DRYRUN              = False          # True = skip incubation times, shorten mix, for testing purposes
-TIP_TRASH           = True         # True = Used tips go in Trash, False = Used tips go back into rack
+TIP_TRASH           = False         # True = Used tips go in Trash, False = Used tips go back into rack
 
 # PROTOCOL SETTINGS
 COLUMNS     = 6                     # Number of columns of samples in addition to 1 column for Standards maximum 6 (+1 for Standards  = 7)
