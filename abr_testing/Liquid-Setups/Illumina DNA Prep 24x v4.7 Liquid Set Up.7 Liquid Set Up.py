@@ -9,7 +9,7 @@ metadata = {
 
 requirements = {
     "robotType": "Flex",
-    "apiLevel": "2.15",
+    "apiLevel": "2.16",
 }
 
 # Protocol to fill sample plate, reagent plate, and reservoir for Illumina DNA Prep 24x v4.7 Liquid Set Up
@@ -17,11 +17,13 @@ requirements = {
 
 def run(protocol: protocol_api.ProtocolContext):
     # Initiate Labware
+    waste_chute         = protocol.load_waste_chute()
+    trash_bin           = protocol.load_trash_bin("A3")
     tiprack_1000        = protocol.load_labware(load_name='opentrons_flex_96_tiprack_1000ul', location='D1') # Tip Rack
     master_reservoir    = protocol.load_labware('axygen_1_reservoir_90ml', 'C2')
     reservoir           = protocol.load_labware('nest_12_reservoir_15ml','D2', 'Reservoir') # Reservoir
-    sample_plate_1      = protocol.load_labware("armadillo_96_wellplate_200ul_pcr_full_skirt",'D3', 'Sample Plate') # Sample Plate
-    reagent_plate_1     = protocol.load_labware("armadillo_96_wellplate_200ul_pcr_full_skirt",'C3', 'Reagent Plate') # reagent Plate
+    sample_plate_1      = protocol.load_labware("armadillo_96_wellplate_200ul_pcr_full_skirt",'C3', 'Sample Plate') # Sample Plate
+    reagent_plate_1     = protocol.load_labware("armadillo_96_wellplate_200ul_pcr_full_skirt",'B3', 'Reagent Plate') # reagent Plate
     p1000               = protocol.load_instrument(instrument_name='flex_8channel_1000', mount='left', tip_racks=[tiprack_1000]) # Pipette
     
     # Sample Plate Prep: dispense 30 ul into columns 1 - 4 - total 960 ul
