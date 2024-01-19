@@ -9,16 +9,18 @@ metadata = {
 
 requirements = {
     "robotType": "Flex",
-    "apiLevel": "2.15",
+    "apiLevel": "2.16",
 }
 
 def run(protocol: protocol_api.ProtocolContext):
     # Initiate Labware
+    waste_chute         = protocol.load_waste_chute()
+    trash_bin           = protocol.load_trash_bin("A3")
     tiprack_1000a       = protocol.load_labware(load_name='opentrons_flex_96_tiprack_1000ul', location='D1') # Tip Rack
     tiprack_1000b       = protocol.load_labware(load_name='opentrons_flex_96_tiprack_1000ul', location='C1') # Tip Rack
     master_reservoir    = protocol.load_labware('axygen_1_reservoir_90ml', 'C2')
     res1                = protocol.load_labware('nest_12_reservoir_15ml', 'D2', 'Reservoir') # Reservoir
-    elution_plate       = protocol.load_labware('opentrons_96_wellplate_200ul_pcr_full_skirt', 'D3', 'PCR Plate')
+    elution_plate       = protocol.load_labware('opentrons_96_wellplate_200ul_pcr_full_skirt', 'C3', 'PCR Plate')
     p1000               = protocol.load_instrument(instrument_name='flex_8channel_1000', mount='left', tip_racks=[tiprack_1000a, tiprack_1000b]) # Pipette
     
     num_samples = 48
