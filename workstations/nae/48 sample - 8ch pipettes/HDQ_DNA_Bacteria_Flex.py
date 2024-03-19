@@ -120,7 +120,8 @@ def run(ctx):
         drop_count = drop_count + 8
         if drop_count >= 250:
             drop_count = 0
-            ctx.pause("Please empty the waste bin of all the tips before continuing.")
+            if ABR_TEST == False:
+                ctx.pause("Please empty the waste bin of all the tips before continuing.") 
 
     def remove_supernatant(vol):
         ctx.comment("-----Removing Supernatant-----")

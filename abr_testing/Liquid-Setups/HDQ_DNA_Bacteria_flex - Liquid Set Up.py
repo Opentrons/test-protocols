@@ -57,3 +57,4 @@ def run(protocol: protocol_api.ProtocolContext):
     # Res2
     p1000.transfer(volume = [wash1_vol, wash1_vol, wash1_vol, wash2_vol, wash2_vol, wash2_vol, wash3_vol, wash3_vol, wash3_vol], source = master_reservoir['A1'].bottom(z=0.5), dest = [wash1a, wash1b, wash1c, wash2a, wash2b, wash2c, wash3a, wash3b, wash3c], blowout = True, blowout_location = 'source well', trash = False)
     
+c
