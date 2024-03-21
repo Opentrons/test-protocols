@@ -2,7 +2,7 @@ from opentrons import protocol_api
 from opentrons import types
 
 metadata = {
-    'protocolName': 'Tip Pick Test 200 ul Left mount',
+    'protocolName': 'Tip Pick Test 200 ul Left mount - 24 times',
     'author': 'Rhyann Clarke <rhyann.clarke@opentrons.com>',
     'source': 'Protocol Library'
     }
@@ -32,8 +32,9 @@ def run(protocol: protocol_api.ProtocolContext):
     column_list   = ['A1','A2','A3','A4','A5','A6', 'A7','A8','A9','A10','A11','A12']
     thermocycler.open_lid()
     
-    for i in list(range(6)):
+    for i in list(range(24)):
         for i in list(range(36)):
             p1000.pick_up_tip()
             p1000.return_tip()
+            p1000.home()
         p1000.reset_tipracks()

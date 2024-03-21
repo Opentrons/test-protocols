@@ -166,7 +166,7 @@ def run(protocol: protocol_api.ProtocolContext):
 
     data = [r.split(",") for r in sample_quant_csv.strip().splitlines() if r][1:]
 
-    for X in range(2):
+    for X in range(1):
         protocol.comment("==============================================")
         protocol.comment("Adding Dye Sample Plate 1")
         protocol.comment("==============================================")
