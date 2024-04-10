@@ -18,23 +18,15 @@ def run(protocol: protocol_api.ProtocolContext):
     global p50_tips
     
     # DECK SETUP AND LABWARE
-    # ========== FIRST ROW ===========
-    heatershaker        = protocol.load_module('heaterShakerModuleV1','1')
 
-    ####### METHOD ONE FOR ADAPTER AND LABWARE SEPERATE #############
-    hs_adapter          = heatershaker.load_adapter("opentrons_96_deep_well_adapter")
-    sample_plate_2      = hs_adapter.load_labware("nest_96_wellplate_2ml_deep")
+
 
     ####### METHOD TWO FOR ADAPTER AND LABWARE TOGETHER #############
-    # sample_plate_2      = heatershaker.load_labware('nest_96_wellplate_2ml_deep', adapter = 'opentrons_96_deep_well_adapter')
-    # hs_adapter          = sample_plate_2.parent
 
     tiprack_200_1       = protocol.load_labware('opentrons_flex_96_tiprack_200ul', '2')
-    temp_block          = protocol.load_module('temperature module gen2', '3')
-    temp_block_adapter  = temp_block.load_adapter('opentrons_96_well_aluminum_block')
-    reagent_plate       = temp_block_adapter.load_labware('armadillo_96_wellplate_200ul_pcr_full_skirt')
+
     # ========== SECOND ROW ==========
-    MAG_PLATE_SLOT      = protocol.load_module('magneticBlockV1', '4')
+
     reservoir           = protocol.load_labware('nest_12_reservoir_15ml','5')    
     tiprack_200_2       = protocol.load_labware('opentrons_flex_96_tiprack_200ul', '6')
     # ========== THIRD ROW ===========
@@ -72,7 +64,7 @@ def run(protocol: protocol_api.ProtocolContext):
     protocol.pause('Weight Armadillo Plate, place on thermocycler')
     #Close lid
     thermocycler.close_lid()
-    #hold at 95° for 3 minutes
+    # Hold at 95° for 3 minutes
     profile_TAG = [{'temperature': 95, 'hold_time_minutes': 3}]
     thermocycler.execute_profile(steps = profile_TAG, repetitions = 1)
     #30x cycles of: 70° for 30s 72° for 30s 95° for 10s 
