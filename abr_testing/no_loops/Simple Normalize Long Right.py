@@ -176,7 +176,7 @@ def run(protocol: protocol_api.ProtocolContext):
         while current < len(data):
             CurrentWell = str(data[current][1])
             DyeVol = float(data[current][2])
-            if DyeVol != 0:
+            if DyeVol != 0 and DyeVol < 100:
                 p1000.transfer(DyeVol, Dye_1.bottom(z=2), sample_plate_1.wells_by_name()[CurrentWell].top(z=1), new_tip='never')
             current += 1
         p1000.blow_out()
@@ -191,7 +191,7 @@ def run(protocol: protocol_api.ProtocolContext):
         while current < len(data):
             CurrentWell = str(data[current][1])
             DilutionVol = float(data[current][2])
-            if DilutionVol != 0:
+            if DilutionVol != 0 and DilutionVol < 100:
                 p1000.pick_up_tip()
                 p1000.aspirate(DilutionVol, Diluent_1.bottom(z=2))
                 p1000.dispense(DilutionVol, sample_plate_1.wells_by_name()[CurrentWell].top(z=0.2))
@@ -209,7 +209,7 @@ def run(protocol: protocol_api.ProtocolContext):
         while current < len(data):
             CurrentWell = str(data[current][1])
             DyeVol = float(data[current][2])
-            if DyeVol != 0:
+            if DyeVol != 0 and DyeVol < 100:
                 p1000.transfer(DyeVol, Dye_2.bottom(z=2), sample_plate_2.wells_by_name()[CurrentWell].top(z=1), new_tip='never')
             current += 1
         p1000.blow_out()
@@ -224,7 +224,7 @@ def run(protocol: protocol_api.ProtocolContext):
         while current < len(data):
             CurrentWell = str(data[current][1])
             DilutionVol = float(data[current][2])
-            if DilutionVol != 0:
+            if DilutionVol != 0 and DilutionVol < 100:
                 p1000.pick_up_tip()
                 p1000.aspirate(DilutionVol, Diluent_2.bottom(z=2))
                 p1000.dispense(DilutionVol, sample_plate_2.wells_by_name()[CurrentWell].top(z=0.2))
@@ -242,7 +242,7 @@ def run(protocol: protocol_api.ProtocolContext):
         while current < len(data):
             CurrentWell = str(data[current][1])
             DyeVol = float(data[current][2])
-            if DyeVol != 0:
+            if DyeVol != 0 and DyeVol < 100:
                 p1000.transfer(DyeVol, Dye_3.bottom(z=2), sample_plate_3.wells_by_name()[CurrentWell].top(z=1), new_tip='never')
             current += 1
         p1000.blow_out()
@@ -257,7 +257,7 @@ def run(protocol: protocol_api.ProtocolContext):
         while current < len(data):
             CurrentWell = str(data[current][1])
             DilutionVol = float(data[current][2])
-            if DilutionVol != 0:
+            if DilutionVol != 0 and DilutionVol < 100:
                 p1000.pick_up_tip()
                 p1000.aspirate(DilutionVol, Diluent_3.bottom(z=2))
                 p1000.dispense(DilutionVol, sample_plate_3.wells_by_name()[CurrentWell].top(z=0.2))
