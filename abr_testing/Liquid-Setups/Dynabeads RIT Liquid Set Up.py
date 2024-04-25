@@ -2,7 +2,7 @@ from opentrons import protocol_api
 from opentrons import types
 
 metadata = {
-    'protocolName': 'Dynabeads RIT ABR Liquid Run Set Up',
+    'protocolName': 'PVT1ABR11: Immunoprecipitation by Dynabeads - 96-well setting on Opentrons Flex Liquid Run Set Up',
     'author': 'Rhyann Clarke <rhyann.clarke@opentrons.com>',
     'source': 'Protocol Library',
     }

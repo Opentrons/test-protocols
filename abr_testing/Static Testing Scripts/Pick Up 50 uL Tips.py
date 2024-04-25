@@ -2,7 +2,7 @@ from opentrons import protocol_api
 from opentrons import types
 
 metadata = {
-    'protocolName': 'Pick Up 50 uL Tips -p1000 on right-all tips',
+    'protocolName': 'Pick Up 50 uL Tips Right and Left',
     'author': 'Rhyann Clarke <rhyann.clarke@opentrons.com>',
     'source': 'Protocol Library'
     }
@@ -27,80 +27,23 @@ def run(protocol: protocol_api.ProtocolContext):
     thermocycler        = protocol.load_module('thermocycler module gen2')
 
     # pipette
-
-    p50 = protocol.load_instrument("flex_8channel_50", "left")
-    p1000 = protocol.load_instrument("flex_8channel_1000", "right")
-    
+    p50 = protocol.load_instrument("flex_8channel_50", "right", tip_racks=[tiprack_50_1,tiprack_50_2, tiprack_50_3])
+    p1000 = protocol.load_instrument("flex_8channel_1000", "left", tip_racks=[tiprack_50_1,tiprack_50_2, tiprack_50_3])
     
     column_list   = ['A1','A2','A3','A4','A5','A6', 'A7','A8','A9','A10','A11','A12']
     thermocycler.open_lid()
-    
-    for n in column_list:
-        p50.pick_up_tip(tiprack_50_1[n])
-        p50.aspirate(10, reagent_plate[n].top())
-        p50.dispense(10, reagent_plate[n].bottom(z = 0.5))
-        p50.return_tip()
-    
-    for n in column_list:
-        p1000.pick_up_tip(tiprack_50_1[n])
-        p1000.aspirate(10, reagent_plate[n].top())
-        p1000.dispense(10, reagent_plate[n].bottom(z = 0.5))
-        p1000.return_tip()
-        
-    for n in column_list:
-        p50.pick_up_tip(tiprack_50_2[n])
-        p50.aspirate(10, reagent_plate[n].top())
-        p50.dispense(10, reagent_plate[n].bottom(z = 0.5))
-        p50.return_tip()
-    
-    for n in column_list:
-        p1000.pick_up_tip(tiprack_50_2[n])
-        p1000.aspirate(10, reagent_plate[n].top())
-        p1000.dispense(10, reagent_plate[n].bottom(z = 0.5))
-        p1000.return_tip()
-        
-    for n in column_list:
-        p50.pick_up_tip(tiprack_50_3[n])
-        p50.aspirate(10, reagent_plate[n].top())
-        p50.dispense(10, reagent_plate[n].bottom(z = 0.5))
-        p50.return_tip()
-    
-    for n in column_list:
-        p1000.pick_up_tip(tiprack_50_3[n])
-        p1000.aspirate(10, reagent_plate[n].top())
-        p1000.dispense(10, reagent_plate[n].bottom(z = 0.5))
-        p1000.return_tip()
-        
-    for n in column_list:
-        p50.pick_up_tip(tiprack_50_5[n])
-        p50.aspirate(10, reagent_plate[n].top())
-        p50.dispense(10, reagent_plate[n].bottom(z = 0.5))
-        p50.return_tip()
-        
-    for n in column_list:
-        p1000.pick_up_tip(tiprack_50_5[n])
-        p1000.aspirate(10, reagent_plate[n].top())
-        p1000.dispense(10, reagent_plate[n].bottom(z = 0.5))
-        p1000.return_tip()
-    
-    for n in column_list:
-        p1000.pick_up_tip(tiprack_50_4[n])
-        p1000.aspirate(10, reagent_plate[n].top())
-        p1000.dispense(10, reagent_plate[n].bottom(z = 0.5))
-        p1000.return_tip()
-    
-    for n in column_list:
-        p50.pick_up_tip(tiprack_50_4[n])
-        p50.aspirate(10, reagent_plate[n].top())
-        p50.dispense(10, reagent_plate[n].bottom(z = 0.5))
-        p50.return_tip()
-    
-    
-        
-        
-    # for i in list(range(5)):
-    #     for n in column_list:
-    #         p50.pick_up_tip()
-    #         p50.aspirate(10, reagent_plate[n].top())
-    #         p50.dispense(10, reagent_plate[n].bottom(z = 0.5))
-    #         p50.return_tip()
+    for i in list(range(3)):
+        for n in column_list:
+            p50.pick_up_tip()
+            p50.aspirate(30, reservoir_12well[n].bottom(z = 1))
+            p50.dispense(10, reagent_plate[n].bottom(z = 0.5))
+            p50.dispense(10, reservoir_96well[n].bottom(z = 0.5))
+            p50.return_tip()
+    p50.reset_tipracks()
+    for i in list(range(3)):
+        for n in column_list:
+            p1000.pick_up_tip()
+            p1000.aspirate(30, reservoir_12well[n].bottom(z = 1))
+            p1000.dispense(10, reagent_plate[n].bottom(z = 0.5))
+            p1000.dispense(10, reservoir_96well[n].bottom(z = 0.5))
+            p1000.return_tip()

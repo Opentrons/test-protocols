@@ -1,42 +1,45 @@
 from opentrons.types import Point
 import json
-import os
 import math
-import threading
-from time import sleep
 from opentrons import types
 import numpy as np
-import smtplib 
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 
 metadata = {
-    'protocolName': 'Thermo MagMax RNA Extraction: Cells Multi-Channel',
     'author': 'Zach Galluzzo <zachary.galluzzo@opentrons.com>',
+    'protocolName': 'Thermo MagMax RNA Extraction: Cells Multi-Channel',
 }
 
 requirements = {
     "robotType": "Flex",
-    "apiLevel": "2.15",
+    "apiLevel": "2.16",
 }
+"""
+Slot A1: Tips 200
+Slot A2: Tips 200
+Slot A3: Temperature module (gen2) with 96 well PCR block and Armadillo 96 well PCR Plate
+** Plate gets 55 ul per well in each well of the entire plate
+Slot B1: Tips 200
+Slot B2: Tips 200
+Slot B3: Nest 1 Well Reservoir
+Slot C1: Magblock
+Slot C2: 
+Slot C3: 
+Slot D1: H-S with Nest 96 Well Deepwell and DW Adapter
+Slot D2: Nest 12 well 15 ml Reservoir
+Slot D3: Trash
 
+Reservoir 1:
+Well 1 - 8120 ul
+Well 2 - 6400 ul
+Well 3-7 - 8550 ul
 """
-Here is where you can modify the magnetic module engage height:
-"""
-dry_run = False
-USE_GRIPPER = True
+
 whichwash = 1
+sample_max = 48
 tip = 0
 drop_count = 0
 waste_vol = 0
 
-ABR_TEST                = True
-if ABR_TEST == True:
-    DRYRUN              = True          # True = skip incubation times, shorten mix, for testing purposes
-    TIP_TRASH           = False         # True = Used tips go in Trash, False = Used tips go back into rack
-else:
-    DRYRUN              = False          # True = skip incubation times, shorten mix, for testing purposes
-    TIP_TRASH           = True 
 
 # Start protocol
 def run(ctx):
@@ -44,53 +47,74 @@ def run(ctx):
     Here is where you can change the locations of your labware and modules
     (note that this is the recommended configuration)
     """
-    #Same for all Extractions
+    trash_chute = False
+    USE_GRIPPER = True
+    dry_run = False
+    inc_lysis = True
+    mount = 'left'
+    res_type = "nest_12_reservoir_15ml"
+    temp_mod = True
+    TIP_TRASH = False
     num_samples = 48
-    deepwell_type = "nest_96_wellplate_2ml_deep"
-    res_type="nest_12_reservoir_15ml"
     wash_vol= 150
+    sample_vol = 50
+    lysis_vol = 140
+    stop_vol = 100
+    elution_vol = dnase_vol = 50
+
+    try:
+        [res_type,temp_mod,trash_chute,USE_GRIPPER, dry_run,inc_lysis,mount,num_samples,wash_vol,lysis_vol,sample_vol,stop_vol,dnase_vol,elution_vol] = get_values(  # noqa: F821
+        'res_type','temp_mod','trash_chute','USE_GRIPPER','dry_run','inc_lysis','mount','num_samples','wash_vol','lysis_vol','sample_vol','stop_vol','dnase_vol','elution_vol')
+
+    except (NameError):
+        pass
+    
+    #Protocol Parameters
+    deepwell_type = "nest_96_wellplate_2ml_deep"
+    
     if not dry_run:
         settling_time = 2
     else:
         settling_time = 0.25
-    sample_vol= 50
-    lysis_vol = 140
-    elution_vol= 50
+    bead_vol = 20
     starting_vol= sample_vol+lysis_vol
-    
+    if trash_chute:
+        trash = ctx.load_waste_chute()
+    else:
+        trash = ctx.load_trash_bin('A3')
+        
     h_s = ctx.load_module('heaterShakerModuleV1','D1')
     h_s_adapter = h_s.load_adapter('opentrons_96_deep_well_adapter')
-    sample_plate = h_s_adapter.load_labware(deepwell_type)
+    sample_plate = h_s_adapter.load_labware(deepwell_type,'Sample Plate')
     h_s.close_labware_latch()
-    temp = ctx.load_module('temperature module gen2','D3')
-    temp_block = temp.load_adapter('opentrons_96_well_aluminum_block')
-    elutionplate = temp_block.load_labware('opentrons_96_wellplate_200ul_pcr_full_skirt')
-    if not dry_run:
-        temp.set_temperature(4)
+    
+    if temp_mod:
+        temp = ctx.load_module('temperature module gen2','D3')
+        temp_block = temp.load_adapter('opentrons_96_well_aluminum_block')
+        elutionplate = temp_block.load_labware('opentrons_96_wellplate_200ul_pcr_full_skirt','Elution Plate')
+        if not dry_run:
+            temp.set_temperature(4)
+    else:
+        elutionplate = ctx.load_labware('opentrons_96_wellplate_200ul_pcr_full_skirt','A3','Elution Plate')
+
     magblock = ctx.load_module('magneticBlockV1','C1')
     waste = ctx.load_labware('nest_1_reservoir_195ml', 'B3','Liquid Waste').wells()[0].top()
     res1 = ctx.load_labware(res_type, 'D2', 'reagent reservoir 1')
     num_cols = math.ceil(num_samples/8)
     
     #Load tips and combine all similar boxes
-    tips200 = ctx.load_labware('opentrons_flex_96_tiprack_200ul', 'C2')
-    tips201 = ctx.load_labware('opentrons_flex_96_tiprack_200ul', 'C3')
-    tips202 = ctx.load_labware('opentrons_flex_96_tiprack_200ul', 'B1')
-    tips203 = ctx.load_labware('opentrons_flex_96_tiprack_200ul', 'B2')
+    tips200 = ctx.load_labware('opentrons_flex_96_tiprack_200ul', 'A1','Tips 1')
+    tips201 = ctx.load_labware('opentrons_flex_96_tiprack_200ul', 'A2','Tips 2')
+    tips202 = ctx.load_labware('opentrons_flex_96_tiprack_200ul', 'B1','Tips 3')
+    tips203 = ctx.load_labware('opentrons_flex_96_tiprack_200ul', 'B2','Tips 4')
     tips = [*tips200.wells()[num_samples:96],*tips201.wells(),*tips202.wells(),*tips203.wells()]
     tips_sn = tips200.wells()[:num_samples]
 
     # load P1000M pipette
-    m1000 = ctx.load_instrument('flex_8channel_1000', 'left')
+    m1000 = ctx.load_instrument('flex_8channel_1000', mount)
 
-    """
-    Here is where you can define the locations of your reagents.
-    """
-    cells_m = sample_plate.rows()[0][num_cols:2*num_cols]
-    samples_m = sample_plate.rows()[0][:num_cols]
-    elution_samples_m = elutionplate.rows()[0][:num_cols]
-
-    elution_solution = elution_samples_m
+    # Load Liquid Locations in Reservoir
+    elution_solution = elutionplate.rows()[0][:num_cols]
     dnase1 = elutionplate.rows()[0][num_cols:2*num_cols]
     lysis_ = res1.wells()[0]
     stopreaction = res1.wells()[1]
@@ -100,6 +124,97 @@ def run(ctx):
     wash4 = res1.wells()[5]
     wash5 = res1.wells()[6] 
 
+    """
+    Here is where you can define the locations of your reagents.
+    """
+    samples_m = sample_plate.rows()[0][:num_cols] #20ul beads each well
+    cells_m = sample_plate.rows()[0][num_cols:2*num_cols]
+    elution_samples_m = elutionplate.rows()[0][:num_cols]
+    #Do the same for color mapping
+    beads_ = sample_plate.wells()[:(8*num_cols)]
+    cells_ = sample_plate.wells()[(8*num_cols):(16*num_cols)]
+    elution_samps = elutionplate.wells()[:(8*num_cols)]
+    dnase1_ = elutionplate.wells()[(8*num_cols):(16*num_cols)]
+
+    colors = ['#008000','#A52A2A','#00FFFF','#0000FF','#800080',\
+    '#ADD8E6','#FF0000','#FFFF00','#FF00FF','#00008B','#7FFFD4',\
+    '#FFC0CB','#FFA500','#00FF00','#C0C0C0']
+
+    locations = [lysis_,wash1,wash2,wash3,wash4,wash5,stopreaction]
+    vols = [lysis_vol,wash_vol,wash_vol,wash_vol,wash_vol,wash_vol,stop_vol]
+    liquids = ['Lysis','Wash 1','Wash 2','Wash 3','Wash 4','Wash 5','Stop']
+
+    dnase = ctx.define_liquid(name='DNAse',description='DNAse',display_color='#C0C0C0')
+    eluate = ctx.define_liquid(name='Elution Buffer',description='Elution Buffer',display_color='#00FF00')
+    bead = ctx.define_liquid(name='Beads',description='Beads',display_color='#FFA500')
+    sample = ctx.define_liquid(name='Sample',description='Cell Pellet',display_color='#FFC0CB')
+
+    #Add liquids to non-reservoir labware
+    for i in beads_:
+        i.load_liquid(liquid=bead,volume=bead_vol)
+    for i in cells_:
+        i.load_liquid(liquid=sample,volume=0)
+    for i in dnase1_:
+        i.load_liquid(liquid=dnase,volume=dnase_vol)
+    for i in elution_samps:
+        i.load_liquid(liquid=eluate,volume=elution_vol)
+
+    delete = len(colors)-len(liquids)
+
+    if delete>=1:
+        for i in range(delete):
+            colors.pop(-1)
+
+    def liquids_(liq,location,color,vol):
+        sampnum = 8*(math.ceil(num_samples/8))
+        """
+        Takes an individual liquid at a time and adds the color to the well
+        in the description.
+        """
+        #Volume Calculation
+        extra_samples = math.ceil(1500/vol)
+        
+        #Defining and assigning liquids to wells
+        # if isinstance(location,list):
+        #     limit = sample_max/len(location) #Calculates samples/ res well
+        #     iterations = math.ceil(sampnum/limit)
+        #     left = sampnum - limit
+        #     while left>limit:
+        #         left = left - limit
+        #     if left > 0:
+        #         last_iteration_samp_num = left
+        #     elif left < 0:
+        #         last_iteration_samp_num = sampnum
+        #     else:
+        #         last_iteration_samp_num = limit
+
+        #     samples_per_well = []
+
+        #     for i in range(iterations):
+        #         #append the left over on the last iteration
+        #         if i == (iterations-1):
+        #             samples_per_well.append(last_iteration_samp_num)
+        #         else:
+        #             samples_per_well.append(limit)
+
+        #     liq = ctx.define_liquid(name=str(liq),description=str(liq),display_color=color)
+        #     for sample, well in zip(samples_per_well,location[:len(samples_per_well)]):
+        #         v = vol*(sample+extra_samples)
+        #         well.load_liquid(liquid=liq,volume=v)
+        #else:
+        v = vol*(sampnum+extra_samples)
+        liq = ctx.define_liquid(name=str(liq),description=str(liq),display_color=color)
+        location.load_liquid(liquid=liq,volume=v)
+
+    for x,(ll,l,c,v) in enumerate(zip(liquids,locations,colors,vols)):
+        liquids_(ll,l,c,v)
+
+    # for x in range(len(locations)):
+    #     ctx.comment("Location:" + str(locations[x]))
+    #     ctx.comment("Liquid:" + str(liquids[x]))
+    #     ctx.comment("Color:" + str(colors[x]))
+    #     ctx.comment("Volume:" + str(vols[x]))
+    
     m1000.flow_rate.aspirate = 50
     m1000.flow_rate.dispense = 150
     m1000.flow_rate.blow_out = 300
@@ -110,10 +225,10 @@ def run(ctx):
         pip.pick_up_tip(tipbox[int(tip)])
         tip = tip + 8
         drop_count = drop_count + 8
-        if (drop_count >= 250) & (ABR_TEST == False):
+        if drop_count >= 250:
             drop_count = 0
-            ctx.pause("Please empty the waste bin of all the tips before continuing.")
-
+            if TIP_TRASH == True:
+                ctx.pause("Please empty the waste bin of all the tips before continuing.")
     def blink():
         for i in range(3):
             ctx.set_rail_lights(True)
@@ -130,7 +245,7 @@ def run(ctx):
         def _waste_track(vol):
             global waste_vol 
             waste_vol = waste_vol + (vol*8)
-            if (waste_vol >= 185000) & (ABR_TEST == False):
+            if waste_vol >= 185000:
                 m1000.home()
                 blink()
                 ctx.pause('Please empty liquid waste before resuming.')
@@ -147,7 +262,7 @@ def run(ctx):
                 m1000.transfer(vol_per_trans, loc, waste, new_tip='never',air_gap=20)
                 m1000.blow_out(waste)
                 m1000.air_gap(20)
-            m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip(tips_sn[8*i])
+            m1000.drop_tip(tips_sn[8*i]) if TIP_TRASH == True else m1000.return_tip()
         m1000.flow_rate.aspirate = 300
         #Move Plate From Magnet to H-S
         h_s.open_labware_latch()
@@ -262,7 +377,7 @@ def run(ctx):
                 if x == 3:
                     ctx.delay(minutes=0.0167)
                     m1000.blow_out(cells_m[i].bottom(1))
-            m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip()
+            m1000.drop_tip() if TIP_TRASH == True else m1000.return_tip()
 
         h_s.set_and_wait_for_shake_speed(2200)
         ctx.delay(minutes=1 if not dry_run else 0.25,msg='Please allow 1 minute incubation for cells to lyse')
@@ -287,13 +402,13 @@ def run(ctx):
         for i, well in enumerate(samples_m):
             #Transfer cells+lysis/bind to wells with beads
             tiptrack(m1000,tips)
-            m1000.aspirate(175,cells_m[i].bottom(0.5))
+            m1000.aspirate(185,cells_m[i].bottom(0.1))
             m1000.air_gap(10)
-            m1000.dispense(185,well.bottom(8))
+            m1000.dispense(m1000.current_volume,well.bottom(8))
             #Mix after transfer
             bead_mixing(well,m1000,130, reps=5 if not dry_run else 1)
             m1000.air_gap(10)
-            m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip()
+            m1000.drop_tip() if TIP_TRASH == True else m1000.return_tip()
 
         h_s.set_and_wait_for_shake_speed(2000)
         ctx.delay(minutes=5 if not dry_run else 0.25,msg='Please allow 5 minute incubation for beads to bind to DNA')
@@ -311,7 +426,7 @@ def run(ctx):
             ctx.delay(minutes=0.5, msg='There are ' + str(bindi) + ' minutes left in the incubation.')
 
         # remove initial supernatant
-        remove_supernatant(175)
+        remove_supernatant(180)
 
     def wash(vol, source):
 
@@ -340,7 +455,7 @@ def run(ctx):
                 ctx.delay(seconds=2)
                 m1000.blow_out(m.top(-2))
             m1000.air_gap(10)
-        m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip()
+        m1000.drop_tip() if TIP_TRASH == True else m1000.return_tip()
 
         #Shake for 5 minutes to mix wash with beads
         h_s.set_and_wait_for_shake_speed(2000)
@@ -371,7 +486,7 @@ def run(ctx):
             for n in range(num_trans):
                 if m1000.current_volume > 0:
                     m1000.dispense(m1000.current_volume, src.top())
-                m1000.aspirate(vol_per_trans, src.bottom(0.5))
+                m1000.aspirate(vol_per_trans, src.bottom(0.15))
                 m1000.dispense(vol_per_trans, m.top(-3))
             m1000.blow_out(m.top(-3))
             m1000.air_gap(20)
@@ -383,7 +498,7 @@ def run(ctx):
             if i != 0:
                 tiptrack(m1000,tips)
             mixing(samples_m[i], m1000, 45, reps=5 if not dry_run else 1)
-            m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip()
+            m1000.drop_tip() if TIP_TRASH == True else m1000.return_tip()
 
         #Shake for 10 minutes to mix DNAseI
         h_s.set_and_wait_for_shake_speed(2000)
@@ -404,7 +519,7 @@ def run(ctx):
             m1000.blow_out(m.top(-3))
             m1000.air_gap(20)
         
-        m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip()
+        m1000.drop_tip() if TIP_TRASH == True else m1000.return_tip()
             
         #Shake for 3 minutes to mix wash with beads
         h_s.set_and_wait_for_shake_speed(2000)
@@ -450,7 +565,7 @@ def run(ctx):
                     m1000.aspirate(elution_vol-10, samples_m[i])
                     m1000.dispense(elution_vol-10, samples_m[i].bottom(10))
                     m1000.flow_rate.dispense = 300
-            m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip()
+            m1000.drop_tip() if TIP_TRASH == True else m1000.return_tip()
 
         #Shake for 3 minutes to mix wash with beads
         h_s.set_and_wait_for_shake_speed(2000)
@@ -471,29 +586,29 @@ def run(ctx):
         ctx.comment("-----Trasnferring Sample to Elution Plate-----")
         for i, (m, e) in enumerate(zip(samples_m, elution_samples_m)):
             tiptrack(m1000,tips)
-            loc = m.bottom(0.5)
+            loc = m.bottom(0.1)
             m1000.transfer(vol, loc, e.bottom(5), air_gap=20, new_tip='never')
             m1000.blow_out(e.top(-2))
             m1000.air_gap(20)
-            m1000.return_tip() if TIP_TRASH == False else m1000.drop_tip()
+            m1000.drop_tip() if TIP_TRASH == True else m1000.return_tip()
 
     """
     Here is where you can call the methods defined above to fit your specific
     protocol. The normal sequence is:
     """
-    if not dry_run:
+    if inc_lysis:
         lysis(lysis_vol,lysis_)
     bind()
     wash(wash_vol, wash1)
+    wash(wash_vol, wash2)
+    #dnase1 treatment
+    dnase(dnase_vol, dnase1)
+    stop_reaction(stop_vol, stopreaction)
+    #Resume washes
+    wash(wash_vol, wash3)
+    wash(wash_vol, wash4)
+    wash(wash_vol, wash5)
     if not dry_run:
-        wash(wash_vol, wash2)
-        #dnase1 treatment
-        dnase(50, dnase1)
-        stop_reaction(100, stopreaction)
-        #Resume washes
-        wash(wash_vol, wash3)
-        wash(wash_vol, wash4)
-        wash(wash_vol, wash5)
         drybeads = 2 #Number of minutes you want to dry for
     else:
         drybeads = 0.25

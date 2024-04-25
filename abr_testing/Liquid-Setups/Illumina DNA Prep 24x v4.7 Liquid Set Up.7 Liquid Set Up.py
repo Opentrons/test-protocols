@@ -2,7 +2,7 @@ from opentrons import protocol_api
 from opentrons import types
 
 metadata = {
-    'protocolName': 'Illumina DNA Prep 24x v4.7 Liquid Set Up',
+    'protocolName': 'DVT1ABR4: Illumina DNA Prep 24x v4.7 Liquid Set Up',
     'author': 'Rhyann clarke <rhyann.clarke@opentrons.com>',
     'source': 'Protocol Library',
     }
