@@ -13,7 +13,7 @@ requirements = {
 }
 
 # SCRIPT SETTINGS
-DRYRUN              = True          # True = skip incubation times, shorten mix, for testing purposes
+DRYRUN              = False          # True = skip incubation times, shorten mix, for testing purposes
 USE_GRIPPER         = True          # True = Uses Gripper, False = Manual Move
 TIP_TRASH           = False         # True = Used tips go in Trash, False = Used tips go back into rack
 HYBRID_PAUSE        = True          # True = sets a pause on the Hybridization
@@ -39,21 +39,15 @@ STEP_CLEANUP        = 1
 p200_tips = 0
 p50_tips  = 0
 
-ABR_TEST            = True
-if ABR_TEST == True:
-    DRYRUN          = True           # Overrides to only DRYRUN
-    TIP_TRASH       = False          # Overrides to only REUSING TIPS
-    RUN             = 1              # Repetitions
-else:
-    RUN             = 1
+
+TIP_TRASH       = False          # Overrides to only REUSING TIPS
+RUN = 1
 
 def run(protocol: protocol_api.ProtocolContext):
     
     global p200_tips
     global p50_tips
 
-    if ABR_TEST == True:
-        protocol.comment('THIS IS A ABR RUN WITH '+str(RUN)+' REPEATS') 
     protocol.comment('THIS IS A DRY RUN') if DRYRUN == True else protocol.comment('THIS IS A REACTION RUN')
     protocol.comment('USED TIPS WILL GO IN TRASH') if TIP_TRASH == True else protocol.comment('USED TIPS WILL BE RE-RACKED')
 
@@ -134,18 +128,10 @@ def run(protocol: protocol_api.ProtocolContext):
 
     def tipcheck():
         if p200_tips >= 3*12:
-            if ABR_TEST == True: 
-                p1000.reset_tipracks()
-            else:
-                protocol.pause('RESET p200 TIPS')
-                p1000.reset_tipracks()
+            p1000.reset_tipracks()
             p200_tips == 0 
         if p50_tips >= 2*12:
-            if ABR_TEST == True: 
-                p50.reset_tipracks()
-            else:
-                protocol.pause('RESET p50 TIPS')
-                p50.reset_tipracks()
+            p50.reset_tipracks()
             p50_tips == 0
 
 ############################################################################################################################################
@@ -884,103 +870,3 @@ def run(protocol: protocol_api.ProtocolContext):
                 p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip()
                 p200_tips += 1
                 tipcheck()
-        
-        if ABR_TEST == True:
-            protocol.comment('==============================================')
-            protocol.comment('--> Resetting Run')
-            protocol.comment('==============================================')
-            
-            #============================================================================================
-            # GRIPPER MOVE PLATE FROM MAG PLATE TO HEATER SHAKER
-            heatershaker.open_labware_latch()
-            protocol.move_labware(
-                labware=sample_plate_2,
-                new_location=heatershaker,
-                use_gripper=USE_GRIPPER
-            )
-            heatershaker.close_labware_latch()
-            #============================================================================================
-
-            p1000.pick_up_tip()
-            # Resetting NHB2
-            p1000.aspirate(COLUMNS*50, Liquid_trash_well_1.bottom(z=1))
-            p1000.dispense(COLUMNS*50, NHB2.bottom(z=1))
-            # Resetting Panel
-            p1000.aspirate(COLUMNS*10, Liquid_trash_well_1.bottom(z=1))
-            p1000.dispense(COLUMNS*10, Panel.bottom(z=1))
-            # Resetting EHB2
-            p1000.aspirate(COLUMNS*10, Liquid_trash_well_1.bottom(z=1))
-            p1000.dispense(COLUMNS*10, EHB2.bottom(z=1))
-            # Resetting SMB
-            for X in range(COLUMNS):
-                p1000.aspirate(125, Liquid_trash_well_1.bottom(z=1))
-                p1000.dispense(125, SMB.bottom(z=1))
-                p1000.aspirate(125, Liquid_trash_well_1.bottom(z=1))
-                p1000.dispense(125, SMB.bottom(z=1))
-
-            # Resetting TWB
-            for X in range(COLUMNS):
-
-                p1000.aspirate(200, Liquid_trash_well_2.bottom(z=1))
-                p1000.dispense(200, EEW_1.bottom(z=1))
-                p1000.aspirate(200, Liquid_trash_well_2.bottom(z=1))
-                p1000.dispense(200, EEW_1.bottom(z=1))
-                p1000.aspirate(200, Liquid_trash_well_2.bottom(z=1))
-                p1000.dispense(200, EEW_2.bottom(z=1))
-                p1000.aspirate(200, Liquid_trash_well_2.bottom(z=1))
-                p1000.dispense(200, EEW_2.bottom(z=1))
-                p1000.aspirate(200, Liquid_trash_well_2.bottom(z=1))
-                p1000.dispense(200, EEW_3.bottom(z=1))
-                p1000.aspirate(200, Liquid_trash_well_2.bottom(z=1))
-                p1000.dispense(200, EEW_3.bottom(z=1))
-                p1000.aspirate(200, Liquid_trash_well_3.bottom(z=1))
-                p1000.dispense(200, EEW_1.bottom(z=1))
-                p1000.aspirate(200, Liquid_trash_well_3.bottom(z=1))
-                p1000.dispense(200, EEW_1.bottom(z=1))
-                p1000.aspirate(200, Liquid_trash_well_3.bottom(z=1))
-                p1000.dispense(200, EEW_2.bottom(z=1))
-                p1000.aspirate(200, Liquid_trash_well_3.bottom(z=1))
-                p1000.dispense(200, EEW_2.bottom(z=1))
-                p1000.aspirate(200, Liquid_trash_well_3.bottom(z=1))
-                p1000.dispense(200, EEW_3.bottom(z=1))
-                p1000.aspirate(200, Liquid_trash_well_3.bottom(z=1))
-                p1000.dispense(200, EEW_3.bottom(z=1))
-            # Resetting ETOH
-            for X in range(COLUMNS):
-                p1000.aspirate(150, Liquid_trash_well_4.bottom(z=1))
-                p1000.dispense(150, EtOH.bottom(z=1))
-                p1000.aspirate(150, Liquid_trash_well_4.bottom(z=1))
-                p1000.dispense(150, EtOH.bottom(z=1))
-            # Resetting AMPURE
-            for X in range(COLUMNS):
-                p1000.aspirate(COLUMNS*40.5, Liquid_trash_well_4.bottom(z=1))
-                p1000.dispense(COLUMNS*40.5, AMPure.bottom(z=1))
-            # Resetting Elute
-            p1000.aspirate(COLUMNS*25, Liquid_trash_well_4.bottom(z=1))
-            p1000.dispense(COLUMNS*25, Elute.bottom(z=1))
-            # Resetting EPM
-            p1000.aspirate(COLUMNS*40, Liquid_trash_well_4.bottom(z=1))
-            p1000.dispense(COLUMNS*40, EPM.bottom(z=1))
-            p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip()
-            p200_tips += 1
-            tipcheck()
-
-            p50.pick_up_tip()
-            # Resetting ET2
-            p50.aspirate(COLUMNS*4, Liquid_trash_well_4.bottom(z=1))
-            p50.dispense(COLUMNS*4, ET2.bottom(z=1))
-            # Resetting PPC
-            p50.aspirate(COLUMNS*5, Liquid_trash_well_4.bottom(z=1))
-            p50.dispense(COLUMNS*5, PPC.bottom(z=1))
-            # Removing Final Samples
-            for loop, X in enumerate(column_6_list):
-                p50.aspirate(32, sample_plate_1[X].bottom(z=1))
-                p50.dispense(32, Liquid_trash_well_4.bottom(z=1))
-            # Resetting Samples
-            for loop, X in enumerate(column_1_list):
-                p50.aspirate(30, Liquid_trash_well_4.bottom(z=1))
-                p50.dispense(30, sample_plate_1[X].bottom(z=1))
-
-            p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
-            p50_tips += 1
-            tipcheck()

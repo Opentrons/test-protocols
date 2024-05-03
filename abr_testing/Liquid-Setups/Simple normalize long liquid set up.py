@@ -23,7 +23,7 @@ def run(protocol: protocol_api.ProtocolContext):
     reservoir           = protocol.load_labware('nest_12_reservoir_15ml','D2', 'Reservoir') # Reservoir
     p1000               = protocol.load_instrument(instrument_name='flex_8channel_1000', mount='left', tip_racks=[tiprack_1000]) # Pipette
 
-    vol = 5217 / 8
+    vol = 5400 / 8
     
     columns = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6']
     for i in columns:
