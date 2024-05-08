@@ -1,5 +1,10 @@
 from opentrons import protocol_api
 from opentrons import types
+from opentrons.drivers.command_builder import CommandBuilder
+from opentrons.drivers import utils
+from enum import Enum
+from typing import List
+
 
 metadata = {
     'protocolName': 'Illumina DNA Prep 24x v4.7',
@@ -12,6 +17,16 @@ requirements = {
     "apiLevel": "2.15",
 }
 
+
+# THERMOCYLCER VARIABLES
+SERIAL_ACK = "\r\n"
+TC_COMMAND_TERMINATOR = SERIAL_ACK
+TC_ACK = "ok" + SERIAL_ACK + "ok" + SERIAL_ACK
+DEFAULT_TC_TIMEOUT = 40
+DEFAULT_COMMAND_RETRIES = 3
+class GCODE(str, Enum):
+    PRINT_POWER_OUTPUT = "M103.D"
+    
 # SCRIPT SETTINGS
 USE_GRIPPER         = True          # True = Uses Gripper, False = Manual Move
 TIP_TRASH           = False         # True = Used tips go in Trash, False = Used tips go back into rack
@@ -43,7 +58,24 @@ RUN             = 1              # Repetitions
 
 
 def run(protocol: protocol_api.ProtocolContext):
+    async def _driver_get_power_output():
+        """Get Raw Power Output for each Thermocycler element."""
+        c = (
+            CommandBuilder(terminator=TC_COMMAND_TERMINATOR)
+            .add_gcode(gcode=GCODE.PRINT_POWER_OUTPUT)
+        )
+        if not ctx.is_simulating():
+            response = await tc_driver._connection.send_command(command=c, retries=DEFAULT_COMMAND_RETRIES)
+        else:
+            response = TC_ACK  # SimulatingDriver has no `._connection` so need to return _something_ for that case
+        return response
+
+    async def _get_power_output():
+        await tc_async_module_hardware.wait_for_is_running()
+        response = await _driver_get_power_output()
+        return str(response)
     
+
     global p200_tips
     global p50_tips
     global WasteVol
@@ -67,7 +99,10 @@ def run(protocol: protocol_api.ProtocolContext):
     tiprack_200_1       = protocol.load_labware('opentrons_flex_96_tiprack_200ul', 'C2')
     tiprack_50_1        = protocol.load_labware('opentrons_flex_96_tiprack_50ul', 'C3')
     # ========== THIRD ROW ===========
-    thermocycler        = protocol.load_module('thermocycler module gen2')
+    thermocycler                = protocol.load_module('thermocycler module gen2')
+    tc_sync_module_hardware     = thermocycler._core._sync_module_hardware
+    tc_async_module_hardware    = tc_sync_module_hardware._obj_to_adapt
+    tc_driver                   = tc_async_module_hardware._driver
     tiprack_200_2       = protocol.load_labware('opentrons_flex_96_tiprack_200ul', 'B2')
     tiprack_50_2        = protocol.load_labware('opentrons_flex_96_tiprack_50ul', 'B3')
     # ========== FOURTH ROW ==========
@@ -159,7 +194,11 @@ def run(protocol: protocol_api.ProtocolContext):
         heatershaker.open_labware_latch()
         protocol.comment("SETTING THERMO and TEMP BLOCK Temperature")
         thermocycler.set_block_temperature(4)
-        thermocycler.set_lid_temperature(100)    
+        tc_async_module_hardware.get_power_output = _get_power_output
+        tc_sync_module_hardware.get_power_output()
+        thermocycler.set_lid_temperature(100)
+        tc_async_module_hardware.get_power_output = _get_power_output
+        tc_sync_module_hardware.get_power_output()  
         temp_block.set_temperature(4)
         protocol.comment("Ready")
         heatershaker.close_labware_latch()
@@ -259,7 +298,11 @@ def run(protocol: protocol_api.ProtocolContext):
             #============================================================================================
             protocol.comment("SETTING THERMO to Room Temp")
             thermocycler.set_block_temperature(20)
-            thermocycler.set_lid_temperature(37)    
+            tc_async_module_hardware.get_power_output = _get_power_output
+            tc_sync_module_hardware.get_power_output()
+            thermocycler.set_lid_temperature(37)
+            tc_async_module_hardware.get_power_output = _get_power_output
+            tc_sync_module_hardware.get_power_output()    
 
         protocol.delay(minutes=4)
 
@@ -468,8 +511,12 @@ def run(protocol: protocol_api.ProtocolContext):
 
             protocol.comment("SETTING THERMO to Room Temp")
             thermocycler.set_block_temperature(4)
+            tc_async_module_hardware.get_power_output = _get_power_output
+            tc_sync_module_hardware.get_power_output()
             thermocycler.set_lid_temperature(100) 
-
+            tc_async_module_hardware.get_power_output = _get_power_output
+            tc_sync_module_hardware.get_power_output()
+            
             thermocycler.close_lid()
             profile_PCR_1 = [
                 {'temperature': 68, 'hold_time_seconds': 180},
@@ -564,7 +611,11 @@ def run(protocol: protocol_api.ProtocolContext):
 
             protocol.comment("SETTING THERMO to Room Temp")
             thermocycler.set_block_temperature(20)
+            tc_async_module_hardware.get_power_output = _get_power_output
+            tc_sync_module_hardware.get_power_output()
             thermocycler.set_lid_temperature(37) 
+            tc_async_module_hardware.get_power_output = _get_power_output
+            tc_sync_module_hardware.get_power_output()
 
             #============================================================================================
             # GRIPPER MOVE PLATE FROM HEATER SHAKER TO MAG PLATE
