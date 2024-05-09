@@ -350,9 +350,24 @@ def run(ctx: protocol_api.ProtocolContext) -> None:
     def test_module_usage():
         def test_thermocycler():
             thermocycler.close_lid()
-
-            thermocycler.set_block_temperature(75.0, hold_time_seconds=5.0)
-            thermocycler.set_lid_temperature(80.0)
+            thermocycler.set_block_temperature(4)
+            thermocycler.set_lid_temperature(105)
+            #Close lid
+            thermocycler.close_lid()
+            #hold at 95° for 3 minutes
+            profile_TAG = [{'temperature': 95, 'hold_time_minutes': 3}]
+            thermocycler.execute_profile(steps = profile_TAG, repetitions = 1,block_max_volume=50)
+            #30x cycles of: 70° for 30s 72° for 30s 95° for 10s 
+            profile_TAG2 = [{'temperature': 70, 'hold_time_seconds': 30}, {'temperature': 72, 'hold_time_seconds': 30}, {'temperature': 95, 'hold_time_seconds': 10}]
+            thermocycler.execute_profile(steps = profile_TAG2, repetitions = 30,block_max_volume=50)
+            #hold at 72° for 5min 
+            profile_TAG3 = [{'temperature': 72, 'hold_time_minutes': 5}]
+            thermocycler.execute_profile(steps = profile_TAG3, repetitions = 1,block_max_volume=50)
+            # # Cool to 4° 
+            thermocycler.set_block_temperature(4)
+            thermocycler.set_lid_temperature(105)
+            # Open lid
+            thermocycler.open_lid()
             thermocycler.deactivate()
 
         def test_heater_shaker():
