@@ -1,6 +1,7 @@
 import inspect
 from dataclasses import replace
 from opentrons import protocol_api, types
+from opentrons import protocol_api
 
 metadata = {
     'protocolName': 'Simple Normalize Long Right.py',
@@ -10,7 +11,7 @@ metadata = {
 
 requirements = {
     "robotType": "OT-3",
-    "apiLevel": "2.15",
+    "apiLevel": "2.18",
 }
 
 
@@ -27,7 +28,17 @@ else:
     TIP_TRASH           = True 
 
 
-
+def add_parameters(parameters: protocol_api.Parameters):
+    parameters.add_str(
+        variable_name="mount_pos",
+        display_name="Mount Position",
+        description="What mount to use",
+        choices=[
+            {"display_name": "left_mount", "value": "left"},
+            {"display_name": "right_mount", "value": "right"},
+        ],
+        default="right",
+    )
 def run(protocol: protocol_api.ProtocolContext):
 
     if DRYRUN == True:
@@ -53,6 +64,9 @@ def run(protocol: protocol_api.ProtocolContext):
     tiprack_200_5   = protocol.load_labware('opentrons_flex_96_tiprack_200ul',  '10')
     tiprack_200_6   = protocol.load_labware('opentrons_flex_96_tiprack_200ul',  '11')
 
+    #mount runtime parameter variable       
+    mount_pos = protocol.params.mount_pos
+
     # reagent
     Dye_1     = reservoir["A1"]
     Dye_2     = reservoir["A2"]
@@ -62,7 +76,7 @@ def run(protocol: protocol_api.ProtocolContext):
     Diluent_3 = reservoir["A6"]
 
     # pipette
-    p1000 = protocol.load_instrument("flex_1channel_1000", "right", tip_racks=[tiprack_200_1,tiprack_200_2,tiprack_200_3,tiprack_200_4,tiprack_200_5,tiprack_200_6])
+    p1000 = protocol.load_instrument("flex_1channel_1000", mount_pos, tip_racks=[tiprack_200_1,tiprack_200_2,tiprack_200_3,tiprack_200_4,tiprack_200_5,tiprack_200_6])
 
     sample_quant_csv = """
     sample_plate_1, Sample_well,DYE,DILUENT
