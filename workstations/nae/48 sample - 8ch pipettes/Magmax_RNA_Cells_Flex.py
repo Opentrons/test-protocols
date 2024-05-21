@@ -2,6 +2,7 @@ from opentrons.types import Point
 import json
 import math
 from opentrons import types
+from opentrons import protocol_api
 import numpy as np
 
 metadata = {
@@ -10,7 +11,7 @@ metadata = {
 }
 
 requirements = {
-    "robotType": "Flex",
+    "robotType": "OT-3",
     "apiLevel": "2.18",
 }
 """
@@ -52,7 +53,7 @@ def add_parameters(parameters: protocol_api.Parameters):
         maximum=3000,
         unit="seconds",
     )
-def run(ctx):
+def run(ctx:protocol_api.ProtocolContext):
     """
     Here is where you can change the locations of your labware and modules
     (note that this is the recommended configuration)
@@ -71,6 +72,7 @@ def run(ctx):
     lysis_vol = 140
     stop_vol = 100
     elution_vol = dnase_vol = 50
+    heater_shaker_speed = ctx.params.heater_shaker_speed
 
     try:
         [res_type,temp_mod,trash_chute,USE_GRIPPER, dry_run,inc_lysis,mount,num_samples,wash_vol,lysis_vol,sample_vol,stop_vol,dnase_vol,elution_vol] = get_values(  # noqa: F821
