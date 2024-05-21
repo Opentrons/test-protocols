@@ -2,6 +2,7 @@ from opentrons.types import Point
 import json
 import math
 from opentrons import types
+from opentrons import protocol_api
 import numpy as np
 
 metadata = {
@@ -10,8 +11,8 @@ metadata = {
 }
 
 requirements = {
-    "robotType": "Flex",
-    "apiLevel": "2.16",
+    "robotType": "OT-3",
+    "apiLevel": "2.18",
 }
 """
 Slot A1: Tips 200
@@ -42,7 +43,17 @@ waste_vol = 0
 
 
 # Start protocol
-def run(ctx):
+def add_parameters(parameters: protocol_api.Parameters):
+    parameters.add_int(
+        variable_name="heater_shaker_speed",
+        display_name="Heater Shaker Shake Speed",
+        description="Speed to set the heater shaker to",
+        default=2000,
+        minimum=200,
+        maximum=3000,
+        unit="seconds",
+    )
+def run(ctx:protocol_api.ProtocolContext):
     """
     Here is where you can change the locations of your labware and modules
     (note that this is the recommended configuration)
@@ -61,6 +72,7 @@ def run(ctx):
     lysis_vol = 140
     stop_vol = 100
     elution_vol = dnase_vol = 50
+    heater_shaker_speed = ctx.params.heater_shaker_speed
 
     try:
         [res_type,temp_mod,trash_chute,USE_GRIPPER, dry_run,inc_lysis,mount,num_samples,wash_vol,lysis_vol,sample_vol,stop_vol,dnase_vol,elution_vol] = get_values(  # noqa: F821
@@ -379,7 +391,7 @@ def run(ctx):
                     m1000.blow_out(cells_m[i].bottom(1))
             m1000.drop_tip() if TIP_TRASH == True else m1000.return_tip()
 
-        h_s.set_and_wait_for_shake_speed(2200)
+        h_s.set_and_wait_for_shake_speed(heater_shaker_speed + 200)
         ctx.delay(minutes=1 if not dry_run else 0.25,msg='Please allow 1 minute incubation for cells to lyse')
         h_s.deactivate_shaker()
 
@@ -410,7 +422,7 @@ def run(ctx):
             m1000.air_gap(10)
             m1000.drop_tip() if TIP_TRASH == True else m1000.return_tip()
 
-        h_s.set_and_wait_for_shake_speed(2000)
+        h_s.set_and_wait_for_shake_speed(heater_shaker_speed)
         ctx.delay(minutes=5 if not dry_run else 0.25,msg='Please allow 5 minute incubation for beads to bind to DNA')
         h_s.deactivate_shaker()
 
@@ -458,7 +470,7 @@ def run(ctx):
         m1000.drop_tip() if TIP_TRASH == True else m1000.return_tip()
 
         #Shake for 5 minutes to mix wash with beads
-        h_s.set_and_wait_for_shake_speed(2000)
+        h_s.set_and_wait_for_shake_speed(heater_shaker_speed)
         ctx.delay(minutes=5 if not dry_run else 0.25,msg='Please allow 5 minute incubation for beads to mix in wash buffer')
         h_s.deactivate_shaker()
 
@@ -501,7 +513,7 @@ def run(ctx):
             m1000.drop_tip() if TIP_TRASH == True else m1000.return_tip()
 
         #Shake for 10 minutes to mix DNAseI
-        h_s.set_and_wait_for_shake_speed(2000)
+        h_s.set_and_wait_for_shake_speed(heater_shaker_speed)
         ctx.delay(minutes=10 if not dry_run else 0.25,msg='Please allow 10 minute incubation for DNAse1 to work')
         h_s.deactivate_shaker()
 
@@ -522,7 +534,7 @@ def run(ctx):
         m1000.drop_tip() if TIP_TRASH == True else m1000.return_tip()
             
         #Shake for 3 minutes to mix wash with beads
-        h_s.set_and_wait_for_shake_speed(2000)
+        h_s.set_and_wait_for_shake_speed(heater_shaker_speed)
         ctx.delay(minutes=3 if not dry_run else 0.25,msg='Please allow 3 minute incubation to inactivate DNAse1')
         h_s.deactivate_shaker()
 
@@ -568,7 +580,7 @@ def run(ctx):
             m1000.drop_tip() if TIP_TRASH == True else m1000.return_tip()
 
         #Shake for 3 minutes to mix wash with beads
-        h_s.set_and_wait_for_shake_speed(2000)
+        h_s.set_and_wait_for_shake_speed(heater_shaker_speed)
         ctx.delay(minutes=3 if not dry_run else 0.25,msg='Please allow 3 minute incubation to elute RNA from beads')
         h_s.deactivate_shaker()
         
