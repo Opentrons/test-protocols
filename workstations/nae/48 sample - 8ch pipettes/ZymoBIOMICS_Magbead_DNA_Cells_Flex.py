@@ -2,6 +2,7 @@ from opentrons.types import Point
 import json
 import math
 from opentrons import types
+from opentrons import protocol_api
 import numpy as np
 
 metadata = {
@@ -10,8 +11,8 @@ metadata = {
 }
 
 requirements = {
-    "robotType": "Flex",
-    "apiLevel": "2.16"
+    "robotType": "OT-3",
+    "apiLevel": "2.18"
 }
 """
 Slot A1: Tips 1000
@@ -43,16 +44,40 @@ tip200 = 0
 drop_count = 0
 
 # Start protocol
+def add_parameters(parameters: protocol_api.Parameters):
+    parameters.add_int(
+        variable_name="heater_shaker_speed",
+        display_name="Heater Shaker Shake Speed",
+        description="Speed to set the heater shaker to",
+        default=2000,
+        minimum=200,
+        maximum=3000,
+        unit="seconds",
+    )
+    parameters.add_str(
+        variable_name="mount_pos",
+        display_name="Mount Position",
+        description="What mount to use",
+        choices=[
+            {"display_name": "left_mount", "value": "left"},
+            {"display_name": "right_mount", "value": "right"},
+        ],
+        default="left",
+    )
+
+
 def run(ctx):
     """
     Here is where you can change the locations of your labware and modules
     (note that this is the recommended configuration)
     """
+    heater_shaker_speed = ctx.params.heater_shaker_speed
+    mount_pos = ctx.params.mount_pos
     trash_chute = False # If this is true, trash chute is loaded in D3, otherwise trash bin is loaded there
     USE_GRIPPER = True
     dry_run = False
     TIP_TRASH  = False         # True = Used tips go in Trash, False = Used tips go back into rack
-    mount = 'left'
+    mount = mount_pos
     res_type = "nest_12_reservoir_15ml"
     temp_mod = True
 
@@ -383,7 +408,7 @@ def run(ctx):
             mixing(samples_m[i],m1000,tvol,reps=5 if not dry_run else 1)
             m1000.drop_tip() if TIP_TRASH == True else m1000.return_tip()
 
-        h_s.set_and_wait_for_shake_speed(2000)
+        h_s.set_and_wait_for_shake_speed(heater_shaker_speed)
         ctx.delay(minutes=lysis_incubation if not dry_run else 0.25, msg='Shake at 1800 rpm for 30 minutes.')
         h_s.deactivate_shaker()
 
@@ -425,7 +450,7 @@ def run(ctx):
             m1000.air_gap(10)
             m1000.drop_tip() if TIP_TRASH == True else m1000.return_tip()
 
-        h_s.set_and_wait_for_shake_speed(1800)
+        h_s.set_and_wait_for_shake_speed(heater_shaker_speed*0.9)
         ctx.delay(minutes=10 if not dry_run else 0.25, msg='Shake at 1800 rpm for 10 minutes.')
         h_s.deactivate_shaker()
 
@@ -468,7 +493,7 @@ def run(ctx):
             bead_mixing(samples_m[i],m1000,vol_per_trans,reps=3 if not dry_run else 1)
             m1000.drop_tip() if TIP_TRASH == True else m1000.return_tip()
 
-        h_s.set_and_wait_for_shake_speed(2000)
+        h_s.set_and_wait_for_shake_speed(heater_shaker_speed)
         ctx.delay(minutes=1 if not dry_run else 0.25, msg='Shake at 2000 rpm for 1 minutes.')
         h_s.deactivate_shaker()
 
@@ -522,7 +547,7 @@ def run(ctx):
                 m1000.transfer(vol_per_trans, src.bottom(height), m.top(), air_gap=20,new_tip='never')
         m1000.drop_tip() if TIP_TRASH == True else m1000.return_tip()
 
-        h_s.set_and_wait_for_shake_speed(1800)
+        h_s.set_and_wait_for_shake_speed(heater_shaker_speed*0.9)
         ctx.delay(minutes=5 if not dry_run else 0.25)
         h_s.deactivate_shaker()
 
@@ -547,7 +572,7 @@ def run(ctx):
             m1000.dispense(m1000.current_volume, m.top(-3))
         m1000.drop_tip() if TIP_TRASH == True else m1000.return_tip()
 
-        h_s.set_and_wait_for_shake_speed(2000)
+        h_s.set_and_wait_for_shake_speed(heater_shaker_speed)
         ctx.delay(minutes=5 if not dry_run else 0.25,msg='Shake on H-S for 5 minutes at 2000 rpm.')
         h_s.deactivate_shaker()
 

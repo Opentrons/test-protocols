@@ -391,7 +391,7 @@ def run(ctx:protocol_api.ProtocolContext):
                     m1000.blow_out(cells_m[i].bottom(1))
             m1000.drop_tip() if TIP_TRASH == True else m1000.return_tip()
 
-        h_s.set_and_wait_for_shake_speed(heater_shaker_speed + 200)
+        h_s.set_and_wait_for_shake_speed(heater_shaker_speed*1.1)
         ctx.delay(minutes=1 if not dry_run else 0.25,msg='Please allow 1 minute incubation for cells to lyse')
         h_s.deactivate_shaker()
 
