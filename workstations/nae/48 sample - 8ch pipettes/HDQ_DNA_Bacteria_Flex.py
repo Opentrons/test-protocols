@@ -72,7 +72,7 @@ def run(ctx):
     USE_GRIPPER = True
     dry_run = False
     TIP_TRASH = False
-    mount = 'mount_pos'
+    mount = mount_pos
     res_type = "nest_12_reservoir_22ml"
     temp_mod = True # True or false if you have a temp mod loaded on deck with the elution plate
 
