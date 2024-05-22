@@ -1,3 +1,5 @@
+from opentrons import protocol_api
+
 metadata = {
     'protocolName': 'Immunoprecipitation by Dynabeads - 96-well setting on Opentrons Flex (Reagents in 15 mL tubes)',
     'author': 'Boren Lin, Opentrons',
@@ -5,23 +7,24 @@ metadata = {
 }
 
 requirements = {
-    "robotType": "Flex",
-    "apiLevel": "2.15",
+    "robotType": "OT-3",
+    "apiLevel": "2.18",
 }
 
+
 ########################
+def add_parameters(parameters: protocol_api.Parameters):
+    parameters.add_int(
+        variable_name="heater_shaker_speed",
+        display_name="Heater Shaker Shake Speed",
+        description="Speed to set the heater shaker to",
+        default=2000,
+        minimum=200,
+        maximum=3000,
+        unit="seconds",
+    )
 
 NUM_COL = 12
-
-ASP_HEIGHT = 0.5 
-MIX_SPEEND = 2000
-MIX_SEC = 10
-
-INCUBATION_ON_DECK = 1
-# Yes:1; No:0
-# if on deck:
-INCUBATION_SPEEND = 1000
-INCUBATION_MIN = 60
 
 MAG_DELAY_MIN = 1
 
@@ -46,7 +49,17 @@ TIP_TRASH           = False         # True = Used tips go in Trash, False = Used
 #########################
 
 def run(ctx):
+#defining variables inside def run
+    heater_shaker_speed =  ctx.params.heater_shaker_speed
+    ASP_HEIGHT = 0.5 
+    MIX_SPEEND = heater_shaker_speed
+    MIX_SEC = 10
 
+    INCUBATION_ON_DECK = 1
+    # Yes:1; No:0
+    # if on deck:
+    INCUBATION_SPEEND = heater_shaker_speed*0.5
+    INCUBATION_MIN = 60
     # load labware
     
     sample_plate = ctx.load_labware('nest_96_wellplate_2ml_deep', 'B2', 'samples')
