@@ -68,6 +68,8 @@ def run(ctx):
     Here is where you can change the locations of your labware and modules
     (note that this is the recommended configuration)
     """
+    heater_shaker_speed = ctx.params.heater_shaker_speed
+    mount_pos = ctx.params.mount_pos
     trash_chute = False # If this is true, trash chute is loaded in D3, otherwise trash bin is loaded there
     USE_GRIPPER = True
     dry_run = False
@@ -84,8 +86,6 @@ def run(ctx):
     sample_vol= 180
     bind_vol = 320
     elution_vol= 100
-    heater_shaker_speed = ctx.params.heater_shaker_speed
-    mount_pos = ctx.params.mount_pos
 
     try:
         [res_type,temp_mod,trash_chute,USE_GRIPPER, dry_run,mount,num_samples,wash1_vol,wash2_vol,wash3_vol,AL_vol,sample_vol,bind_vol,elution_vol] = get_values(  # noqa: F821
