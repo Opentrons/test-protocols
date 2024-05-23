@@ -59,8 +59,8 @@ def add_parameters(parameters: protocol_api.Parameters):
         display_name="Mount Position",
         description="What mount to use",
         choices=[
-            {"display_name": "left_mount", "value": "left"},
-            {"display_name": "right_mount", "value": "right"},
+            {"display_name": "Left Mount", "value": "left"},
+            {"display_name": "Right Mount", "value": "right"},
         ],
         default="left",
     )
@@ -409,7 +409,8 @@ def run(ctx):
             m1000.drop_tip() if TIP_TRASH == True else m1000.return_tip()
 
         h_s.set_and_wait_for_shake_speed(heater_shaker_speed)
-        ctx.delay(minutes=lysis_incubation if not dry_run else 0.25, msg='Shake at 1800 rpm for 30 minutes.')
+        speed_val = heater_shaker_speed
+        ctx.delay(minutes=lysis_incubation if not dry_run else 0.25, msg='Shake at ' + str(speed_val) + ' rpm for 30 minutes.')
         h_s.deactivate_shaker()
 
     def bind(vol1,vol2):
@@ -451,7 +452,8 @@ def run(ctx):
             m1000.drop_tip() if TIP_TRASH == True else m1000.return_tip()
 
         h_s.set_and_wait_for_shake_speed(heater_shaker_speed*0.9)
-        ctx.delay(minutes=10 if not dry_run else 0.25, msg='Shake at 1800 rpm for 10 minutes.')
+        speed_val = heater_shaker_speed*0.9
+        ctx.delay(minutes=10 if not dry_run else 0.25, msg='Shake at ' + str(speed_val) + ' rpm for 10 minutes.')
         h_s.deactivate_shaker()
 
         #Transfer from H-S plate to Magdeck plate
@@ -494,7 +496,8 @@ def run(ctx):
             m1000.drop_tip() if TIP_TRASH == True else m1000.return_tip()
 
         h_s.set_and_wait_for_shake_speed(heater_shaker_speed)
-        ctx.delay(minutes=1 if not dry_run else 0.25, msg='Shake at 2000 rpm for 1 minutes.')
+        speed_val = heater_shaker_speed
+        ctx.delay(minutes=1 if not dry_run else 0.25, msg='Shake at ' + str(speed_val) + ' rpm for 1 minutes.')
         h_s.deactivate_shaker()
 
         #Transfer from H-S plate to Magdeck plate
@@ -573,7 +576,8 @@ def run(ctx):
         m1000.drop_tip() if TIP_TRASH == True else m1000.return_tip()
 
         h_s.set_and_wait_for_shake_speed(heater_shaker_speed)
-        ctx.delay(minutes=5 if not dry_run else 0.25,msg='Shake on H-S for 5 minutes at 2000 rpm.')
+        speed_val = heater_shaker_speed
+        ctx.delay(minutes=5 if not dry_run else 0.25,msg='Shake at ' + str(speed_val) + ' rpm for 5 minutes.')
         h_s.deactivate_shaker()
 
         #Transfer back to magnet
