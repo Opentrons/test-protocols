@@ -8,8 +8,8 @@ metadata = {
     }
 
 requirements = {
-    "robotType": "Flex",
-    "apiLevel": "2.15",
+    "robotType": "OT-3",
+    "apiLevel": "2.18",
 }
 
 # SCRIPT SETTINGS
@@ -42,9 +42,18 @@ p50_tips  = 0
 
 TIP_TRASH       = False          # Overrides to only REUSING TIPS
 RUN = 1
-
+def add_parameters(parameters: protocol_api.Parameters):
+    parameters.add_int(
+        variable_name="heater_shaker_speed",
+        display_name="Heater Shaker Shake Speed",
+        description="Speed to set the heater shaker to",
+        default=2000,
+        minimum=200,
+        maximum=3000,
+        unit="seconds",
+    )
 def run(protocol: protocol_api.ProtocolContext):
-    
+    heater_shaker_speed = protocol.params.heater_shaker_speed
     global p200_tips
     global p50_tips
 
@@ -269,7 +278,7 @@ def run(protocol: protocol_api.ProtocolContext):
             protocol.comment('--> ADDING SMB')
             SMBVol = 250
             SampleVol = 100
-            SMBMixRPM = 2000
+            SMBMixRPM = heater_shaker_speed
             SMBMixRep = 5*60 if DRYRUN == False else 0.1*60
             SMBPremix = 3 if DRYRUN == False else 1
             #==============================
@@ -369,7 +378,7 @@ def run(protocol: protocol_api.ProtocolContext):
                     p200_tips += 1
                     tipcheck()
                 heatershaker.close_labware_latch()
-                heatershaker.set_and_wait_for_shake_speed(rpm=1800)
+                heatershaker.set_and_wait_for_shake_speed(rpm=(heater_shaker_speed*0.9))
                 if DRYRUN == False:
                     protocol.delay(seconds=4*60)
                 heatershaker.deactivate_shaker()
@@ -436,7 +445,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 p200_tips += 1
                 tipcheck()
 
-            heatershaker.set_and_wait_for_shake_speed(rpm=1800)
+            heatershaker.set_and_wait_for_shake_speed(rpm=(heater_shaker_speed*0.9))
             if DRYRUN == False:
                 protocol.delay(seconds=4*60)
             heatershaker.deactivate_shaker()
@@ -532,7 +541,7 @@ def run(protocol: protocol_api.ProtocolContext):
             #============================================================================================
 
             heatershaker.close_labware_latch()
-            heatershaker.set_and_wait_for_shake_speed(rpm=1800)
+            heatershaker.set_and_wait_for_shake_speed(rpm=(heater_shaker_speed*0.9))
             if DRYRUN == False:
                 protocol.delay(seconds=2*60)
             heatershaker.deactivate_shaker()
@@ -692,7 +701,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 p200_tips += 1
                 tipcheck()
             #========NEW HS MIX=========================
-            heatershaker.set_and_wait_for_shake_speed(rpm=1800)
+            heatershaker.set_and_wait_for_shake_speed(rpm=(heater_shaker_speed*0.9))
             protocol.delay(AMPureMixRep)
             heatershaker.deactivate_shaker()
 
@@ -842,7 +851,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 p200_tips += 1
                 tipcheck()
                 if DRYRUN == False:
-                    heatershaker.set_and_wait_for_shake_speed(rpm=1600)
+                    heatershaker.set_and_wait_for_shake_speed(rpm=(heater_shaker_speed*0.8))
                     protocol.delay(RSBMixRep)
                     heatershaker.deactivate_shaker()
 
