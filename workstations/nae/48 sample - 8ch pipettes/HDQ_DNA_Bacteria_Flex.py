@@ -463,7 +463,7 @@ def run(ctx):
         ctx.comment("-----Incubating Beads and Bind on H-S-----")
         h_s.set_and_wait_for_shake_speed(heater_shaker_speed*0.9)
         speed_val = heater_shaker_speed*0.9
-        ctx.delay(minutes=10 if not dry_run else 0.25, msg="Shake at " + str(speed_val) + " rpm for 5 minutes.")
+        ctx.delay(minutes=10 if not dry_run else 0.25, msg="Shake at " + str(speed_val) + " rpm for 10 minutes.")
         h_s.deactivate_shaker()
 
         #Transfer from H-S plate to Magdeck plate
