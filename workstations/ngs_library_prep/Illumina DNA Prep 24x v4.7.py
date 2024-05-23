@@ -14,8 +14,8 @@ metadata = {
     }
 
 requirements = {
-    "robotType": "Flex",
-    "apiLevel": "2.15",
+    "robotType": "OT-3",
+    "apiLevel": "2.18",
 }
 
 
@@ -64,14 +64,26 @@ if ABR_TEST == True:
 else:
     RUN             = 1
 
+def add_parameters(parameters: protocol_api.Parameters):
+    parameters.add_int(
+        variable_name="heater_shaker_speed",
+        display_name="Heater Shaker Shake Speed",
+        description="Speed to set the heater shaker to",
+        default=2000,
+        minimum=200,
+        maximum=3000,
+        unit="seconds",
+    )
+
 def run(protocol: protocol_api.ProtocolContext):
+    heater_shaker_speed = protocol.params.heater_shaker_speed
     async def _driver_get_power_output():
         """Get Raw Power Output for each Thermocycler element."""
         c = (
             CommandBuilder(terminator=TC_COMMAND_TERMINATOR)
             .add_gcode(gcode=GCODE.PRINT_POWER_OUTPUT)
         )
-        if not ctx.is_simulating():
+        if not protocol.is_simulating():
             response = await tc_driver._connection.send_command(command=c, retries=DEFAULT_COMMAND_RETRIES)
         else:
             response = TC_ACK  # SimulatingDriver has no `._connection` so need to return _something_ for that case
@@ -245,7 +257,7 @@ def run(protocol: protocol_api.ProtocolContext):
                 p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip()
                 p200_tips += 1
             #===============================================
-            heatershaker.set_and_wait_for_shake_speed(rpm=1600)
+            heatershaker.set_and_wait_for_shake_speed(rpm=(heater_shaker_speed*0.8))
             protocol.delay(TagMixTime)
             heatershaker.deactivate_shaker()
             
@@ -459,7 +471,7 @@ def run(protocol: protocol_api.ProtocolContext):
             protocol.comment('--> Adding EPM')
             EPMVol = 40 
             EPMMixTime = 3*60 if DRYRUN == False else 0.1*60
-            EPMMixRPM = 2000
+            EPMMixRPM = heater_shaker_speed
             EPMMixVol = 35
             EPMVolCount = 0
             #===============================================
@@ -590,7 +602,7 @@ def run(protocol: protocol_api.ProtocolContext):
             H20Vol    = 40
             AMPureVol = 45
             SampleVol = 45
-            AMPureMixRPM = 1800
+            AMPureMixRPM = heater_shaker_speed*0.9
             AMPureMixTime = 5*60 if DRYRUN == False else 0.1*60
             AMPurePremix = 3 if DRYRUN == False else 1
             #===============================================
@@ -772,7 +784,7 @@ def run(protocol: protocol_api.ProtocolContext):
 
             protocol.comment('--> Adding RSB')
             RSBVol = 32
-            RSBMixRPM = 2000
+            RSBMixRPM = heater_shaker_speed
             RSBMixTime = 1*60 if DRYRUN == False else 0.1*60
             #===============================================
             if RSB_AirMultiDis == True:
