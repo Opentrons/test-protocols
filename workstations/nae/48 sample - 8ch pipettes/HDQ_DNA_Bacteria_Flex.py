@@ -57,8 +57,8 @@ def add_parameters(parameters: protocol_api.Parameters):
         display_name="Mount Position",
         description="What mount to use",
         choices=[
-            {"display_name": "left_mount", "value": "left"},
-            {"display_name": "right_mount", "value": "right"},
+            {"display_name": "Left Mount", "value": "left"},
+            {"display_name": "Right Mount", "value": "right"},
         ],
         default="left",
     )
@@ -407,10 +407,11 @@ def run(ctx):
 
         ctx.comment("-----Mixing then Heating AL and Sample-----")
         h_s.set_and_wait_for_shake_speed(heater_shaker_speed)
-        ctx.delay(minutes=15 if not dry_run else 0.25, msg='Shake at 1800 rpm for 5 minutes.')
+        speed_val = heater_shaker_speed
+        ctx.delay(minutes=15 if not dry_run else 0.25, msg="Shake at " + str(speed_val) + " rpm for 5 minutes.")
         if not dry_run:
             h_s.set_and_wait_for_temperature(55)
-        ctx.delay(minutes=10 if not dry_run else 0.25,msg='Incubating at 55C 1800 rpm for 10 minutes.')
+        ctx.delay(minutes=10 if not dry_run else 0.25,msg='Incubating at 55C ' + str(speed_val) + ' rpm for 10 minutes.')
         h_s.deactivate_shaker()
         
         #ctx.pause("Add 5ul RNAse per sample now. Mix and incubate at RT for 2 minutes")
@@ -461,7 +462,8 @@ def run(ctx):
 
         ctx.comment("-----Incubating Beads and Bind on H-S-----")
         h_s.set_and_wait_for_shake_speed(heater_shaker_speed*0.9)
-        ctx.delay(minutes=10 if not dry_run else 0.25, msg='Shake at 1800 rpm for 10 minutes.')
+        speed_val = heater_shaker_speed*0.9
+        ctx.delay(minutes=10 if not dry_run else 0.25, msg="Shake at " + str(speed_val) + " rpm for 5 minutes.")
         h_s.deactivate_shaker()
 
         #Transfer from H-S plate to Magdeck plate
@@ -546,7 +548,8 @@ def run(ctx):
             m1000.drop_tip() if not dry_run else m1000.return_tip()
         """
         h_s.set_and_wait_for_shake_speed(heater_shaker_speed*1.1)
-        ctx.delay(minutes=5 if not dry_run else 0.25,msg='Shake on H-S for 5 minutes at 2000 rpm.')
+        speed_val = heater_shaker_speed*1.1
+        ctx.delay(minutes=5 if not dry_run else 0.25,msg="Shake at " + str(speed_val) + " rpm for 5 minutes.")
         h_s.deactivate_shaker()
 
         #Transfer back to magnet
