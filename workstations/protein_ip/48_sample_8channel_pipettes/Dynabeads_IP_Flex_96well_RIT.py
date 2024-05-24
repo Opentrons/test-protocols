@@ -21,7 +21,7 @@ def add_parameters(parameters: protocol_api.Parameters):
         default=2000,
         minimum=200,
         maximum=3000,
-        unit="seconds",
+        unit="rpm",
     )
 
 NUM_COL = 12
