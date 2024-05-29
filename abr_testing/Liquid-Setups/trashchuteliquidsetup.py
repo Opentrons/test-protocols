@@ -17,7 +17,6 @@ requirements = {
 def run(protocol: protocol_api.ProtocolContext):
     # Initiate Labware
     tiprack_1000a       = protocol.load_labware(load_name='opentrons_flex_96_tiprack_1000ul', location='D1') # Tip Rack
-    tiprack_1000b       = protocol.load_labware(load_name='opentrons_flex_96_tiprack_1000ul', location='C1') # Tip Rack
     master_reservoir    = protocol.load_labware('axygen_1_reservoir_90ml', 'C2')
     #pcr_plate           = protocol.load_labware('armadillo_96_wellplate_200ul_pcr_full_skirt', location = 'D2')
     #pcr_plate2          = protocol.load_labware('armadillo_96_wellplate_200ul_pcr_full_skirt', location = 'D3')

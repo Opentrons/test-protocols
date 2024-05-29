@@ -61,11 +61,11 @@ def run(protocol: protocol_api.ProtocolContext):
     tip_size = protocol.params.tip_size
     tip_selection = protocol.params.tip_selection
     # DECK SETUP AND LABWARE     
-    tiprack_1        = protocol.load_labware(tip_size, location = 'A2')
-    tiprack_2        = protocol.load_labware(tip_size, location = 'B2')
-    tiprack_3        = protocol.load_labware(tip_size, location = 'C2')
-    tiprack_4        = protocol.load_labware(tip_size, location = 'B3')
-    tiprack_5        = protocol.load_labware(tip_size, location = 'C3')
+    tiprack_1        = protocol.load_labware(tip_size, location = 'A1')
+    tiprack_2        = protocol.load_labware(tip_size, location = 'B1')
+    tiprack_3        = protocol.load_labware(tip_size, location = 'C1')
+    tiprack_4        = protocol.load_labware(tip_size, location = 'A2')
+    tiprack_5        = protocol.load_labware(tip_size, location = 'B2')
 
     # Pipette
     pleft = protocol.load_instrument(left_pipette, "left", tip_racks=[tiprack_1,tiprack_2, tiprack_3, tiprack_4, tiprack_5])
