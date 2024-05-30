@@ -64,7 +64,7 @@ def run(protocol: protocol_api.ProtocolContext):
     tiprack_200_5   = protocol.load_labware('opentrons_flex_96_tiprack_200ul',  '10')
     tiprack_200_6   = protocol.load_labware('opentrons_flex_96_tiprack_200ul',  '11')
 
-    #mount runtime parameter variable       
+    # mount runtime parameter variable       
     mount_pos = protocol.params.mount_pos
 
     # reagent
