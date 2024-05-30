@@ -98,21 +98,21 @@ def run(protocol: protocol_api.ProtocolContext):
     pright = protocol.load_instrument(right_pipette, "right", tip_racks=[tiprack_1,tiprack_2, tiprack_3, tiprack_4, tiprack_5])
     
     if tip_selection == True:
-        if which_pipette == "left" or which_pipette == "both":
-            for i in list(range(tip_repeats - 1)):
+        if which_pipette == 'left' or which_pipette == 'both':
+            for i in list(range(tip_repeats)):
                 for i in list(range(60)):
                     pleft.pick_up_tip()
                     pleft.return_tip()
                 pleft.reset_tipracks()
-        if which_pipette == "right" or which_pipette == "both":
-            for i in list(range(tip_repeats - 1)):    
+        if which_pipette == 'right' or which_pipette == 'both':
+            for i in list(range(tip_repeats)):    
                 for i in list(range(60)):
                     pright.pick_up_tip()
                     pright.return_tip()
                 pright.reset_tipracks()
 
     else:
-        if which_pipette == "right":
+        if which_pipette == 'right':
             for i in list(range(12*tip_repeats)):
                 pright.pick_up_tip()
                 pright.return_tip()
