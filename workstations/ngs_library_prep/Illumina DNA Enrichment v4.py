@@ -50,8 +50,9 @@ def add_parameters(parameters: protocol_api.Parameters):
         default=2000,
         minimum=200,
         maximum=3000,
-        unit="seconds",
+        unit="rpm",
     )
+    
 def run(protocol: protocol_api.ProtocolContext):
     heater_shaker_speed = protocol.params.heater_shaker_speed
     global p200_tips
@@ -106,6 +107,7 @@ def run(protocol: protocol_api.ProtocolContext):
     EPM                   = reagent_plate.wells_by_name()['A7']
 
     # pipette
+    
     p1000 = protocol.load_instrument("flex_8channel_1000", "left", tip_racks=[tiprack_200_1,tiprack_200_2,tiprack_200_3])
     p50 = protocol.load_instrument("flex_8channel_50", "right", tip_racks=[tiprack_50_1,tiprack_50_2])
 
