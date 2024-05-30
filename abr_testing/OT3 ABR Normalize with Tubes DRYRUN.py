@@ -5,11 +5,11 @@ metadata = {
     'protocolName': 'OT3 ABR Normalize with Tubes.py DRYRUN',
     'author': 'Opentrons <protocols@opentrons.com>',
     'source': 'Protocol Library',
-    'apiLevel': '2.15'
     }
 
 requirements = {
     "robotType": "OT-3",
+    'apiLevel': '2.18',
 }
 
 # SCRIPT SETTINGS
@@ -21,8 +21,31 @@ else:
     DRYRUN              = False          # True = skip incubation times, shorten mix, for testing purposes
     TIP_TRASH           = True   
 
-def run(protocol: protocol_api.ProtocolContext):
+def add_parameters(parameters: protocol_api.Parameters):
+    parameters.add_str(
+        variable_name="left_pipette",
+        display_name="Pipette Type Left Mount",
+        description="Set Left Pipette Type",
+        choices=[
+        {"display_name": "1-Channel 50 µL", "value": "flex_1channel_50"},
+        {"display_name": "1-Channel 1000 µL", "value": "flex_1channel_1000"},
+    ],
+    default = "flex_1channel_1000"
+    )
+    parameters.add_str(
+        variable_name="right_pipette",
+        display_name="Pipette Type Right Mount",
+        description="Set Right Pipette Type",
+        choices=[
+        {"display_name": "1-Channel 50 µL", "value": "flex_1channel_50"},
+        {"display_name": "1-Channel 1000 µL", "value": "flex_1channel_1000"},
+    ],
+    default = "flex_1channel_50"
+    )
 
+def run(protocol: protocol_api.ProtocolContext):
+    left_pipette = protocol.params.left_pipette
+    right_pipette = protocol.params.right_pipette
     if DRYRUN == True:
         protocol.comment("THIS IS A DRY RUN")
     else:
@@ -38,8 +61,17 @@ def run(protocol: protocol_api.ProtocolContext):
     RSB               = reagent_tube.wells()[0]
 
     # pipette    
-    p1000    = protocol.load_instrument('flex_1channel_1000', 'right', tip_racks=[tiprack_200_1])
-    p50     = protocol.load_instrument('flex_1channel_50', 'left', tip_racks=[tiprack_50_1])
+    if right_pipette == "flex_1channel_50":
+        right_tiprack = tiprack_50_1
+    else:
+        right_tiprack = tiprack_200_1
+    if left_pipette == "flex_1channel_1000":
+        left_tiprack = tiprack_200_1
+    else:
+        left_tiprack = tiprack_50_1
+        
+    p_right    = protocol.load_instrument(right_pipette, 'right', tip_racks=[right_tiprack])
+    p_left     = protocol.load_instrument(left_pipette, 'left', tip_racks=[left_tiprack])
 
     MaxTubeVol      = 200
     RSBUsed         = 0
@@ -120,9 +152,9 @@ def run(protocol: protocol_api.ProtocolContext):
             RSBVol += MaxTubeVol-InitialVol
         else:
             if DilutionVol <=20:
-                protocol.comment("Sample "+CurrentWell+": Using p50, will add "+str(round(DilutionVol,1)))
+                protocol.comment("Sample "+CurrentWell+": Using p_left, will add "+str(round(DilutionVol,1)))
             elif DilutionVol > 20:
-                protocol.comment("Sample "+CurrentWell+": Using p1000, will add "+str(round(DilutionVol,1)))
+                protocol.comment("Sample "+CurrentWell+": Using p_right, will add "+str(round(DilutionVol,1)))
             RSBVol += DilutionVol
         current += 1
 
@@ -184,75 +216,75 @@ def run(protocol: protocol_api.ProtocolContext):
         #If the Required Dilution volume is >= Max Volume
             DilutionVol = MaxTubeVol-InitialVol
             protocol.comment("Conc. Too High, Will add, "+str(DilutionVol)+"ul, Max = "+str(MaxTubeVol)+"ul")
-            p1000.pick_up_tip()
-            p1000.aspirate(DilutionVol, RSB.bottom(RSBHeight-(HeightDrop)))
+            p_right.pick_up_tip()
+            p_right.aspirate(DilutionVol, RSB.bottom(RSBHeight-(HeightDrop)))
             RSBHeight -= HeightDrop
 #            protocol.comment("New Vol Height = "+str(round(RSBHeight,2)))
-            p1000.dispense(DilutionVol, sample_plate.wells_by_name()[CurrentWell])
+            p_right.dispense(DilutionVol, sample_plate.wells_by_name()[CurrentWell])
             HighVolMix = 10
             for Mix in range(HighVolMix):
-                p1000.move_to(sample_plate.wells_by_name()[CurrentWell].center())
-                p1000.aspirate(100)
-                p1000.move_to(sample_plate.wells_by_name()[CurrentWell].bottom(.5)) #original = ()
-                p1000.aspirate(100)
-                p1000.dispense(100)
-                p1000.move_to(sample_plate.wells_by_name()[CurrentWell].center())
-                p1000.dispense(100)
+                p_right.move_to(sample_plate.wells_by_name()[CurrentWell].center())
+                p_right.aspirate(100)
+                p_right.move_to(sample_plate.wells_by_name()[CurrentWell].bottom(.5)) #original = ()
+                p_right.aspirate(100)
+                p_right.dispense(100)
+                p_right.move_to(sample_plate.wells_by_name()[CurrentWell].center())
+                p_right.dispense(100)
                 Mix += 1
-            p1000.move_to(sample_plate.wells_by_name()[CurrentWell].top())
+            p_right.move_to(sample_plate.wells_by_name()[CurrentWell].top())
             protocol.delay(seconds=3)
-            p1000.blow_out()
-            p1000.drop_tip() if DRYRUN == False else p1000.return_tip()
+            p_right.blow_out()
+            p_right.drop_tip() if DRYRUN == False else p_right.return_tip()
         
         else:
             if DilutionVol <= 20:
         #If the Required Dilution volume is <= 20ul
-                protocol.comment("Using p50 to add "+str(round(DilutionVol,1)))
-                p50.pick_up_tip()
+                protocol.comment("Using p_left to add "+str(round(DilutionVol,1)))
+                p_left.pick_up_tip()
                 if  round(float(data[current][3]),1) <= 20:
-                    p50.aspirate(DilutionVol, RSB.bottom(RSBHeight-(HeightDrop)))
+                    p_left.aspirate(DilutionVol, RSB.bottom(RSBHeight-(HeightDrop)))
                     RSBHeight -= HeightDrop
                 else:
-                    p50.aspirate(20, RSB.bottom(RSBHeight-(HeightDrop)))
+                    p_left.aspirate(20, RSB.bottom(RSBHeight-(HeightDrop)))
                     RSBHeight -= HeightDrop
-                p50.dispense(DilutionVol, sample_plate.wells_by_name()[CurrentWell])
+                p_left.dispense(DilutionVol, sample_plate.wells_by_name()[CurrentWell])
 
-                p50.move_to(sample_plate.wells_by_name()[CurrentWell].bottom(z=.5)) #original = ()
+                p_left.move_to(sample_plate.wells_by_name()[CurrentWell].bottom(z=.5)) #original = ()
         # Mix volume <=20ul
                 if DilutionVol+InitialVol <= 20:
-                    p50.mix(10,DilutionVol+InitialVol)
+                    p_left.mix(10,DilutionVol+InitialVol)
                 elif DilutionVol+InitialVol > 20:
-                    p50.mix(10,20)
-                p50.move_to(sample_plate.wells_by_name()[CurrentWell].top())
+                    p_left.mix(10,20)
+                p_left.move_to(sample_plate.wells_by_name()[CurrentWell].top())
                 protocol.delay(seconds=3)
-                p50.blow_out()
-                p50.drop_tip() if DRYRUN == False else p50.return_tip()
+                p_left.blow_out()
+                p_left.drop_tip() if DRYRUN == False else p_left.return_tip()
             
             elif DilutionVol > 20:
         #If the required volume is >20
-                protocol.comment("Using p1000 to add "+str(round(DilutionVol,1)))
-                p1000.pick_up_tip()
-                p1000.aspirate(DilutionVol, RSB.bottom(RSBHeight-(HeightDrop)))
+                protocol.comment("Using p_right to add "+str(round(DilutionVol,1)))
+                p_right.pick_up_tip()
+                p_right.aspirate(DilutionVol, RSB.bottom(RSBHeight-(HeightDrop)))
                 RSBHeight -= HeightDrop
                 if DilutionVol+InitialVol >= 120:
                     HighVolMix = 10
                     for Mix in range(HighVolMix):
-                        p1000.move_to(sample_plate.wells_by_name()[CurrentWell].center())
-                        p1000.aspirate(100)
-                        p1000.move_to(sample_plate.wells_by_name()[CurrentWell].bottom(z=.5)) #original = ()
-                        p1000.aspirate(DilutionVol+InitialVol-100)
-                        p1000.dispense(100)
-                        p1000.move_to(sample_plate.wells_by_name()[CurrentWell].center())
-                        p1000.dispense(DilutionVol+InitialVol-100)
+                        p_right.move_to(sample_plate.wells_by_name()[CurrentWell].center())
+                        p_right.aspirate(100)
+                        p_right.move_to(sample_plate.wells_by_name()[CurrentWell].bottom(z=.5)) #original = ()
+                        p_right.aspirate(DilutionVol+InitialVol-100)
+                        p_right.dispense(100)
+                        p_right.move_to(sample_plate.wells_by_name()[CurrentWell].center())
+                        p_right.dispense(DilutionVol+InitialVol-100)
                         Mix += 1
                 else:
-                    p1000.dispense(DilutionVol, sample_plate.wells_by_name()[CurrentWell])
-                    p1000.move_to(sample_plate.wells_by_name()[CurrentWell].bottom(z=.5)) #original = ()
-                    p1000.mix(10,DilutionVol+InitialVol)
-                    p1000.move_to(sample_plate.wells_by_name()[CurrentWell].top())
+                    p_right.dispense(DilutionVol, sample_plate.wells_by_name()[CurrentWell])
+                    p_right.move_to(sample_plate.wells_by_name()[CurrentWell].bottom(z=.5)) #original = ()
+                    p_right.mix(10,DilutionVol+InitialVol)
+                    p_right.move_to(sample_plate.wells_by_name()[CurrentWell].top())
                 protocol.delay(seconds=3)
-                p1000.blow_out()
-                p1000.drop_tip() if DRYRUN == False else p1000.return_tip()
+                p_right.blow_out()
+                p_right.drop_tip() if DRYRUN == False else p_right.return_tip()
         current += 1
     
     protocol.comment('==============================================')
