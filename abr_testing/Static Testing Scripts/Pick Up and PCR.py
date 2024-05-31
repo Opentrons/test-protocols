@@ -21,8 +21,8 @@ def run(protocol: protocol_api.ProtocolContext):
     tiprack_3        = protocol.load_labware("opentrons_flex_96_tiprack_50ul", location = 'C1')
     tiprack_4        = protocol.load_labware("opentrons_flex_96_tiprack_50ul", location = 'A2')
     tiprack_5        = protocol.load_labware("opentrons_flex_96_tiprack_50ul", location = 'B2')
-    pcr_plate        = protocol.load_labware('opentrons_96_wellplate_200ul_pcr_full_skirt', location = 'B4')
-    reservoir        = protocol.load_labware('nest_12_reservoir_15ml', location = 'D4')
+    pcr_plate        = protocol.load_labware('opentrons_96_wellplate_200ul_pcr_full_skirt', location = 'B3')
+    reservoir        = protocol.load_labware('nest_12_reservoir_15ml', location = 'D3')
 
     # Pipette
     pleft = protocol.load_instrument("flex_8channel_1000", "left", tip_racks=[tiprack_1,tiprack_2, tiprack_3, tiprack_4, tiprack_5])
@@ -32,7 +32,7 @@ def run(protocol: protocol_api.ProtocolContext):
             pleft.pick_up_tip()
             pleft.aspirate(40, pcr_plate["A1"])
             pleft.move_to(reservoir["A1"].bottom())
-            pleft.dispense(50, pcr_plate["A1"], touch_tip = True)
+            pleft.dispense(40, pcr_plate["A1"])
             pleft.return_tip()
         pleft.reset_tipracks()
 
