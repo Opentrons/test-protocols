@@ -14,7 +14,6 @@ requirements = {
 
 def run(protocol: protocol_api.ProtocolContext):
     # Initiate Labware
-    waste_chute         = protocol.load_waste_chute()
     tiprack_1000a       = protocol.load_labware(load_name='opentrons_flex_96_tiprack_1000ul', location='D1') # Tip Rack
     master_reservoir    = protocol.load_labware('axygen_1_reservoir_90ml', 'C2')
     res1                = protocol.load_labware('nest_12_reservoir_15ml', 'D2', 'Reservoir') # Reservoir
