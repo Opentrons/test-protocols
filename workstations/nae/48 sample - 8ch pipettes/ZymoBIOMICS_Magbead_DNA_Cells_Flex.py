@@ -52,7 +52,7 @@ def add_parameters(parameters: protocol_api.Parameters):
         default=2000,
         minimum=200,
         maximum=3000,
-        unit="seconds",
+        unit="rpm",
     )
     parameters.add_str(
         variable_name="mount_pos",
