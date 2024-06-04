@@ -5,7 +5,7 @@ metadata = {
     'protocolName': 'OT3 ABR Normalize with Tubes.py DRYRUN',
     'author': 'Opentrons <protocols@opentrons.com>',
     'source': 'Protocol Library',
-    'apiLevel': '2.15'
+    'apiLevel': '2.18'
     }
 
 requirements = {
@@ -21,8 +21,31 @@ else:
     DRYRUN              = False          # True = skip incubation times, shorten mix, for testing purposes
     TIP_TRASH           = True   
 
+def add_parameters(parameters: protocol_api.Parameters):
+    parameters.add_str(
+            variable_name="mount_pos_50",
+            display_name="1ch 50 ul Mount Position",
+            description="What mount to use",
+            choices=[
+                {"display_name": "left_mount", "value": "left"},
+                {"display_name": "right_mount", "value": "right"},
+            ],
+            default="right",
+        )
+    parameters.add_str(
+            variable_name="mount_pos_1000",
+            display_name="1ch 1000 ul Mount Position",
+            description="What mount to use",
+            choices=[
+                {"display_name": "left_mount", "value": "left"},
+                {"display_name": "right_mount", "value": "right"},
+            ],
+            default="left",
+        )
 def run(protocol: protocol_api.ProtocolContext):
-
+    mount_pos_50ul = protocol.params.mount_pos_50
+    mount_pos_1000ul = protocol.params.mount_pos_1000
+    
     if DRYRUN == True:
         protocol.comment("THIS IS A DRY RUN")
     else:
@@ -38,8 +61,8 @@ def run(protocol: protocol_api.ProtocolContext):
     RSB               = reagent_tube.wells()[0]
 
     # pipette    
-    p1000    = protocol.load_instrument('flex_1channel_1000', 'right', tip_racks=[tiprack_200_1])
-    p50     = protocol.load_instrument('flex_1channel_50', 'left', tip_racks=[tiprack_50_1])
+    p1000    = protocol.load_instrument('flex_1channel_1000', mount_pos_1000ul, tip_racks=[tiprack_200_1])
+    p50     = protocol.load_instrument('flex_1channel_50', mount_pos_50ul, tip_racks=[tiprack_50_1])
 
     MaxTubeVol      = 200
     RSBUsed         = 0

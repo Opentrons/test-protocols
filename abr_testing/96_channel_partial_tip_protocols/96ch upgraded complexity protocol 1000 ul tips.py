@@ -7,7 +7,7 @@ metadata = {
 
 requirements = {
     "robotType": "OT-3",
-    "apiLevel": "2.16",
+    "apiLevel": "2.18",
 }
 
 #############
@@ -31,17 +31,43 @@ THERMOCYCLER_NAME = "thermocycler module gen2"
 PCR_PLATE_96_NAME = "nest_96_wellplate_100ul_pcr_full_skirt"
 RESERVOIR_NAME = "nest_96_wellplate_2ml_deep" #originally nest_1_reservoir_290ml, but we had none for testing
 TIPRACK_96_ADAPTER_NAME = "opentrons_flex_96_tiprack_adapter"
-TIPRACK_96_NAME = "opentrons_flex_96_tiprack_1000ul"
-
 PIPETTE_96_CHANNEL_NAME = "flex_96channel_1000"
 
 USING_GRIPPER = True
 RESET_AFTER_EACH_MOVE = True
-b = 0.3 # .bottom
 
+
+def add_parameters(parameters: protocol_api.Parameters):
+    parameters.add_str(
+        variable_name="tip_size",
+        display_name="Tip Size",
+        description="Set Left Pipette Tip Size",
+        choices=[
+        {"display_name": "50 uL", "value": "opentrons_flex_96_tiprack_50ul"},
+        {"display_name": "200 µL", "value": "opentrons_flex_96_tiprack_200ul"},
+        {"display_name": "1000 µL", "value": "opentrons_flex_96_tiprack_1000ul"},
+    ],
+    default = "opentrons_flex_96_tiprack_1000ul"
+    )
+    parameters.add_float(
+        variable_name = "dot_bottom",
+        display_name = ".bottom",
+        description = "Lowest value pipette will go to.",
+        default = 0.5,
+        choices=[
+            {"display_name": "0.0", "value": 0.0},
+            {"display_name": "0.1", "value": 0.1},
+            {"display_name": "0.2", "value": 0.2},
+            {"display_name": "0.3", "value": 0.3},
+            {"display_name": "0.4", "value": 0.4},
+            {"display_name": "0.5", "value": 0.5},
+            {"display_name": "1.0", "value": 1.0},
+        ]
+    )
 
 def run(ctx: protocol_api.ProtocolContext) -> None:
-
+    b = ctx.params.dot_bottom
+    TIPRACK_96_NAME = ctx.params.tip_size
     ################
     ### FIXTURES ###
     ################
