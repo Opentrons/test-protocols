@@ -82,6 +82,7 @@ def add_parameters(parameters: protocol_api.Parameters):
             {"display_name": "0.3", "value": 0.3},
             {"display_name": "0.4", "value": 0.4},
             {"display_name": "0.5", "value": 0.5},
+            {"display_name": "0.6", "value": 0.6},
             {"display_name": "1.0", "value": 1.0},
         ]
     )
@@ -581,8 +582,8 @@ def run(protocol: protocol_api.ProtocolContext):
 
                 protocol.comment('--> Adding H20')
                 
-                p50.aspirate(H20Vol+5, H20.bottom(z=0.5), rate=1)  #original = ()
-                p50.dispense(5, H20.bottom(z=0.5), rate=1)  #original = ()
+                p50.aspirate(H20Vol+5, H20.bottom(z=bottom_val), rate=1)  #original = ()
+                p50.dispense(5, H20.bottom(z=bottom_val), rate=1)  #original = ()
                 p50.dispense(H20Vol, sample_plate_1[column_2_list[loop]].bottom(z=0.75))
 
 
@@ -793,7 +794,7 @@ def run(protocol: protocol_api.ProtocolContext):
             for loop, X in enumerate(column_2_list):
                 tipcheck()
                 p50.pick_up_tip()
-                p50.move_to(sample_plate_1[X].bottom(z=0.5)) 
+                p50.move_to(sample_plate_1[X].bottom(z=bottom_val)) 
                 p50.aspirate(TransferSup+1, rate=0.25)
                 p50.dispense(TransferSup+1, sample_plate_1[column_3_list[loop]].bottom(z=1))
                 p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
