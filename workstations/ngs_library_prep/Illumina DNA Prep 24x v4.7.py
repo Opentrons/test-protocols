@@ -1,5 +1,6 @@
 from opentrons import protocol_api
 from opentrons import types
+import threading
 
 metadata = {
     'protocolName': 'Illumina DNA Prep 24x v4.7',
@@ -40,6 +41,7 @@ Resetcount          = 0
 
 TIP_TRASH       = False          # Overrides to only REUSING TIPS
 RUN             = 1              # Repetitions
+
 def add_parameters(parameters: protocol_api.Parameters):
     parameters.add_int(
         variable_name="heater_shaker_speed",
@@ -83,8 +85,20 @@ def add_parameters(parameters: protocol_api.Parameters):
             {"display_name": "0.4", "value": 0.4},
             {"display_name": "0.5", "value": 0.5},
             {"display_name": "0.6", "value": 0.6},
+            {"display_name": "0.7", "value": 0.7},
+            {"display_name": "0.8", "value": 0.8},
+            {"display_name": "0.9", "value": 0.9},
             {"display_name": "1.0", "value": 1.0},
         ]
+    )
+    parameters.add_int(
+        variable_name="temp_mod_timeout",
+        display_name= "Temp Mod Max time to 4 C (sec)",
+        description="Max time protocol should wait for temperature module to reach 4C.",
+        default=3600,
+        minimum=60,
+        maximum=7200,
+        unit="sec"
     )
 
 
@@ -93,6 +107,7 @@ def run(protocol: protocol_api.ProtocolContext):
     mount_pos_1000 = protocol.params.mount_pos_1000
     mount_pos_50 = protocol.params.mount_pos_50
     bottom_val = protocol.params.dot_bottom
+    temp_mod_timeout = protocol.params.temp_mod_timeout
     global p200_tips
     global p50_tips
     global WasteVol
@@ -208,8 +223,25 @@ def run(protocol: protocol_api.ProtocolContext):
         heatershaker.open_labware_latch()
         protocol.comment("SETTING THERMO and TEMP BLOCK Temperature")
         thermocycler.set_block_temperature(4)
-        thermocycler.set_lid_temperature(100)    
-        temp_block.set_temperature(4)
+        thermocycler.set_lid_temperature(100)  
+        def set_temperature_with_timeout(temp_block, timeout):
+            def set_temperature():
+                temp_block.set_temperature(4)
+
+            # Create a thread to run the set_temperature function
+            thread = threading.Thread(target=set_temperature)
+            thread.start()
+            thread.join(timeout)
+
+            if thread.is_alive():
+                raise RuntimeError(f"Temperature module timeout. Took longer than {timeout} seconds to reach 4 C. Protocol terminated.")
+        try:
+            set_temperature_with_timeout(temp_block, temp_mod_timeout)
+        except RuntimeError as e:
+            protocol.comment(str(e))
+            raise
+        
+                
         protocol.comment("Ready")
         heatershaker.close_labware_latch()
 

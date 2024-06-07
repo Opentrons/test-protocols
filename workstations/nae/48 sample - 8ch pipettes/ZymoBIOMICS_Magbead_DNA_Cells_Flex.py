@@ -64,7 +64,25 @@ def add_parameters(parameters: protocol_api.Parameters):
         ],
         default="left",
     )
-
+    parameters.add_float(
+        variable_name = "dot_bottom",
+        display_name = ".bottom",
+        description = "Lowest value pipette will go to.",
+        default = 0.5,
+        choices=[
+            {"display_name": "0.0", "value": 0.0},
+            {"display_name": "0.1", "value": 0.1},
+            {"display_name": "0.2", "value": 0.2},
+            {"display_name": "0.3", "value": 0.3},
+            {"display_name": "0.4", "value": 0.4},
+            {"display_name": "0.5", "value": 0.5},
+            {"display_name": "0.6", "value": 0.6},
+            {"display_name": "0.7", "value": 0.7},
+            {"display_name": "0.8", "value": 0.8},
+            {"display_name": "0.9", "value": 0.9},
+            {"display_name": "1.0", "value": 1.0},
+        ]
+    )
 
 def run(ctx):
     """
@@ -73,6 +91,7 @@ def run(ctx):
     """
     heater_shaker_speed = ctx.params.heater_shaker_speed
     mount_pos = ctx.params.mount_pos
+    dot_bottom = ctx.params.dot_bottom
     trash_chute = False # If this is true, trash chute is loaded in D3, otherwise trash bin is loaded there
     USE_GRIPPER = True
     dry_run = False
@@ -277,7 +296,7 @@ def run(ctx):
 
         for i, m in enumerate(samples_m):
             m1000.pick_up_tip(tips_sn[8*i])
-            loc = m.bottom(0.5)
+            loc = m.bottom(dot_bottom)
             for _ in range(num_trans):
                 if m1000.current_volume > 0:
                     # void air gap if necessary
@@ -596,7 +615,7 @@ def run(ctx):
             tiptrack(m1000,tips)
             m1000.flow_rate.dispense = 100
             m1000.flow_rate.aspirate = 25
-            m1000.transfer(vol, m.bottom(0.15), e.bottom(5), air_gap=20, new_tip='never')
+            m1000.transfer(vol, m.bottom(dot_bottom), e.bottom(5), air_gap=20, new_tip='never')
             m1000.blow_out(e.top(-2))
             m1000.air_gap(20)
             m1000.drop_tip() if TIP_TRASH == True else m1000.return_tip()
