@@ -5,7 +5,7 @@ metadata = {
     'protocolName': 'OT3 ABR Normalize with Tubes.py DRYRUN',
     'author': 'Opentrons <protocols@opentrons.com>',
     'source': 'Protocol Library',
-    'apiLevel': '2.18'
+    'apiLevel': '2.19'
     }
 
 requirements = {

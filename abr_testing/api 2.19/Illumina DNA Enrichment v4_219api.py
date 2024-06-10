@@ -10,7 +10,7 @@ metadata = {
 
 requirements = {
     "robotType": "Flex",
-    "apiLevel": "2.18",
+    "apiLevel": "2.19",
 }
 
 # SCRIPT SETTINGS
