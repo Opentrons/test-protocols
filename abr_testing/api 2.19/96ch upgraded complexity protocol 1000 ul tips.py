@@ -1,4 +1,5 @@
 from opentrons import protocol_api
+import threading
 
 metadata = {
     "protocolName": "96ch protocol with modules gripper moves and pipette aspirations",
@@ -68,9 +69,19 @@ def add_parameters(parameters: protocol_api.Parameters):
             {"display_name": "1.0", "value": 1.0},
         ]
     )
+    parameters.add_int(
+        variable_name="tc_block_timeout",
+        display_name= "Thermocycler Block Time to 4 C",
+        description="Max time protocol should wait for Thermocycler Block to reach 4C.",
+        default=3600,
+        minimum=60,
+        maximum=7200,
+        unit="sec"
+    )
 
 def run(ctx: protocol_api.ProtocolContext) -> None:
     b = ctx.params.dot_bottom
+    tc_block_timeout = ctx.params.tc_block_timeout
     TIPRACK_96_NAME = ctx.params.tip_size
     ################
     ### FIXTURES ###
@@ -381,7 +392,22 @@ def run(ctx: protocol_api.ProtocolContext) -> None:
     def test_module_usage():
         def test_thermocycler():
             thermocycler.close_lid()
-            thermocycler.set_block_temperature(4)
+            def set_temperature_with_timeout(temp_block, timeout):
+                def set_temperature():
+                    thermocycler.set_block_temperature(4)
+
+                # Create a thread to run the set_temperature function
+                thread = threading.Thread(target=set_temperature)
+                thread.start()
+                thread.join(timeout)
+
+                if thread.is_alive():
+                    raise RuntimeError(f"Temperature module timeout. Took longer than {timeout} seconds to reach 4 C. Protocol terminated.")
+            try:
+                set_temperature_with_timeout(thermocycler, tc_block_timeout)
+            except RuntimeError as e:
+                ctx.comment(str(e))
+                raise
             thermocycler.set_lid_temperature(105)
             #Close lid
             thermocycler.close_lid()
