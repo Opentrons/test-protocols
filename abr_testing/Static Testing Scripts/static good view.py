@@ -46,10 +46,20 @@ def add_parameters(parameters: protocol_api.Parameters):
     ],
     default = "opentrons_flex_96_tiprack_50ul"
     )
+    parameters.add_int(
+        variable_name="wait_time",
+        display_name="Wait Time",
+        description="How long to wait after ejecting",
+        default = 0,
+        minimum = 2,
+        maximum = 20,
+        unit = "sec",
+    )
 
 def run(protocol: protocol_api.ProtocolContext):
     left_pipette = protocol.params.left_pipette
     tiprack_size = protocol.params.tiprack_size
+    wait_time = protocol.params.wait_time
     # DECK SETUP AND LABWARE    
     tiprack_1        = protocol.load_labware(tiprack_size, location = 'D1')
     pcr_plate        = protocol.load_labware('opentrons_96_wellplate_200ul_pcr_full_skirt', location = 'B3')
@@ -57,17 +67,16 @@ def run(protocol: protocol_api.ProtocolContext):
     repetitions = protocol.params.repetitions
     # Pipette
     pleft = protocol.load_instrument(left_pipette, "left", tip_racks=[tiprack_1])
-   
+    tiprack_columns = ["A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "A10", "A11", "A12"]
    
     for i in list(range(repetitions)):
-        for i in list(range(12)):
-            pleft.transfer(
-                volume=50,
-                dest=pcr_plate["A1"],
-                source=reservoir["A1"],
-                touch_tip=True,
-                trash = False,
-            )
+        for column in tiprack_columns:
+            pleft.pick_up_tip(tiprack_1[column])
+            pleft.aspirate(50, reservoir[column])
+            pleft.dispense(10, pcr_plate[column])
+            pleft.drop_tip(tiprack_1[column])
+            protocol.delay(seconds=wait_time)
+            pleft.home()
         pleft.reset_tipracks()
 
     #pcr_plate["A1"].top()
