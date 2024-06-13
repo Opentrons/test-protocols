@@ -1,32 +1,34 @@
 from opentrons import protocol_api
 from opentrons import types
-import threading
 
 metadata = {
-    'protocolName': 'Illumina DNA Prep 24x v4.7',
+    'protocolName': 'Illumina DNA Enrichment v4',
     'author': 'Opentrons <protocols@opentrons.com>',
-    'source': 'Protocol Library',
+    'source': 'Protocol Library'
     }
 
 requirements = {
-    "robotType": "Flex",
+    "robotType": "OT-3",
     "apiLevel": "2.18",
 }
 
 # SCRIPT SETTINGS
+DRYRUN              = False          # True = skip incubation times, shorten mix, for testing purposes
 USE_GRIPPER         = True          # True = Uses Gripper, False = Manual Move
 TIP_TRASH           = False         # True = Used tips go in Trash, False = Used tips go back into rack
+HYBRID_PAUSE        = True          # True = sets a pause on the Hybridization
 
 # PROTOCOL SETTINGS
-COLUMNS             = 3             # 1-4
-PCRCYCLES           = 7             # Amount of PCR cycles
-RES_TYPE            = '12x15ml'     # '12x15ml' or '96x2ml'
-ETOH_AirMultiDis    = True
-RSB_AirMultiDis     = True
+COLUMNS             = 3             # 1-3
+HYBRIDDECK          = True
+HYBRIDTIME          = 1.6           #Hours
 
 # PROTOCOL BLOCKS
-STEP_TAG            = 1
+STEP_VOLPOOL        = 0
+STEP_HYB            = 0
+STEP_CAPTURE        = 1
 STEP_WASH           = 1
+STEP_PCR            = 1
 STEP_PCRDECK        = 1
 STEP_CLEANUP        = 1
 
@@ -34,14 +36,12 @@ STEP_CLEANUP        = 1
 ############################################################################################################################################
 ############################################################################################################################################
 
-p200_tips           = 0
-p50_tips            = 0
-WasteVol            = 0
-Resetcount          = 0
+p200_tips = 0
+p50_tips  = 0
+
 
 TIP_TRASH       = False          # Overrides to only REUSING TIPS
-RUN             = 1              # Repetitions
-
+RUN = 1
 def add_parameters(parameters: protocol_api.Parameters):
     parameters.add_int(
         variable_name="heater_shaker_speed",
@@ -50,33 +50,13 @@ def add_parameters(parameters: protocol_api.Parameters):
         default=2000,
         minimum=200,
         maximum=3000,
-        unit="rpm",
+        unit="seconds",
     )
-    parameters.add_str(
-            variable_name="mount_pos_50",
-            display_name="8ch 50 ul Mount Position",
-            description="What mount to use",
-            choices=[
-                {"display_name": "left_mount", "value": "left"},
-                {"display_name": "right_mount", "value": "right"},
-            ],
-            default="right",
-        )
-    parameters.add_str(
-            variable_name="mount_pos_1000",
-            display_name="8ch 1000 ul Mount Position",
-            description="What mount to use",
-            choices=[
-                {"display_name": "left_mount", "value": "left"},
-                {"display_name": "right_mount", "value": "right"},
-            ],
-            default="left",
-        )
     parameters.add_float(
         variable_name = "dot_bottom",
         display_name = ".bottom",
         description = "Lowest value pipette will go to.",
-        default = 0.5,
+        default = 0.3,
         choices=[
             {"display_name": "0.0", "value": 0.0},
             {"display_name": "0.1", "value": 0.1},
@@ -91,128 +71,98 @@ def add_parameters(parameters: protocol_api.Parameters):
             {"display_name": "1.0", "value": 1.0},
         ]
     )
-    parameters.add_int(
-        variable_name="temp_mod_timeout",
-        display_name= "Temp Mod Max time to 4 C (sec)",
-        description="Max time protocol should wait for temperature module to reach 4C.",
-        default=3600,
-        minimum=60,
-        maximum=7200,
-        unit="sec"
-    )
-
-
+    
 def run(protocol: protocol_api.ProtocolContext):
     heater_shaker_speed = protocol.params.heater_shaker_speed
-    mount_pos_1000 = protocol.params.mount_pos_1000
-    mount_pos_50 = protocol.params.mount_pos_50
-    bottom_val = protocol.params.dot_bottom
-    temp_mod_timeout = protocol.params.temp_mod_timeout
+    dot_bottom = protocol.params.dot_bottom
     global p200_tips
     global p50_tips
-    global WasteVol
-    global Resetcount
+
+    protocol.comment('THIS IS A DRY RUN') if DRYRUN == True else protocol.comment('THIS IS A REACTION RUN')
     protocol.comment('USED TIPS WILL GO IN TRASH') if TIP_TRASH == True else protocol.comment('USED TIPS WILL BE RE-RACKED')
 
     # DECK SETUP AND LABWARE
     # ========== FIRST ROW ===========
-    heatershaker        = protocol.load_module('heaterShakerModuleV1','D1')
-    hs_adapter          = heatershaker.load_adapter('opentrons_96_pcr_adapter')
-    sample_plate_1      = hs_adapter.load_labware('armadillo_96_wellplate_200ul_pcr_full_skirt')
-    if RES_TYPE == '12x15ml':
-        reservoir       = protocol.load_labware('nest_12_reservoir_15ml','D2')
-    if RES_TYPE == '96x2ml':
-        reservoir       = protocol.load_labware('nest_96_wellplate_2ml_deep','D2')    
-    temp_block          = protocol.load_module('temperature module gen2', 'D3')
-    temp_adapter        = temp_block.load_adapter('opentrons_96_well_aluminum_block')
-    reagent_plate       = temp_adapter.load_labware('armadillo_96_wellplate_200ul_pcr_full_skirt')
+    heatershaker        = protocol.load_module('heaterShakerModuleV1','1')
+    sample_plate_2      = heatershaker.load_labware('thermoscientificnunc_96_wellplate_1300ul')
+    
+    
+    reservoir           = protocol.load_labware('nest_96_wellplate_2ml_deep','2')    
+    temp_block          = protocol.load_module('temperature module gen2', '3')
+    reagent_plate       = temp_block.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')
     # ========== SECOND ROW ==========
-    mag_block      = protocol.load_module('magneticBlockV1', 'C1')
-    tiprack_200_1       = protocol.load_labware('opentrons_flex_96_tiprack_200ul', 'C2')
-    tiprack_50_1        = protocol.load_labware('opentrons_flex_96_tiprack_50ul', 'C3')
+    MAG_PLATE_SLOT      = protocol.load_module('magneticBlockV1', 'C1')
+    tiprack_200_1       = protocol.load_labware('opentrons_flex_96_tiprack_200ul', '5')
+    tiprack_50_1        = protocol.load_labware('opentrons_flex_96_tiprack_50ul', '6')
     # ========== THIRD ROW ===========
     thermocycler        = protocol.load_module('thermocycler module gen2')
-    tiprack_200_2       = protocol.load_labware('opentrons_flex_96_tiprack_200ul', 'B2')
-    tiprack_50_2        = protocol.load_labware('opentrons_flex_96_tiprack_50ul', 'B3')
+    sample_plate_1      = thermocycler.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')
+    tiprack_200_2       = protocol.load_labware('opentrons_flex_96_tiprack_200ul', '8')
+    tiprack_50_2        = protocol.load_labware('opentrons_flex_96_tiprack_50ul', '9')
     # ========== FOURTH ROW ==========
-    tiprack_200_3       = protocol.load_labware('opentrons_flex_96_tiprack_200ul', 'A2')
+    tiprack_200_3       = protocol.load_labware('opentrons_flex_96_tiprack_200ul', '11')
 
-    # =========== RESERVOIR ==========
-    AMPure              = reservoir['A1']    
-    TAGSTOP             = reservoir['A2'] 
-    TWB                 = reservoir['A4']
-    EtOH                = reservoir['A6']
-    Liquid_trash_well_1 = reservoir['A11']
-    Liquid_trash_well_2 = reservoir['A12']
-    
-    # ========= REAGENT PLATE =========
-    TAGMIX              = reagent_plate['A1']
-    EPM                 = reagent_plate['A2']
-    H20                 = reagent_plate['A3']
-    RSB                 = reagent_plate['A4']
-    Barcodes_1          = reagent_plate['A7']
-    Barcodes_2          = reagent_plate['A8']
-    Barcodes_3          = reagent_plate['A9']
-    Barcodes_4          = reagent_plate['A10']
+    # reagent
+    AMPure              = reservoir['A1']
+    SMB                 = reservoir['A2']
+
+    EtOH                = reservoir['A4']
+    RSB                 = reservoir['A5']
+    Liquid_trash_well_1 = reservoir['A9']
+    Liquid_trash_well_2 = reservoir['A10']
+    Liquid_trash_well_3 = reservoir['A11']
+    Liquid_trash_well_4 = reservoir['A12']
+
+    # Will Be distributed during the protocol
+    EEW_1                 = sample_plate_2.wells_by_name()['A10']
+    EEW_2                 = sample_plate_2.wells_by_name()['A11'] 
+    EEW_3                 = sample_plate_2.wells_by_name()['A12']
+
+    NHB2                  = reagent_plate.wells_by_name()['A1']
+    Panel                 = reagent_plate.wells_by_name()['A2']
+    EHB2                  = reagent_plate.wells_by_name()['A3']
+    Elute                 = reagent_plate.wells_by_name()['A4']
+    ET2                   = reagent_plate.wells_by_name()['A5']
+    PPC                   = reagent_plate.wells_by_name()['A6']
+    EPM                   = reagent_plate.wells_by_name()['A7']
 
     # pipette
-    p1000 = protocol.load_instrument("flex_8channel_1000", mount_pos_1000, tip_racks=[tiprack_200_1,tiprack_200_2,tiprack_200_3])
-    p50 = protocol.load_instrument("flex_8channel_50", mount_pos_50, tip_racks=[tiprack_50_1,tiprack_50_2])
-    p200_tipracks = 3
-    p50_tipracks = 2
-    
+    p1000 = protocol.load_instrument("flex_8channel_1000", "left", tip_racks=[tiprack_200_1,tiprack_200_2,tiprack_200_3])
+    p50 = protocol.load_instrument("flex_8channel_50", "right", tip_racks=[tiprack_50_1,tiprack_50_2])
+
     #tip and sample tracking
     if COLUMNS == 1:
-        column_1_list = ['A1']
-        column_2_list = ['A5']
-        column_3_list = ['A9']
-        barcodes = ['A7']
+        column_1_list = ['A1'] # Plate 1
+        column_2_list = ['A1'] # Plate 2
+        column_3_list = ['A4'] # Plate 2
+        column_4_list = ['A4'] # Plate 1
+        column_5_list = ['A7'] # Plate 2
+        column_6_list = ['A7'] # Plate 1
+        WASHES        = [EEW_1]
     if COLUMNS == 2:
-        column_1_list = ['A1','A2']
-        column_2_list = ['A5','A6']
-        column_3_list = ['A9','A10']
-        barcodes = ['A7','A8']
+        column_1_list = ['A1','A2'] # Plate 1
+        column_2_list = ['A1','A2'] # Plate 2
+        column_3_list = ['A4','A5'] # Plate 2
+        column_4_list = ['A4','A5'] # Plate 1
+        column_5_list = ['A7','A8'] # Plate 2
+        column_6_list = ['A7','A8'] # Plate 1
+        WASHES        = [EEW_1,EEW_2]
     if COLUMNS == 3:
-        column_1_list = ['A1','A2','A3']
-        column_2_list = ['A5','A6','A7']
-        column_3_list = ['A9','A10','A11']
-        barcodes = ['A7','A8','A9']
-    if COLUMNS == 4:
-        column_1_list = ['A1','A2','A3','A4']
-        column_2_list = ['A5','A6','A7','A8']
-        column_3_list = ['A9','A10','A11','A12']
-        barcodes = ['A7','A8','A9','A10']
+        column_1_list = ['A1','A2','A3'] # Plate 1
+        column_2_list = ['A1','A2','A3'] # Plate 2
+        column_3_list = ['A4','A5','A6'] # Plate 2
+        column_4_list = ['A4','A5','A6'] # Plate 1
+        column_5_list = ['A7','A8','A9'] # Plate 2
+        column_6_list = ['A7','A8','A9'] # Plate 1
+        WASHES        = [EEW_1,EEW_2,EEW_3]
 
     def tipcheck():
-        global p200_tips
-        global p50_tips
-        global Resetcount
-        if p200_tips == p200_tipracks*12:
-            if TIP_TRASH == False: 
-                p1000.reset_tipracks()
-            else:
-                protocol.pause('RESET p200 TIPS')
-                p1000.reset_tipracks()
-            Resetcount += 1
-            p200_tips = 0 
-        if p50_tips == p50_tipracks*12:
-            if TIP_TRASH == False: 
-                p50.reset_tipracks()
-            else:
-                protocol.pause('RESET p50 TIPS')
-                p50.reset_tipracks()
-            Resetcount += 1
-            p50_tips = 0
-
-    def DispWasteVol(Vol):
-        global WasteVol
-        WasteVol += int(Vol)
-        if WasteVol <1200:
-            return Liquid_trash_well_1
-        if WasteVol >1200:
-            return Liquid_trash_well_2
-
-
+        if p200_tips >= 3*12:
+            p1000.reset_tipracks()
+            p200_tips == 0 
+        if p50_tips >= 2*12:
+            p50.reset_tipracks()
+            p50_tips == 0
 
 ############################################################################################################################################
 ############################################################################################################################################
@@ -221,614 +171,732 @@ def run(protocol: protocol_api.ProtocolContext):
     for loop in range(RUN):
         thermocycler.open_lid()
         heatershaker.open_labware_latch()
-        protocol.comment("SETTING THERMO and TEMP BLOCK Temperature")
-        thermocycler.set_block_temperature(4)
-        thermocycler.set_lid_temperature(100)  
-        def set_temperature_with_timeout(temp_block, timeout):
-            def set_temperature():
+        if DRYRUN == False:
+            if STEP_HYB == 1:
+                protocol.comment("SETTING THERMO and TEMP BLOCK Temperature")
+                thermocycler.set_block_temperature(4)
+                thermocycler.set_lid_temperature(100)    
                 temp_block.set_temperature(4)
-
-            # Create a thread to run the set_temperature function
-            thread = threading.Thread(target=set_temperature)
-            thread.start()
-            thread.join(timeout)
-
-            if thread.is_alive():
-                raise RuntimeError(f"Temperature module timeout. Took longer than {timeout} seconds to reach 4 C. Protocol terminated.")
-        try:
-            set_temperature_with_timeout(temp_block, temp_mod_timeout)
-        except RuntimeError as e:
-            protocol.comment(str(e))
-            raise
-        
-                
-        protocol.comment("Ready")
+            else:
+                protocol.comment("SETTING THERMO and TEMP BLOCK Temperature")
+                thermocycler.set_block_temperature(58)
+                thermocycler.set_lid_temperature(58)  
+                heatershaker.set_and_wait_for_temperature(58)
+        protocol.pause("Ready")
         heatershaker.close_labware_latch()
+        Liquid_trash = Liquid_trash_well_1
 
-        # Sample Plate contains 50ng of DNA in 30ul Low EDTA TE
+        # Sample Plate contains 30ul  of DNA
 
-        if STEP_TAG == 1:
+        if STEP_VOLPOOL == 1:
             protocol.comment('==============================================')
-            protocol.comment('--> Tagment')
+            protocol.comment('--> Quick Vol Pool')
             protocol.comment('==============================================')
 
-            protocol.comment('--> ADDING TAGMIX')
-            TagVol = 20
-            SampleVol = 50
-            TagMixTime = 5*60 
-            TagPremix = 3 
-            #===============================================
-            for loop, X in enumerate(column_1_list):
-                tipcheck()
-                p1000.pick_up_tip()
-                p1000.mix(TagPremix,TagVol+10, TAGMIX.bottom(z=1))
-                p1000.aspirate(TagVol+3, TAGMIX.bottom(z=1), rate=0.25)
-                p1000.dispense(3, TAGMIX.bottom(z=1), rate=0.25)
-                p1000.dispense(TagVol, sample_plate_1[X].bottom(z=1), rate=0.25)
-                p1000.mix(2,SampleVol, sample_plate_1[X].bottom(z=0.75))
-                p1000.move_to(sample_plate_1[X].top(z=-3))
-                protocol.delay(minutes=0.1)
-                p1000.blow_out(sample_plate_1[X].top(z=-3))
-                p1000.move_to(sample_plate_1[X].top(z=5))
-                p1000.move_to(sample_plate_1[X].top(z=0))
-                p1000.move_to(sample_plate_1[X].top(z=5))
-                p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip()
-                p200_tips += 1
-            #===============================================
-            heatershaker.set_and_wait_for_shake_speed(rpm=heater_shaker_speed*0.8)
-            protocol.delay(TagMixTime)
-            heatershaker.deactivate_shaker()
-            
-            #============================================================================================
-            # GRIPPER MOVE sample_plate_1 FROM HEATERSHAKER TO THERMOCYCLER
-            heatershaker.open_labware_latch()
-            protocol.move_labware(
-                labware=sample_plate_1,
-                new_location=thermocycler,
-                use_gripper=USE_GRIPPER,
-            )
-            heatershaker.close_labware_latch()
-            #============================================================================================
-            
-            ############################################################################################################################################
-            thermocycler.close_lid()
-            profile_TAG = [
-                {'temperature': 55, 'hold_time_minutes': 15}
-                ]
-            thermocycler.execute_profile(steps=profile_TAG, repetitions=1, block_max_volume=50)
-            thermocycler.set_block_temperature(10)
-            thermocycler.open_lid()
-            ############################################################################################################################################
+        if STEP_HYB == 1:
+            protocol.comment('==============================================')
+            protocol.comment('--> HYB')
+            protocol.comment('==============================================')
 
-            protocol.comment('--> Adding TAGSTOP')
-            TAGSTOPVol    = 10
-            TAGSTOPMixRep = 10 
-            TAGSTOPMixVol = 20
-            #===============================================
+            protocol.comment('--> Adding NHB2')
+            NHB2Vol    = 50
             for loop, X in enumerate(column_1_list):
-                tipcheck()
                 p50.pick_up_tip()
-                p50.aspirate(TAGSTOPVol+3, TAGSTOP.bottom(z=bottom_val))  #original = ()
-                p50.dispense(3, TAGSTOP.bottom(z=bottom_val))  #original = ()
-                p50.dispense(TAGSTOPVol, sample_plate_1[X].bottom(z=bottom_val))  #original = ()
-                p50.move_to(sample_plate_1[X].bottom(z=bottom_val))  #original = ()
-                p50.mix(TAGSTOPMixRep,TAGSTOPMixVol)
-                p50.blow_out(sample_plate_1[X].top(z=-2))
+                p50.aspirate(NHB2Vol, NHB2.bottom(z=dot_bottom)) #original = ()
+                p50.dispense(NHB2Vol, sample_plate_1[X].bottom(z=dot_bottom)) #original = ()
                 p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
                 p50_tips += 1
-            #===============================================
+                tipcheck()
 
-            ############################################################################################################################################
+            protocol.comment('--> Adding Panel')
+            PanelVol    = 10
+            for loop, X in enumerate(column_1_list):
+                p50.pick_up_tip()
+                p50.aspirate(PanelVol, Panel.bottom(z=dot_bottom)) #original = ()
+                p50.dispense(PanelVol, sample_plate_1[X].bottom(z=dot_bottom)) #original = ()
+                p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
+                p50_tips += 1
+                tipcheck()
+
+            protocol.comment('--> Adding EHB2')
+            EHB2Vol    = 10
+            EHB2MixRep = 10 if DRYRUN == False else 1
+            EHB2MixVol = 90
+            for loop, X in enumerate(column_1_list):
+                p1000.pick_up_tip()
+                p1000.aspirate(EHB2Vol, EHB2.bottom(z=dot_bottom)) #original = ()
+                p1000.dispense(EHB2Vol, sample_plate_1[X].bottom(z=dot_bottom))  #original = ()
+                p1000.move_to(sample_plate_1[X].bottom(z=dot_bottom))  #original = ()
+                p1000.mix(EHB2MixRep,EHB2MixVol)
+                p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip()
+                p50_tips += 1
+                tipcheck()
+
+            if HYBRIDDECK == True:
+                protocol.comment('Hybridize on Deck')
+                ############################################################################################################################################
+                thermocycler.close_lid()
+                if DRYRUN == False:
+                    profile_TAGSTOP = [
+                        {'temperature':98, 'hold_time_minutes': 5},
+                        {'temperature':97, 'hold_time_minutes': 1},
+                        {'temperature':95, 'hold_time_minutes': 1},
+                        {'temperature':93, 'hold_time_minutes': 1},
+                        {'temperature':91, 'hold_time_minutes': 1},
+                        {'temperature':89, 'hold_time_minutes': 1},
+                        {'temperature':87, 'hold_time_minutes': 1},
+                        {'temperature':85, 'hold_time_minutes': 1},
+                        {'temperature':83, 'hold_time_minutes': 1},
+                        {'temperature':81, 'hold_time_minutes': 1},
+                        {'temperature':79, 'hold_time_minutes': 1},
+                        {'temperature':77, 'hold_time_minutes': 1},
+                        {'temperature':75, 'hold_time_minutes': 1},
+                        {'temperature':73, 'hold_time_minutes': 1},
+                        {'temperature':71, 'hold_time_minutes': 1},
+                        {'temperature':69, 'hold_time_minutes': 1},
+                        {'temperature':67, 'hold_time_minutes': 1},
+                        {'temperature':65, 'hold_time_minutes': 1},
+                        {'temperature':63, 'hold_time_minutes': 1},
+                        {'temperature':62, 'hold_time_minutes': HYBRIDTIME*60}
+                        ]
+                    thermocycler.execute_profile(steps=profile_TAGSTOP, repetitions=1, block_max_volume=100)
+                    thermocycler.set_block_temperature(62)
+                    if HYBRID_PAUSE == True:
+                        protocol.comment('HYBRIDIZATION PAUSED')
+                    thermocycler.set_block_temperature(10)
+                thermocycler.open_lid()
+                ############################################################################################################################################
+            else:
+                protocol.comment('Hybridize off Deck')
+
+        if STEP_CAPTURE == 1:
+            protocol.comment('==============================================')
+            protocol.comment('--> Capture')
+            protocol.comment('==============================================')
+            #Standard Setup
+
+            if DRYRUN == False:
+                protocol.comment("SETTING THERMO and TEMP BLOCK Temperature")
+                thermocycler.set_block_temperature(58)
+                thermocycler.set_lid_temperature(58)  
+
+            if DRYRUN == False:
+                heatershaker.set_and_wait_for_temperature(58)
+
+            protocol.comment('--> Transfer Hybridization')
+            TransferSup = 100
+            for loop, X in enumerate(column_1_list):
+                p1000.pick_up_tip()
+                p1000.move_to(sample_plate_1[X].bottom(z=0.5)) 
+                p1000.aspirate(TransferSup+1, rate=0.25)
+                p1000.dispense(TransferSup+1, sample_plate_2[column_2_list[loop]].bottom(z=1))
+                p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip()
+                p200_tips += 1
+                tipcheck()
+
             thermocycler.close_lid()
-            profile_TAGSTOP = [
-                {'temperature': 37, 'hold_time_minutes': 15}
-                ]
-            thermocycler.execute_profile(steps=profile_TAGSTOP, repetitions=1, block_max_volume=50)
-            thermocycler.set_block_temperature(10)
-            thermocycler.open_lid()
-            ############################################################################################################################################
+
+            protocol.comment('--> ADDING SMB')
+            SMBVol = 250
+            SampleVol = 100
+            SMBMixRPM = heater_shaker_speed
+            SMBMixRep = 5*60 if DRYRUN == False else 0.1*60
+            SMBPremix = 3 if DRYRUN == False else 1
+            #==============================
+            for loop, X in enumerate(column_2_list):
+                p1000.pick_up_tip()
+                p1000.mix(SMBPremix,200, SMB.bottom(z=1))
+                p1000.aspirate(SMBVol/2, SMB.bottom(z=1), rate=0.25)
+                p1000.dispense(SMBVol/2, sample_plate_2[X].top(z=-7), rate=0.25)
+                p1000.aspirate(SMBVol/2, SMB.bottom(z=1), rate=0.25)
+                p1000.dispense(SMBVol/2, sample_plate_2[X].bottom(z=1), rate=0.25)
+                p1000.default_speed = 5
+                p1000.move_to(sample_plate_2[X].bottom(z=5))
+                for Mix in range(2):
+                    p1000.aspirate(100, rate=0.5)
+                    p1000.move_to(sample_plate_2[X].bottom(z=1))
+                    p1000.aspirate(80, rate=0.5)
+                    p1000.dispense(80, rate=0.5)
+                    p1000.move_to(sample_plate_2[X].bottom(z=5))
+                    p1000.dispense(100,rate=0.5)
+                    Mix += 1
+                p1000.blow_out(sample_plate_2[X].top(z=-7))
+                p1000.default_speed = 400
+                p1000.move_to(sample_plate_2[X].top(z=5))
+                p1000.move_to(sample_plate_2[X].top(z=0))
+                p1000.move_to(sample_plate_2[X].top(z=5))
+                p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip()
+                p200_tips += 1
+                tipcheck()
+            #==============================
+            heatershaker.set_and_wait_for_shake_speed(rpm=SMBMixRPM)
+            protocol.delay(SMBMixRep)
+            heatershaker.deactivate_shaker()
 
             #============================================================================================
-            # GRIPPER MOVE sample_plate_1 FROM THERMOCYCLER TO MAG PLATE
+            # GRIPPER MOVE sample_plate_2 FROM heatershaker TO MAGPLATE
             heatershaker.open_labware_latch()
             protocol.move_labware(
-                labware=sample_plate_1,
-                new_location=mag_block,
-                use_gripper=USE_GRIPPER,
+                labware=sample_plate_2,
+                new_location=MAG_PLATE_SLOT,
+                use_gripper=USE_GRIPPER
             )
             heatershaker.close_labware_latch()
             #============================================================================================
-            protocol.comment("SETTING THERMO to Room Temp")
-            thermocycler.set_block_temperature(20)
-            thermocycler.set_lid_temperature(37)    
 
-        protocol.delay(minutes=4)
+            thermocycler.open_lid()
 
-        if STEP_WASH == 1:
+            if DRYRUN == False:
+                protocol.delay(minutes=2)
+
             protocol.comment('==============================================')
-            protocol.comment('--> Wash')
+            protocol.comment('--> WASH')
             protocol.comment('==============================================')
-            # Setting Labware to Resume at Wash
-            if STEP_TAG == 0:
-                #============================================================================================
-                # GRIPPER MOVE sample_plate_1 FROM HEATERSHAKER TO MAG PLATE
-                heatershaker.open_labware_latch()
-                protocol.move_labware(
-                    labware=sample_plate_1,
-                    new_location=mag_block,
-                    use_gripper=USE_GRIPPER,
-                )
-                heatershaker.close_labware_latch()
-                #============================================================================================
+            # Setting Labware to Resume at Cleanup 1
 
-            protocol.comment('--> Removing Supernatant')
-            RemoveSup = 200
-            #===============================================
-            for loop, X in enumerate(column_1_list):
-                tipcheck()
+            protocol.comment('--> Remove SUPERNATANT')
+            for loop, X in enumerate(column_2_list):
                 p1000.pick_up_tip()
-                p1000.move_to(sample_plate_1[X].bottom(z=3.5))
-                p1000.aspirate(RemoveSup-100, rate=0.25)
+                p1000.move_to(sample_plate_2[X].bottom(4))
+                p1000.aspirate(200, rate=0.25)
+                p1000.dispense(200, Liquid_trash.top(z=-7))
+                p1000.move_to(sample_plate_2[X].bottom(.5))  
+                p1000.aspirate(200, rate=0.25)
+                p1000.dispense(200, Liquid_trash.top(z=-7))
+                p1000.move_to(Liquid_trash.top(z=-7))
                 protocol.delay(minutes=0.1)
-                p1000.move_to(sample_plate_1[X].bottom(z=0.75))
-                p1000.aspirate(100, rate=0.25)
-                p1000.move_to(sample_plate_1[X].top(z=-2))
-                Liquid_trash = DispWasteVol(60)
-                p1000.dispense(200, Liquid_trash.top(z=0))
-                protocol.delay(minutes=0.1)
-                p1000.blow_out(Liquid_trash.top(z=0))
+                p1000.blow_out(Liquid_trash.top(z=-7))
                 p1000.aspirate(20)
                 p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip()
                 p200_tips += 1
-            #===============================================
-
-            for X in range(3):
-                #============================================================================================
-                # GRIPPER MOVE sample_plate_1 FROM MAG PLATE TO HEATER SHAKER
-                heatershaker.open_labware_latch()
-                protocol.move_labware(
-                    labware=sample_plate_1,
-                    new_location=hs_adapter,
-                    use_gripper=USE_GRIPPER,
-                )
-                heatershaker.close_labware_latch()
-                #============================================================================================
-
-                protocol.comment('--> Wash ')
-                TWBMaxVol = 100
-                TWBTime = 3*60 
-                #===============================================
-                for loop, X in enumerate(column_1_list):
-                    tipcheck()
-                    p1000.pick_up_tip()
-                    p1000.aspirate(TWBMaxVol+3, TWB.bottom(z=1), rate=0.25)
-                    p1000.dispense(3, TWB.bottom(z=1), rate=0.25)
-                    p1000.move_to(sample_plate_1[X].bottom(z=1))
-                    p1000.dispense(TWBMaxVol, rate=0.25)
-                    p1000.mix(2,90,rate=0.5)
-                    p1000.move_to(sample_plate_1[X].top(z=1))
-                    protocol.delay(minutes=0.1)
-                    p1000.blow_out(sample_plate_1[X].top(z=1))
-                    p1000.aspirate(20)
-                    p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip()
-                    p200_tips += 1
-                #===============================================
-
-                #============================================================================================
-                # GRIPPER MOVE sample_plate_1 FROM HEATER SHAKER TO MAG PLATE
-                heatershaker.open_labware_latch()
-                protocol.move_labware(
-                    labware=sample_plate_1,
-                    new_location=mag_block,
-                    use_gripper=USE_GRIPPER,
-                )
-                heatershaker.close_labware_latch()
-                #============================================================================================
-
-                protocol.delay(minutes=3)
-
-                protocol.comment('--> Remove Wash')
-                #===============================================
-                for loop, X in enumerate(column_1_list):
-                    tipcheck()
-                    p1000.pick_up_tip()
-                    p1000.move_to(sample_plate_1[X].bottom(4))
-                    p1000.aspirate(TWBMaxVol, rate=0.25)
-                    p1000.default_speed = 5
-                    p1000.move_to(sample_plate_1[X].bottom(z=bottom_val))  #original = ()
-                    protocol.delay(minutes=0.1)
-                    p1000.aspirate(200-TWBMaxVol, rate=0.25)
-                    p1000.default_speed = 400
-                    Liquid_trash = DispWasteVol(100)
-                    p1000.dispense(200, Liquid_trash)
-                    p1000.move_to(Liquid_trash.top(z=5))
-                    protocol.delay(minutes=0.1)
-                    p1000.blow_out(Liquid_trash.top(z=5))
-                    p1000.aspirate(20)
-                    p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip()
-                    p200_tips += 1
-                #===============================================
-            protocol.delay(minutes=1)
-
-            protocol.comment('--> Removing Residual Wash')
-            #===============================================
-            for loop, X in enumerate(column_1_list):
                 tipcheck()
-                p50.pick_up_tip()
-                p50.move_to(sample_plate_1[X].bottom(1))
-                p50.aspirate(20, rate=0.25)
-                p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
-                p50_tips += 1
-            #===============================================
-            protocol.delay(minutes=0.5)
+
+            Liquid_trash = Liquid_trash_well_2
 
             #============================================================================================
-            # GRIPPER MOVE sample_plate_1 FROM MAG PLATE TO HEATER SHAKER
+            # GRIPPER MOVE sample_plate_2 FROM MAGPLATE TO heatershaker
             heatershaker.open_labware_latch()
             protocol.move_labware(
-                labware=sample_plate_1,
-                new_location=hs_adapter,
-                use_gripper=USE_GRIPPER,
+                labware=sample_plate_2,
+                new_location=heatershaker,
+                use_gripper=USE_GRIPPER
             )
             heatershaker.close_labware_latch()
             #============================================================================================
 
-            protocol.comment('--> Adding EPM')
-            EPMVol = 40 
-            EPMMixTime = 3*60 
-            EPMMixRPM = 2000
-            EPMMixVol = 35
-            EPMVolCount = 0
-            #===============================================
-            for loop, X in enumerate(column_1_list):
+            protocol.comment('--> Repeating 3 washes')
+            washreps = 3
+            washcount = 0
+            for wash in range(washreps):
+
+                protocol.comment('--> Adding EEW')
+                EEWVol    = 200
+                for loop, X in enumerate(column_2_list):
+                    p1000.pick_up_tip()
+                    p1000.aspirate(EEWVol, WASHES[loop].bottom(z=dot_bottom))  #original = ()
+                    p1000.dispense(EEWVol, sample_plate_2[X].bottom(z=dot_bottom))  #original = ()
+                    p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip()
+                    p200_tips += 1
+                    tipcheck()
+                heatershaker.close_labware_latch()
+                heatershaker.set_and_wait_for_shake_speed(rpm=(heater_shaker_speed*0.9))
+                if DRYRUN == False:
+                    protocol.delay(seconds=4*60)
+                heatershaker.deactivate_shaker()
+                heatershaker.open_labware_latch()
+
+                if DRYRUN == False:
+                    protocol.delay(seconds=5*60)
+
+                #============================================================================================
+                # GRIPPER MOVE sample_plate_2 FROM heatershaker TO MAGPLATE
+                heatershaker.open_labware_latch()
+                protocol.move_labware(
+                    labware=sample_plate_2,
+                    new_location=MAG_PLATE_SLOT,
+                    use_gripper=USE_GRIPPER
+                )
+                heatershaker.close_labware_latch()
+                #============================================================================================
+
+                if DRYRUN == False:
+                    protocol.delay(seconds=1*60)            
+
+                if washcount > 2:
+                    Liquid_trash = Liquid_trash_well_3
+
+                protocol.comment('--> Removing Supernatant')
+                RemoveSup = 200
+                for loop, X in enumerate(column_2_list):
+                    p1000.pick_up_tip()
+                    p1000.move_to(sample_plate_2[X].bottom(z=3.5))
+                    p1000.aspirate(RemoveSup-100, rate=0.25)
+                    protocol.delay(minutes=0.1)
+                    p1000.move_to(sample_plate_2[X].bottom(z=0.5))  
+                    p1000.aspirate(100, rate=0.25)
+                    p1000.move_to(sample_plate_2[X].top(z=0.5))
+                    p1000.dispense(200, Liquid_trash.top(z=-7))
+                    protocol.delay(minutes=0.1)
+                    p1000.blow_out(Liquid_trash.top(z=-7))
+                    p1000.aspirate(20)
+                    p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip()
+                    p200_tips += 1
+                    tipcheck()
+
+                #============================================================================================
+                # GRIPPER MOVE sample_plate_2 FROM MAGPLATE TO heatershaker
+                heatershaker.open_labware_latch()
+                protocol.move_labware(
+                    labware=sample_plate_2,
+                    new_location=heatershaker,
+                    use_gripper=USE_GRIPPER
+                )
+                heatershaker.close_labware_latch()
+                #============================================================================================
+
+                washcount += 1
+
+            protocol.comment('--> Adding EEW')
+            EEWVol    = 200
+            for loop, X in enumerate(column_2_list):
+                p1000.pick_up_tip()
+                p1000.aspirate(EEWVol, WASHES[loop].bottom(z=dot_bottom))  #original = ()
+                p1000.dispense(EEWVol, sample_plate_2[X].bottom(z=dot_bottom))  #original = ()
+                p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip()
+                p200_tips += 1
                 tipcheck()
+
+            heatershaker.set_and_wait_for_shake_speed(rpm=(heater_shaker_speed*0.9))
+            if DRYRUN == False:
+                protocol.delay(seconds=4*60)
+            heatershaker.deactivate_shaker()
+
+            if DRYRUN == False:
+                protocol.delay(seconds=1*60)
+
+            protocol.comment('--> Transfer Hybridization')
+            TransferSup = 200
+            for loop, X in enumerate(column_2_list):
+                p1000.pick_up_tip()
+                p1000.move_to(sample_plate_2[X].bottom(z=0.5)) 
+                p1000.aspirate(TransferSup, rate=0.25)
+                p1000.dispense(TransferSup, sample_plate_2[column_3_list[loop]].bottom(z=1))
+                p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip()
+                p200_tips += 1
+                tipcheck()
+
+            if DRYRUN == False:
+                protocol.delay(seconds=5*60)
+
+            #============================================================================================
+            # GRIPPER MOVE sample_plate_2 FROM heatershaker TO MAGPLATE
+            heatershaker.open_labware_latch()
+            protocol.move_labware(
+                labware=sample_plate_2,
+                new_location=MAG_PLATE_SLOT,
+                use_gripper=USE_GRIPPER
+            )
+            heatershaker.close_labware_latch()
+            #============================================================================================
+            
+            if DRYRUN == False:
+                protocol.delay(seconds=1*60)
+
+            protocol.comment('--> Removing Supernatant')
+            RemoveSup = 200
+            for loop, X in enumerate(column_3_list):
+                p1000.pick_up_tip()
+                p1000.move_to(sample_plate_2[X].bottom(z=3.5))
+                p1000.aspirate(RemoveSup-100, rate=0.25)
+                protocol.delay(minutes=0.1)
+                p1000.move_to(sample_plate_2[X].bottom(z=0.5)) 
+                p1000.aspirate(100, rate=0.25)
+                p1000.move_to(sample_plate_2[X].top(z=0.5))
+                p1000.dispense(200, Liquid_trash.top(z=-7))
+                protocol.delay(minutes=0.1)
+                p1000.blow_out(Liquid_trash.top(z=-7))
+                p1000.aspirate(20)
+                p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip()
+                p200_tips += 1
+                tipcheck()
+
+            protocol.comment('--> Removing Residual')
+            for loop, X in enumerate(column_3_list):
                 p50.pick_up_tip()
-                p50.aspirate(EPMVol+3, EPM.bottom(z=1))
-                p50.dispense(3, EPM.bottom(z=1))
-                EPMVolCount += 1
-                p50.move_to((sample_plate_1.wells_by_name()[X].center().move(types.Point(x=1.3*0.8,y=0,z=-4))))
-                p50.dispense(EPMMixVol, rate=1)
-                p50.move_to(sample_plate_1.wells_by_name()[X].bottom(z=1))
-                p50.aspirate(EPMMixVol, rate=1)
-                p50.move_to((sample_plate_1.wells_by_name()[X].center().move(types.Point(x=0,y=1.3*0.8,z=-4))))
-                p50.dispense(EPMMixVol, rate=1)
-                p50.move_to(sample_plate_1.wells_by_name()[X].bottom(z=1))
-                p50.aspirate(EPMMixVol, rate=1)
-                p50.move_to((sample_plate_1.wells_by_name()[X].center().move(types.Point(x=1.3*-0.8,y=0,z=-4))))
-                p50.dispense(EPMMixVol, rate=1)
-                p50.move_to(sample_plate_1.wells_by_name()[X].bottom(z=1))
-                p50.aspirate(EPMMixVol, rate=1)
-                p50.move_to((sample_plate_1.wells_by_name()[X].center().move(types.Point(x=0,y=1.3*-0.8,z=-4))))
-                p50.dispense(EPMMixVol, rate=1)
-                p50.move_to(sample_plate_1.wells_by_name()[X].bottom(z=1))
-                p50.aspirate(EPMMixVol, rate=1)
-                p50.dispense(EPMMixVol, rate=1)
-                p50.blow_out(sample_plate_1.wells_by_name()[X].center())
-                p50.move_to(sample_plate_1.wells_by_name()[X].bottom(z=bottom_val))
-                p50.move_to(sample_plate_1.wells_by_name()[X].top(z=5))
-                p50.move_to(sample_plate_1.wells_by_name()[X].top(z=0))
-                p50.move_to(sample_plate_1.wells_by_name()[X].top(z=5))
+                p50.move_to(sample_plate_2[X].bottom(z=dot_bottom))  #original = z=0
+                p50.aspirate(50, rate=0.25)
+                p50.default_speed = 200
+                p50.dispense(50, Liquid_trash.top(z=-7))
+                protocol.delay(minutes=0.1)
+                p50.blow_out()
+                p50.default_speed = 400
+                p50.move_to(Liquid_trash.top(z=-7))
+                p50.move_to(Liquid_trash.top(z=0))
                 p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
                 p50_tips += 1
-            #===============================================
+                tipcheck()
+
+            protocol.comment('==============================================')
+            protocol.comment('--> ELUTE')
+            protocol.comment('==============================================')
+
+            protocol.comment('--> Adding Elute')
+            EluteVol    = 23
+            for loop, X in enumerate(column_3_list):
+                p50.pick_up_tip()
+                p50.aspirate(EluteVol, Elute.bottom(z=dot_bottom))  #original = ()
+                p50.dispense(EluteVol, sample_plate_2[X].bottom(z=dot_bottom))  #original = ()
+                p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
+                p50_tips += 1
+                tipcheck()
+
+            #============================================================================================
+            # GRIPPER MOVE sample_plate_2 FROM MAGPLATE TO heatershaker
+            heatershaker.open_labware_latch()
+            protocol.move_labware(
+                labware=sample_plate_2,
+                new_location=heatershaker,
+                use_gripper=USE_GRIPPER
+            )
             heatershaker.close_labware_latch()
-            heatershaker.set_and_wait_for_shake_speed(rpm=heater_shaker_speed)
-            protocol.delay(EPMMixTime)
+            #============================================================================================
+
+            heatershaker.close_labware_latch()
+            heatershaker.set_and_wait_for_shake_speed(rpm=(heater_shaker_speed*0.9))
+            if DRYRUN == False:
+                protocol.delay(seconds=2*60)
             heatershaker.deactivate_shaker()
             heatershaker.open_labware_latch()
 
+            if DRYRUN == False:
+                protocol.delay(minutes=2)
+
             #============================================================================================
-            # GRIPPER MOVE sample_plate_1 FROM HEATER SHAKER TO THERMOCYCLER
+            # GRIPPER MOVE sample_plate_2 FROM heatershaker TO MAGPLATE
             heatershaker.open_labware_latch()
             protocol.move_labware(
-                labware=sample_plate_1,
-                new_location=thermocycler,
-                use_gripper=USE_GRIPPER,
+                labware=sample_plate_2,
+                new_location=MAG_PLATE_SLOT,
+                use_gripper=USE_GRIPPER
             )
             heatershaker.close_labware_latch()
             #============================================================================================
-
-            protocol.comment('--> Adding Barcodes')
-            BarcodeVol    = 10
-            BarcodeMixRep = 3 
-            BarcodeMixVol = 10
-            #===============================================
-            for loop, X in enumerate(column_1_list):
-                tipcheck()
+            
+            protocol.comment('--> Transfer Elution')
+            TransferSup = 21
+            for loop, X in enumerate(column_3_list):
                 p50.pick_up_tip()
-                p50.aspirate(BarcodeVol+1, reagent_plate.wells_by_name()[barcodes[loop]].bottom(z=bottom_val), rate=0.25) 
-                p50.dispense(1, reagent_plate.wells_by_name()[barcodes[loop]].bottom(z=bottom_val), rate=0.25)  
-                p50.dispense(BarcodeVol, sample_plate_1.wells_by_name()[X].bottom(z=1))
-                p50.mix(BarcodeMixRep,BarcodeMixVol)
+                p50.move_to(sample_plate_2[X].bottom(z=0.5))
+                p50.aspirate(TransferSup+1, rate=0.25)
+                p50.dispense(TransferSup+1, sample_plate_1[column_4_list[loop]].bottom(z=1))
                 p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
                 p50_tips += 1
-            #===============================================
+                tipcheck()
+
+            protocol.comment('--> Adding ET2')
+            ET2Vol    = 4
+            ET2MixRep = 10 if DRYRUN == False else 1
+            ET2MixVol = 20
+            for loop, X in enumerate(column_4_list):
+                p50.pick_up_tip()
+                p50.aspirate(ET2Vol, ET2.bottom(z=dot_bottom))  #original = ()
+                p50.dispense(ET2Vol, sample_plate_1[X].bottom(z=dot_bottom))  #original = ()
+                p50.move_to(sample_plate_1[X].bottom(z=dot_bottom))  #original = ()
+                p50.mix(ET2MixRep,ET2MixVol)
+                p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
+                p50_tips += 1
+                tipcheck()
+
+        if STEP_PCR == 1:
+            protocol.comment('==============================================')
+            protocol.comment('--> AMPLIFICATION')
+            protocol.comment('==============================================')
+
+            protocol.comment('--> Adding PPC')
+            PPCVol    = 5
+            for loop, X in enumerate(column_4_list):
+                p50.pick_up_tip()
+                p50.aspirate(PPCVol, PPC.bottom(z=dot_bottom))  #original = ()
+                p50.dispense(PPCVol, sample_plate_1[X].bottom(z=dot_bottom))  #original = ()
+                p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
+                p50_tips += 1
+                tipcheck()
+
+            protocol.comment('--> Adding EPM')
+            EPMVol    = 20
+            EPMMixRep = 10 if DRYRUN == False else 1
+            EPMMixVol = 45
+            for loop, X in enumerate(column_4_list):
+                p50.pick_up_tip()
+                p50.aspirate(EPMVol, EPM.bottom(z=dot_bottom))  #original = ()
+                p50.dispense(EPMVol, sample_plate_1[X].bottom(z=dot_bottom))  #original = ()
+                p50.move_to(sample_plate_1[X].bottom(z=dot_bottom))  #original = ()
+                p50.mix(EPMMixRep,EPMMixVol)
+                p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
+                p50_tips += 1
+                tipcheck()
+
+        if DRYRUN == False:
+            heatershaker.deactivate_heater()
 
         if STEP_PCRDECK == 1:
-            ############################################################################################################################################
-
-            protocol.comment("SETTING THERMO to Room Temp")
-            thermocycler.set_block_temperature(4)
-            thermocycler.set_lid_temperature(100) 
-
-            thermocycler.close_lid()
-            profile_PCR_1 = [
-                {'temperature': 68, 'hold_time_seconds': 180},
-                {'temperature': 98, 'hold_time_seconds': 180}
-                ]
-            thermocycler.execute_profile(steps=profile_PCR_1, repetitions=1, block_max_volume=50)
-            profile_PCR_2 = [
-                {'temperature': 98, 'hold_time_seconds': 45},
-                {'temperature': 62, 'hold_time_seconds': 30},
-                {'temperature': 68, 'hold_time_seconds': 120}
-                ]
-            thermocycler.execute_profile(steps=profile_PCR_2, repetitions=PCRCYCLES, block_max_volume=50)
-            profile_PCR_3 = [
-                {'temperature': 68, 'hold_time_minutes': 1}
-                ]
-            thermocycler.execute_profile(steps=profile_PCR_3, repetitions=1, block_max_volume=50)
-            thermocycler.set_block_temperature(10)
-            ############################################################################################################################################
-            thermocycler.open_lid()
-
+            if DRYRUN == False:
+                ############################################################################################################################################
+                if DRYRUN == False:
+                    thermocycler.close_lid()
+                    profile_PCR_1 = [
+                        {'temperature': 98, 'hold_time_seconds': 45}
+                        ]
+                    thermocycler.execute_profile(steps=profile_PCR_1, repetitions=1, block_max_volume=50)
+                    profile_PCR_2 = [
+                        {'temperature': 98, 'hold_time_seconds': 30},
+                        {'temperature': 60, 'hold_time_seconds': 30},
+                        {'temperature': 72, 'hold_time_seconds': 30}
+                        ]
+                    thermocycler.execute_profile(steps=profile_PCR_2, repetitions=12, block_max_volume=50)
+                    profile_PCR_3 = [
+                        {'temperature': 72, 'hold_time_minutes': 1}
+                        ]
+                    thermocycler.execute_profile(steps=profile_PCR_3, repetitions=1, block_max_volume=50)
+                    thermocycler.set_block_temperature(10)
+                ############################################################################################################################################
+            
+                thermocycler.open_lid()
+        
         if STEP_CLEANUP == 1:
             protocol.comment('==============================================')
             protocol.comment('--> Cleanup')
             protocol.comment('==============================================')
 
-            # Setting Labware to Resume at Wash
-            if STEP_TAG == 0 and STEP_WASH == 0:
-                #============================================================================================
-                # GRIPPER MOVE sample_plate_1 FROM HEATERSHAKER TO MAG PLATE
-                heatershaker.open_labware_latch()
-                protocol.move_labware(
-                    labware=sample_plate_1,
-                    new_location=mag_block,
-                    use_gripper=USE_GRIPPER,
-                )
-                heatershaker.close_labware_latch()
-                #============================================================================================
-            else:
-                #============================================================================================
-                # GRIPPER MOVE sample_plate_1 FROM THERMOCYCLER To HEATERSHAKER
-                heatershaker.open_labware_latch()
-                protocol.move_labware(
-                    labware=sample_plate_1,
-                    new_location=hs_adapter,
-                    use_gripper=USE_GRIPPER,
-                )
-                heatershaker.close_labware_latch()
-                #============================================================================================
+            #============================================================================================
+            # GRIPPER MOVE sample_plate_2 FROM MAGPLATE TO heatershaker
+            heatershaker.open_labware_latch()
+            protocol.move_labware(
+                labware=sample_plate_2,
+                new_location=heatershaker,
+                use_gripper=USE_GRIPPER
+            )
+            heatershaker.close_labware_latch()
+            #============================================================================================
 
-            protocol.comment('--> TRANSFERRING AND ADDING AMPure (0.8x)')
-            H20Vol    = 40
-            AMPureVol = 45
-            SampleVol = 45
-            AMPureMixRPM = 1800
-            AMPureMixTime = 5*60 
-            AMPurePremix = 3 
-            #===============================================
-            for loop, X in enumerate(column_1_list):
-                tipcheck()
+            protocol.comment('--> Transfer Elution')
+            TransferSup = 45
+            for loop, X in enumerate(column_4_list):
                 p50.pick_up_tip()
-
-                protocol.comment('--> Adding H20')
-                
-                p50.aspirate(H20Vol+5, H20.bottom(z=bottom_val), rate=1)  #original = ()
-                p50.dispense(5, H20.bottom(z=bottom_val), rate=1)  #original = ()
-                p50.dispense(H20Vol, sample_plate_1[column_2_list[loop]].bottom(z=0.75))
-
-
-                protocol.comment('--> ADDING AMPure (0.8x)')
-                p50.move_to(AMPure.bottom(z=0.75))
-                p50.mix(3,AMPureVol)
-                p50.aspirate(AMPureVol+5, AMPure.bottom(z=0.75), rate=0.25)
-                p50.dispense(5, AMPure.bottom(z=0.75), rate=0.5)
-                p50.dispense(AMPureVol, sample_plate_1[column_2_list[loop]].bottom(z=0.75), rate=1)
-                protocol.delay(seconds=0.2)
-                p50.blow_out(sample_plate_1[column_2_list[loop]].top(z=-2))
-
-                protocol.comment('--> Adding SAMPLE')
-                p50.aspirate(SampleVol+3, sample_plate_1[column_1_list[loop]].bottom(z=0.75), rate=0.5)
-                p50.dispense(SampleVol+3, sample_plate_1[column_2_list[loop]].bottom(z=0.75), rate=1)
-                p50.aspirate(SampleVol+3, sample_plate_1[column_2_list[loop]].bottom(z=0.75), rate=0.5)
-                p50.dispense(SampleVol+3, sample_plate_1[column_2_list[loop]].bottom(z=0.75), rate=1)
-                p50.move_to(sample_plate_1[column_2_list[loop]].top(z=-3))
-                protocol.delay(seconds=0.2)
-                p50.blow_out(sample_plate_1[column_2_list[loop]].top(z=-3))
+                p50.move_to(sample_plate_1[X].bottom(z=0.5)) 
+                p50.aspirate(TransferSup+1, rate=0.25)
+                p50.dispense(TransferSup+1, sample_plate_2[column_5_list[loop]].bottom(z=1))
                 p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
                 p50_tips += 1
-            #===============================================
-            heatershaker.set_and_wait_for_shake_speed(rpm=heater_shaker_speed*0.9)
-            protocol.delay(AMPureMixTime)
-            heatershaker.deactivate_shaker()
+                tipcheck()
 
-            protocol.comment("SETTING THERMO to Room Temp")
-            thermocycler.set_block_temperature(20)
-            thermocycler.set_lid_temperature(37) 
+            Liquid_trash = Liquid_trash_well_4
+
+            protocol.comment('--> ADDING AMPure (0.8x)')
+            AMPureVol = 40.5
+            SampleVol = 45
+            AMPureMixRep = 5*60 if DRYRUN == False else 0.1*60
+            AMPurePremix = 3 if DRYRUN == False else 1
+            #========NEW SINGLE TIP DISPENSE===========
+            for loop, X in enumerate(column_5_list):
+                p1000.pick_up_tip() 
+                p1000.mix(AMPurePremix,AMPureVol+10, AMPure.bottom(z=1))
+                p1000.aspirate(AMPureVol, AMPure.bottom(z=1), rate=0.25)
+                p1000.dispense(AMPureVol, sample_plate_2[X].bottom(z=1), rate=0.25)
+                p1000.default_speed = 5
+                p1000.move_to(sample_plate_2[X].bottom(z=5))
+                for Mix in range(2):
+                    p1000.aspirate(60, rate=0.5)
+                    p1000.move_to(sample_plate_2[X].bottom(z=1))
+                    p1000.aspirate(60, rate=0.5)
+                    p1000.dispense(60, rate=0.5)
+                    p1000.move_to(sample_plate_2[X].bottom(z=5))
+                    p1000.dispense(30,rate=0.5)
+                    Mix += 1
+                p1000.blow_out(sample_plate_2[X].top(z=2))
+                p1000.default_speed = 400
+                p1000.move_to(sample_plate_2[X].top(z=5))
+                p1000.move_to(sample_plate_2[X].top(z=0))
+                p1000.move_to(sample_plate_2[X].top(z=5))
+                p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip()
+                p200_tips += 1
+                tipcheck()
+            #========NEW HS MIX=========================
+            heatershaker.set_and_wait_for_shake_speed(rpm=(heater_shaker_speed*0.9))
+            protocol.delay(AMPureMixRep)
+            heatershaker.deactivate_shaker()
 
             #============================================================================================
             # GRIPPER MOVE PLATE FROM HEATER SHAKER TO MAG PLATE
             heatershaker.open_labware_latch()
             protocol.move_labware(
-                labware=sample_plate_1,
-                new_location=mag_block,
-                use_gripper=USE_GRIPPER,
+                labware=sample_plate_2,
+                new_location=MAG_PLATE_SLOT,
+                use_gripper=USE_GRIPPER
             )
             heatershaker.close_labware_latch()
             #============================================================================================
-            protocol.delay(minutes=4)
+
+            if DRYRUN == False:
+                protocol.delay(minutes=4)
 
             protocol.comment('--> Removing Supernatant')
             RemoveSup = 200
-            #===============================================
-            for loop, X in enumerate(column_2_list):
-                tipcheck()
+            for loop, X in enumerate(column_5_list):
                 p1000.pick_up_tip()
-                p1000.move_to(sample_plate_1[X].bottom(z=3.5))
+                p1000.move_to(sample_plate_2[X].bottom(z=3.5))
                 p1000.aspirate(RemoveSup-100, rate=0.25)
                 protocol.delay(minutes=0.1)
-                p1000.move_to(sample_plate_1[X].bottom(z=0.75))
+                p1000.move_to(sample_plate_2[X].bottom(z=0.5))
                 p1000.aspirate(100, rate=0.25)
                 p1000.default_speed = 5
-                p1000.move_to(sample_plate_1[X].top(z=2))
+                p1000.move_to(sample_plate_2[X].top(z=2))
                 p1000.default_speed = 200
-                Liquid_trash = DispWasteVol(90)
-                p1000.dispense(200, Liquid_trash.top(z=0))
+                p1000.dispense(200, Liquid_trash.top(z=-7))
                 protocol.delay(minutes=0.1)
                 p1000.blow_out()
                 p1000.default_speed = 400
-                p1000.move_to(Liquid_trash.top(z=-5))
+                p1000.move_to(Liquid_trash.top(z=-7))
                 p1000.move_to(Liquid_trash.top(z=0))
                 p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip()
                 p200_tips += 1
-            #===============================================
+                tipcheck()
 
             for X in range(2):
                 protocol.comment('--> ETOH Wash')
                 ETOHMaxVol = 150
-                #===============================================
-                if ETOH_AirMultiDis == True:
-                    tipcheck()
+                for loop, X in enumerate(column_5_list):
                     p1000.pick_up_tip()
-                    for loop, X in enumerate(column_2_list):
-                        p1000.aspirate(ETOHMaxVol, EtOH.bottom(z=1))
-                        p1000.move_to(EtOH.top(z=0))
-                        p1000.move_to(EtOH.top(z=-5))
-                        p1000.move_to(EtOH.top(z=0))
-                        p1000.move_to(sample_plate_1[X].top(z=-2))
-                        p1000.dispense(ETOHMaxVol, rate=1)
-                        protocol.delay(minutes=0.1)
-                        p1000.blow_out()
-                        p1000.move_to(sample_plate_1[X].top(z=5))
-                        p1000.move_to(sample_plate_1[X].top(z=0))
-                        p1000.move_to(sample_plate_1[X].top(z=5))
+                    p1000.aspirate(ETOHMaxVol, EtOH.bottom(z=1))
+                    p1000.move_to(EtOH.top(z=0))
+                    p1000.move_to(EtOH.top(z=-5))
+                    p1000.move_to(EtOH.top(z=0))
+                    p1000.move_to(sample_plate_2[X].top(z=-2))
+                    p1000.dispense(ETOHMaxVol, rate=1)
+                    protocol.delay(minutes=0.1)
+                    p1000.blow_out()
+                    p1000.move_to(sample_plate_2[X].top(z=5))
+                    p1000.move_to(sample_plate_2[X].top(z=0))
+                    p1000.move_to(sample_plate_2[X].top(z=5))
                     p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip()
                     p200_tips += 1
-                else:
-                    for loop, X in enumerate(column_2_list):
-                        tipcheck()
-                        p1000.pick_up_tip()
-                        p1000.aspirate(ETOHMaxVol, EtOH.bottom(z=1))
-                        p1000.move_to(EtOH.top(z=0))
-                        p1000.move_to(EtOH.top(z=-5))
-                        p1000.move_to(EtOH.top(z=0))
-                        p1000.move_to(sample_plate_1[X].top(z=-2))
-                        p1000.dispense(ETOHMaxVol, rate=1)
-                        protocol.delay(minutes=0.1)
-                        p1000.blow_out()
-                        p1000.move_to(sample_plate_1[X].top(z=5))
-                        p1000.move_to(sample_plate_1[X].top(z=0))
-                        p1000.move_to(sample_plate_1[X].top(z=5))
-                        p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip()
-                        p200_tips += 1
-                #===============================================
+                    tipcheck()
 
-                protocol.delay(minutes=0.5)
+                if DRYRUN == False:
+                    protocol.delay(minutes=0.5)
                 
                 protocol.comment('--> Remove ETOH Wash')
-                #===============================================
-                for loop, X in enumerate(column_2_list):
-                    tipcheck()
+                for loop, X in enumerate(column_5_list):
                     p1000.pick_up_tip()
-                    p1000.move_to(sample_plate_1[X].bottom(z=3.5))
+                    p1000.move_to(sample_plate_2[X].bottom(z=3.5))
                     p1000.aspirate(RemoveSup-100, rate=0.25)
                     protocol.delay(minutes=0.1)
-                    p1000.move_to(sample_plate_1[X].bottom(z=0.75))
+                    p1000.move_to(sample_plate_2[X].bottom(z=0.5)) 
                     p1000.aspirate(100, rate=0.25)
                     p1000.default_speed = 5
-                    p1000.move_to(sample_plate_1[X].top(z=2))
+                    p1000.move_to(sample_plate_2[X].top(z=2))
                     p1000.default_speed = 200
-                    Liquid_trash = DispWasteVol(150)
-                    p1000.dispense(200, Liquid_trash.top(z=0))
+                    p1000.dispense(200, Liquid_trash.top(z=-7))
                     protocol.delay(minutes=0.1)
                     p1000.blow_out()
                     p1000.default_speed = 400
-                    p1000.move_to(Liquid_trash.top(z=-5))
+                    p1000.move_to(Liquid_trash.top(z=-7))
                     p1000.move_to(Liquid_trash.top(z=0))
                     p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip()
                     p200_tips += 1
-                #===============================================
+                    tipcheck()
 
-            protocol.delay(minutes=1)
+            if DRYRUN == False:
+                protocol.delay(minutes=2)
 
-            protocol.comment('--> Removing Residual Wash')
-            #===============================================
-            for loop, X in enumerate(column_2_list):
-                tipcheck()    
-                p50.pick_up_tip()
-                p50.move_to(sample_plate_1[X].bottom(1))
-                p50.aspirate(20, rate=0.25)
-                p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
-                p50_tips += 1
-            #===============================================
+            protocol.comment('--> Removing Residual ETOH')
+            for loop, X in enumerate(column_5_list):
+                p1000.pick_up_tip()
+                p1000.move_to(sample_plate_2[X].bottom(z=dot_bottom))  #original = (z=0)
+                p1000.aspirate(50, rate=0.25)
+                p1000.default_speed = 200
+                p1000.dispense(50, Liquid_trash.top(z=-7))
+                protocol.delay(minutes=0.1)
+                p1000.blow_out()
+                p1000.default_speed = 400
+                p1000.move_to(Liquid_trash.top(z=-7))
+                p1000.move_to(Liquid_trash.top(z=0))
+                p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip()
+                p200_tips += 1
+                tipcheck()
 
-            protocol.delay(minutes=0.5)
+            if DRYRUN == False:
+                protocol.delay(minutes=1)
 
             #============================================================================================
-            # GRIPPER MOVE sample_plate_1 FROM MAG PLATE TO HEATER SHAKER
+            # GRIPPER MOVE PLATE FROM MAG PLATE TO HEATER SHAKER
             heatershaker.open_labware_latch()
             protocol.move_labware(
-                labware=sample_plate_1,
-                new_location=hs_adapter,
-                use_gripper=USE_GRIPPER,
+                labware=sample_plate_2,
+                new_location=heatershaker,
+                use_gripper=USE_GRIPPER
             )
             heatershaker.close_labware_latch()
             #============================================================================================
 
             protocol.comment('--> Adding RSB')
             RSBVol = 32
-            RSBMixRPM = 2000
-            RSBMixTime = 1*60 
-            #===============================================
-            if RSB_AirMultiDis == True:
-                tipcheck()                
-                p50.pick_up_tip()
-                for loop, X in enumerate(column_2_list):
-                    p50.aspirate(RSBVol, RSB.bottom(z=1))
-                    p50.move_to(sample_plate_1.wells_by_name()[X].top(z=-3))
-                    p50.dispense(RSBVol, rate=2)
-                    p50.blow_out(sample_plate_1.wells_by_name()[X].top(z=-3))
-                p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
-                p50_tips += 1
-            else:
-                for loop, X in enumerate(column_2_list):
-                    tipcheck()
-                    p50.pick_up_tip()
-                    p50.aspirate(RSBVol, RSB.bottom(z=1))
-                    p50.move_to(sample_plate_1.wells_by_name()[X].bottom(z=1))
-                    p50.dispense(RSBVol, rate=1)
-                    p50.blow_out(sample_plate_1.wells_by_name()[X].top(z=-3))
-                    p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
-                    p50_tips += 1
-                    tipcheck()
-            #===============================================
-            heatershaker.set_and_wait_for_shake_speed(rpm=heater_shaker_speed)
-            protocol.delay(RSBMixTime)
-            heatershaker.deactivate_shaker()
+            RSBMixRep = 1*60 if DRYRUN == False else 0.1*60
+            for loop, X in enumerate(column_5_list):
+                p1000.pick_up_tip()
+                p1000.aspirate(RSBVol, RSB.bottom(z=1))
+
+                p1000.move_to((sample_plate_2.wells_by_name()[X].center().move(types.Point(x=1.3*0.8,y=0,z=-4))))
+                p1000.dispense(RSBVol, rate=1)
+                p1000.move_to(sample_plate_2.wells_by_name()[X].bottom(z=1))
+                p1000.aspirate(RSBVol, rate=1)
+                p1000.move_to((sample_plate_2.wells_by_name()[X].center().move(types.Point(x=0,y=1.3*0.8,z=-4))))
+                p1000.dispense(RSBVol, rate=1)
+                p1000.move_to(sample_plate_2.wells_by_name()[X].bottom(z=1))
+                p1000.aspirate(RSBVol, rate=1)
+                p1000.move_to((sample_plate_2.wells_by_name()[X].center().move(types.Point(x=1.3*-0.8,y=0,z=-4))))
+                p1000.dispense(RSBVol, rate=1)
+                p1000.move_to(sample_plate_2.wells_by_name()[X].bottom(z=1))
+                p1000.aspirate(RSBVol, rate=1)
+                p1000.move_to((sample_plate_2.wells_by_name()[X].center().move(types.Point(x=0,y=1.3*-0.8,z=-4))))
+                p1000.dispense(RSBVol, rate=1)
+                p1000.move_to(sample_plate_2.wells_by_name()[X].bottom(z=1))
+                p1000.aspirate(RSBVol, rate=1)
+                p1000.dispense(RSBVol, rate=1)
+
+                p1000.blow_out(sample_plate_2.wells_by_name()[X].center())
+                p1000.move_to(sample_plate_2.wells_by_name()[X].top(z=5))
+                p1000.move_to(sample_plate_2.wells_by_name()[X].top(z=0))
+                p1000.move_to(sample_plate_2.wells_by_name()[X].top(z=5))
+                p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip()
+                p200_tips += 1
+                tipcheck()
+                if DRYRUN == False:
+                    heatershaker.set_and_wait_for_shake_speed(rpm=(heater_shaker_speed*0.8))
+                    protocol.delay(RSBMixRep)
+                    heatershaker.deactivate_shaker()
 
             #============================================================================================
-            # GRIPPER MOVE sample_plate_1 FROM HEATER SHAKER TO MAG PLATE
+            # GRIPPER MOVE PLATE FROM HEATER SHAKER TO MAG PLATE
             heatershaker.open_labware_latch()
             protocol.move_labware(
-                labware=sample_plate_1,
-                new_location=mag_block,
-                use_gripper=USE_GRIPPER,
+                labware=sample_plate_2,
+                new_location=MAG_PLATE_SLOT,
+                use_gripper=USE_GRIPPER
             )
             heatershaker.close_labware_latch()
             #============================================================================================
 
-            protocol.delay(minutes=3)
+            if DRYRUN == False:
+                protocol.delay(minutes=3)
 
             protocol.comment('--> Transferring Supernatant')
             TransferSup = 30
-            #===============================================
-            for loop, X in enumerate(column_2_list):
+            for loop, X in enumerate(column_5_list):
+                p1000.pick_up_tip()
+                p1000.move_to(sample_plate_2[X].bottom(z=0.5)) 
+                p1000.aspirate(TransferSup+1, rate=0.25)
+                p1000.dispense(TransferSup+1, sample_plate_1[column_6_list[loop]].bottom(z=1))
+                p1000.return_tip() if TIP_TRASH == False else p1000.drop_tip()
+                p200_tips += 1
                 tipcheck()
-                p50.pick_up_tip()
-                p50.move_to(sample_plate_1[X].bottom(z=bottom_val)) 
-                p50.aspirate(TransferSup+1, rate=0.25)
-                p50.dispense(TransferSup+1, sample_plate_1[column_3_list[loop]].bottom(z=1))
-                p50.return_tip() if TIP_TRASH == False else p50.drop_tip()
-                p50_tips += 1
-            #===============================================
