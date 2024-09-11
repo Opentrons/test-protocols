@@ -30,7 +30,7 @@ TEMPERATURE_MODULE_NAME = "temperature module gen2"
 THERMOCYCLER_NAME = "thermocycler module gen2"
 
 PCR_PLATE_96_NAME = "nest_96_wellplate_100ul_pcr_full_skirt"
-RESERVOIR_NAME = "nest_12_reservoir_15ml" #originally nest_1_reservoir_290ml, but we had none for testing
+RESERVOIR_NAME = "nest_96_wellplate_2ml_deep" #originally nest_1_reservoir_290ml, but we had none for testing
 TIPRACK_96_ADAPTER_NAME = "opentrons_flex_96_tiprack_adapter"
 PIPETTE_96_CHANNEL_NAME = "flex_96channel_1000"
 
