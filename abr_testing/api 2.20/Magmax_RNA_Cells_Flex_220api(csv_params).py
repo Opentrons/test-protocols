@@ -49,43 +49,6 @@ def add_parameters(parameters: protocol_api.Parameters):
         display_name="Parameters CSV File",
         description="CSV file containing parameters for this protocol",
     )
-    # parameters.add_int(
-    #     variable_name="heater_shaker_speed",
-    #     display_name="Heater Shaker Shake Speed",
-    #     description="Speed to set the heater shaker to",
-    #     default=2000,
-    #     minimum=200,
-    #     maximum=3000,
-    #     unit="rpm",
-    # )
-    # parameters.add_int(
-    #     variable_name="temp_mod_timeout",
-    #     display_name= "Temp Mod Max time to 4 C (sec)",
-    #     description="Max time protocol should wait for temperature module to reach 4C.",
-    #     default=3600,
-    #     minimum=60,
-    #     maximum=7200,
-    #     unit="sec"
-    # )
-    # parameters.add_float(
-    #     variable_name = "dot_bottom",
-    #     display_name = ".bottom",
-    #     description = "Lowest value pipette will go to.",
-    #     default = 0.5,
-    #     choices=[
-    #         {"display_name": "0.0", "value": 0.0},
-    #         {"display_name": "0.1", "value": 0.1},
-    #         {"display_name": "0.2", "value": 0.2},
-    #         {"display_name": "0.3", "value": 0.3},
-    #         {"display_name": "0.4", "value": 0.4},
-    #         {"display_name": "0.5", "value": 0.5},
-    #         {"display_name": "0.6", "value": 0.6},
-    #         {"display_name": "0.7", "value": 0.7},
-    #         {"display_name": "0.8", "value": 0.8},
-    #         {"display_name": "0.9", "value": 0.9},
-    #         {"display_name": "1.0", "value": 1.0},
-    #     ]
-    # )
     
 def run(ctx:protocol_api.ProtocolContext):
     """
@@ -108,8 +71,8 @@ def run(ctx:protocol_api.ProtocolContext):
     elution_vol = dnase_vol = 50
 
     csv_params = ctx.params.parameters_csv.parse_as_csv()
-    heater_shaker_speed = csv_params[1][0]
-    temp_mod_timeout = csv_params[1][1]
+    heater_shaker_speed = int(csv_params[1][0])
+    temp_mod_timeout = int(csv_params[1][1])
     dot_bottom = csv_params[1][2]
     # heater_shaker_speed = ctx.params.heater_shaker_speed
     # temp_mod_timeout = ctx.params.temp_mod_timeout
@@ -516,13 +479,14 @@ def run(ctx:protocol_api.ProtocolContext):
         vol_per_trans = vol/num_trans
         for i, m in enumerate(samples_m):
             src = source
+            m1000.detect_liquid_presence = True
             for n in range(num_trans):
-                m1000.require_liquid_presence(src)
                 m1000.aspirate(vol_per_trans, src)
                 m1000.air_gap(10)
                 m1000.dispense(m1000.current_volume, m.top(-2))
                 ctx.delay(seconds=2)
                 m1000.blow_out(m.top(-2))
+            m1000.detect_liquid_presence = False
             m1000.air_gap(10)
         m1000.drop_tip() if TIP_TRASH == True else m1000.return_tip()
 
