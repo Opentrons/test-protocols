@@ -119,96 +119,96 @@ def run(protocol: protocol_api.ProtocolContext):
     sample_plate_1,C1,10,90
     sample_plate_1,D1,20,80
     sample_plate_1,E1,40,60
-    sample_plate_1,F1,60,40
-    sample_plate_1,G1,80,20
-    sample_plate_1,H1,100,0
+    sample_plate_1,F1,15,40
+    sample_plate_1,G1,40,20
+    sample_plate_1,H1,40,0
     sample_plate_1,A2,35,65
-    sample_plate_1,B2,58,42
+    sample_plate_1,B2,38,42
     sample_plate_1,C2,42,58
-    sample_plate_1,D2,92,8
-    sample_plate_1,E2,88,12
+    sample_plate_1,D2,32,8
+    sample_plate_1,E2,38,12
     sample_plate_1,F2,26,74
     sample_plate_1,G2,31,69
-    sample_plate_1,H2,96,4
-    sample_plate_1,A3,87,13
-    sample_plate_1,B3,82,18
-    sample_plate_1,C3,36,64
-    sample_plate_1,D3,78,22
+    sample_plate_1,H2,46,4
+    sample_plate_1,A3,47,13
+    sample_plate_1,B3,42,18
+    sample_plate_1,C3,46,64
+    sample_plate_1,D3,48,22
     sample_plate_1,E3,26,74
     sample_plate_1,F3,34,66
-    sample_plate_1,G3,63,37
+    sample_plate_1,G3,43,37
     sample_plate_1,H3,20,80
-    sample_plate_1,A4,84,16
-    sample_plate_1,B4,59,41
-    sample_plate_1,C4,58,42
-    sample_plate_1,D4,84,16
+    sample_plate_1,A4,44,16
+    sample_plate_1,B4,49,41
+    sample_plate_1,C4,48,42
+    sample_plate_1,D4,44,16
     sample_plate_1,E4,47,53
-    sample_plate_1,F4,67,33
-    sample_plate_1,G4,52,48
-    sample_plate_1,H4,79,21
-    sample_plate_1,A5,80,20
-    sample_plate_1,B5,86,14
-    sample_plate_1,C5,41,59
-    sample_plate_1,D5,48,52
-    sample_plate_1,E5,96,4
-    sample_plate_1,F5,72,28
-    sample_plate_1,G5,45,55
-    sample_plate_1,H5,99,1
-    sample_plate_1,A6,41,59
+    sample_plate_1,F4,47,33
+    sample_plate_1,G4,42,48
+    sample_plate_1,H4,39,21
+    sample_plate_1,A5,30,20
+    sample_plate_1,B5,36,14
+    sample_plate_1,C5,31,59
+    sample_plate_1,D5,38,52
+    sample_plate_1,E5,36,4
+    sample_plate_1,F5,32,28
+    sample_plate_1,G5,35,55
+    sample_plate_1,H5,39,1
+    sample_plate_1,A6,31,59
     sample_plate_1,B6,20,80
-    sample_plate_1,C6,98,2
-    sample_plate_1,D6,54,46
+    sample_plate_1,C6,38,2
+    sample_plate_1,D6,34,46
     sample_plate_1,E6,30,70
-    sample_plate_1,F6,42,58
+    sample_plate_1,F6,32,58
     sample_plate_1,G6,21,79
-    sample_plate_1,H6,48,52
-    sample_plate_1,A7,73,27
-    sample_plate_1,B7,84,16
+    sample_plate_1,H6,38,52
+    sample_plate_1,A7,33,27
+    sample_plate_1,B7,34,16
     sample_plate_1,C7,40,60
-    sample_plate_1,D7,74,26
-    sample_plate_1,E7,80,20
+    sample_plate_1,D7,34,26
+    sample_plate_1,E7,30,20
     sample_plate_1,F7,44,56
     sample_plate_1,G7,26,74
     sample_plate_1,H7,45,55
-    sample_plate_1,A8,99,1
-    sample_plate_1,B8,98,2
+    sample_plate_1,A8,39,1
+    sample_plate_1,B8,38,2
     sample_plate_1,C8,34,66
-    sample_plate_1,D8,89,11
+    sample_plate_1,D8,39,11
     sample_plate_1,E8,46,54
     sample_plate_1,F8,37,63
-    sample_plate_1,G8,58,42
+    sample_plate_1,G8,38,42
     sample_plate_1,H8,34,66
     sample_plate_1,A9,44,56
-    sample_plate_1,B9,89,11
+    sample_plate_1,B9,39,11
     sample_plate_1,C9,30,70
-    sample_plate_1,D9,67,33
+    sample_plate_1,D9,37,33
     sample_plate_1,E9,46,54
-    sample_plate_1,F9,79,21
-    sample_plate_1,G9,59,41
+    sample_plate_1,F9,39,21
+    sample_plate_1,G9,29,41
     sample_plate_1,H9,23,77
     sample_plate_1,A10,26,74
-    sample_plate_1,B10,99,1
-    sample_plate_1,C10,51,49
+    sample_plate_1,B10,39,1
+    sample_plate_1,C10,31,49
     sample_plate_1,D10,38,62
-    sample_plate_1,E10,99,1
+    sample_plate_1,E10,29,1
     sample_plate_1,F10,21,79
-    sample_plate_1,G10,59,41
-    sample_plate_1,H10,58,42
-    sample_plate_1,A11,45,55
+    sample_plate_1,G10,29,41
+    sample_plate_1,H10,28,42
+    sample_plate_1,A11,15,55
     sample_plate_1,B11,28,72
-    sample_plate_1,C11,51,49
+    sample_plate_1,C11,11,49
     sample_plate_1,D11,34,66
     sample_plate_1,E11,27,73
-    sample_plate_1,F11,60,40
+    sample_plate_1,F11,30,40
     sample_plate_1,G11,33,67
-    sample_plate_1,H11,61,39
-    sample_plate_1,A12,69,31
+    sample_plate_1,H11,31,39
+    sample_plate_1,A12,39,31
     sample_plate_1,B12,47,53
     sample_plate_1,C12,46,54
-    sample_plate_1,D12,93,7
-    sample_plate_1,E12,54,46
-    sample_plate_1,F12,65,35
-    sample_plate_1,G12,58,42
+    sample_plate_1,D12,13,7
+    sample_plate_1,E12,34,46
+    sample_plate_1,F12,45,35
+    sample_plate_1,G12,28,42
     sample_plate_1,H12,37,63
     """
 
