@@ -41,7 +41,29 @@ def add_parameters(parameters: protocol_api.Parameters):
         ],
         default="right",
     )
+
+    parameters.add_str(
+        variable_name="pickup_direction",
+        display_name="Pippette Pickup Method",
+        description="Pick up by row or by column",
+        choices=[
+            {"display_name": "Row", "value": "row"},
+            {"display_name": "Column", "value": "col"},
+        ],
+        default="row",
+    )
     
+    parameters.add_str(
+        variable_name="tip_type",
+        display_name="Tip Type",
+        description="Type of tips being picked up",
+        choices=[
+            {"display_name": "50ul", "value": 'opentrons_flex_96_tiprack_50ul' },
+            {"display_name": "200ul", "value": 'opentrons_flex_96_tiprack_200ul' },
+            {"display_name": "1000ul", "value": 'opentrons_flex_96_tiprack_1000ul' },
+        ],
+        default='opentrons_flex_96_tiprack_200ul'
+    )
 def run(protocol: protocol_api.ProtocolContext):
 
     if DRYRUN == True:
@@ -49,12 +71,13 @@ def run(protocol: protocol_api.ProtocolContext):
     else:
         protocol.comment("THIS IS A REACTION RUN")
 
-
+    direction = protocol.params.pickup_direction
+    tip_type = protocol.params.tip_type
     # DECK SETUP AND LABWARE
     # ========== FIRST ROW ===========
     protocol.comment("THIS IS A NO MODULE RUN")
-    tiprack_200_1   = protocol.load_labware('opentrons_flex_96_tiprack_200ul',  'D1')
-    tiprack_200_2   = protocol.load_labware('opentrons_flex_96_tiprack_200ul',  'D2')
+    tiprack_x_1   = protocol.load_labware(tip_type,  'D1')
+    tiprack_x_2   = protocol.load_labware(tip_type,  'D2')
     sample_plate_1    = protocol.load_labware("armadillo_96_wellplate_200ul_pcr_full_skirt", "D3")
 
     # ========== SECOND ROW ==========
@@ -77,12 +100,17 @@ def run(protocol: protocol_api.ProtocolContext):
     Diluent_3 = reservoir["A6"]
 
     # pipette
-    p1000 = protocol.load_instrument("flex_8channel_1000", mount_pos)   
+    p1000 = protocol.load_instrument("flex_8channel_1000", mount_pos)
+    
+
+    rows = ["A", "B", "C", "D", "E", "F", "G", "H"]
+    columns = range(12)
+    current_rack = tiprack_x_1
     # CONFIGURE SINGLE LAYOUT
     p1000.configure_nozzle_layout(
         style=SINGLE,
         start="H1",
-        tip_racks=[tiprack_200_1,tiprack_200_2]
+        # tip_racks=[tiprack_200_1,tiprack_200_2]
         )
     sample_quant_csv = """
     sample_plate_1, Sample_well,DYE,DILUENT
@@ -186,13 +214,46 @@ def run(protocol: protocol_api.ProtocolContext):
 
     data = [r.split(",") for r in sample_quant_csv.strip().splitlines() if r][1:]
 
+
+    
+
     for X in range(1):
         protocol.comment("==============================================")
         protocol.comment("Adding Dye Sample Plate 1")
         protocol.comment("==============================================")
 
         current = 0
-        p1000.pick_up_tip()
+        col_ind = 1
+        row_ind = 0
+
+        def move(col_ind, row_ind, current_rack):
+            if direction == "row":
+                if col_ind >= 12:
+                    if row_ind >= 7:
+                        if current_rack == tiprack_x_1:
+                            current_rack = tiprack_x_2
+                            col_ind = 1
+                            row_ind = 0
+                    else:
+                        row_ind += 1
+                        col_ind = 1
+                else:
+                    col_ind += 1
+            elif direction == "col":
+                if row_ind >= 7:
+                    if col_ind >= 12:
+                        if current_rack == tiprack_x_1:
+                            current_rack = tiprack_x_2
+                            col_ind = 1
+                            row_ind = 0
+                    else:
+                        col_ind += 1
+                        row_ind = 0
+                else:
+                    row_ind += 1
+            return [col_ind, row_ind, current_rack]
+
+        p1000.pick_up_tip(current_rack[rows[row_ind] + str(col_ind)])
         while current < len(data):
             CurrentWell = str(data[current][1])
             DyeVol = float(data[current][2])
@@ -203,6 +264,11 @@ def run(protocol: protocol_api.ProtocolContext):
         p1000.touch_tip()
         p1000.drop_tip()
 
+        updated = move(col_ind, row_ind, current_rack)
+        col_ind = updated[0]
+        row_ind = updated[1]
+        current_rack = updated[2]
+
         protocol.comment("==============================================")
         protocol.comment("Adding Diluent Sample Plate 1")
         protocol.comment("==============================================")
@@ -212,12 +278,17 @@ def run(protocol: protocol_api.ProtocolContext):
             CurrentWell = str(data[current][1])
             DilutionVol = float(data[current][2])
             if DilutionVol != 0 and DilutionVol < 100:
-                p1000.pick_up_tip()
+                p1000.pick_up_tip(current_rack[rows[row_ind] + str(col_ind)])
                 p1000.aspirate(DilutionVol, Diluent_1.bottom(z=2))
                 p1000.dispense(DilutionVol, sample_plate_1.wells_by_name()[CurrentWell].top(z=0.2))
                 p1000.blow_out()
                 p1000.touch_tip()
                 p1000.drop_tip()
+                updated = move(col_ind, row_ind, current_rack)
+                col_ind = updated[0]
+                row_ind = updated[1]
+                current_rack = updated[2]
+
             current += 1
 
         protocol.comment("==============================================")
@@ -225,7 +296,7 @@ def run(protocol: protocol_api.ProtocolContext):
         protocol.comment("==============================================")
 
         current = 0
-        p1000.pick_up_tip()
+        p1000.pick_up_tip(current_rack[rows[row_ind] + str(col_ind)])
         while current < len(data):
             CurrentWell = str(data[current][1])
             DyeVol = float(data[current][2])
@@ -235,6 +306,10 @@ def run(protocol: protocol_api.ProtocolContext):
         p1000.blow_out()
         p1000.touch_tip()
         p1000.drop_tip()
+        updated = move(col_ind, row_ind, current_rack)
+        col_ind = updated[0]
+        row_ind = updated[1]
+        current_rack = updated[2]
 
         protocol.comment("==============================================")
         protocol.comment("Adding Diluent Sample Plate 2")
@@ -245,12 +320,16 @@ def run(protocol: protocol_api.ProtocolContext):
             CurrentWell = str(data[current][1])
             DilutionVol = float(data[current][2])
             if DilutionVol != 0 and DilutionVol < 100:
-                p1000.pick_up_tip()
+                p1000.pick_up_tip(current_rack[rows[row_ind] + str(col_ind)])
                 p1000.aspirate(DilutionVol, Diluent_2.bottom(z=2))
                 p1000.dispense(DilutionVol, sample_plate_2.wells_by_name()[CurrentWell].top(z=0.2))
                 p1000.blow_out()
                 p1000.touch_tip()
                 p1000.drop_tip()
+                updated = move(col_ind, row_ind, current_rack)
+                col_ind = updated[0]
+                row_ind = updated[1]
+                current_rack = updated[2]
             current += 1
 
         protocol.comment("==============================================")
@@ -258,7 +337,7 @@ def run(protocol: protocol_api.ProtocolContext):
         protocol.comment("==============================================")
 
         current = 0
-        p1000.pick_up_tip()
+        p1000.pick_up_tip(current_rack[rows[row_ind] + str(col_ind)])
         while current < len(data):
             CurrentWell = str(data[current][1])
             DyeVol = float(data[current][2])
@@ -268,6 +347,10 @@ def run(protocol: protocol_api.ProtocolContext):
         p1000.blow_out()
         p1000.touch_tip()
         p1000.drop_tip()
+        updated = move(col_ind, row_ind, current_rack)
+        col_ind = updated[0]
+        row_ind = updated[1]
+        current_rack = updated[2]
 
         protocol.comment("==============================================")
         protocol.comment("Adding Diluent Sample Plate 3")
