@@ -61,11 +61,15 @@ def run(protocol: protocol_api.ProtocolContext):
 
     
     rows = ["A", "B", "C", "D", "E", "F", "G", "H"]
+    def Reverse(lst):
+        new_lst = lst[::-1]
+        return new_lst
+    rows_reversed = Reverse(rows)
     tip_rack_row_1 = [tip_rack_1, tip_rack_2, tip_rack_3]
     tip_rack_row_2 = [tip_rack_4, tip_rack_5, tip_rack_6]
 
 
-    def row_pickup(tip_rack_row):
+    def row_pickup(tip_rack_row, rows):
         for rack in tip_rack_row:
             for row in rows:
                 for col in range(1, 13):
@@ -74,6 +78,6 @@ def run(protocol: protocol_api.ProtocolContext):
                     pipette.drop_tip(trash_bin)
 
     pipette.configure_nozzle_layout(style = SINGLE, start="H1")
-    row_pickup(tip_rack_row_1)
+    row_pickup(tip_rack_row_1, rows)
     pipette.configure_nozzle_layout(style = SINGLE, start="A1")
-    row_pickup(tip_rack_row_2)
+    row_pickup(tip_rack_row_2, rows_reversed)
