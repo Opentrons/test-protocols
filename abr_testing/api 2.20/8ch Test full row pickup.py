@@ -2,9 +2,9 @@ from opentrons import protocol_api
 from opentrons.protocol_api import PARTIAL_COLUMN, SINGLE
 
 metadata = {
-    'protocolName': 'Testing Full Row Single and Partial Tip Pickup',
+    'protocolName': 'Single and Partial Tip Pickup by Row for 8ch Pipette',
     'author': 'Tony Ngumah: tony.ngumah@opentrons.com',
-    'description': 'Test pyramis style pickup with 8ch'
+    'description': 'Test partial pickup with 8ch by row'
 }
 
 requirements = {
