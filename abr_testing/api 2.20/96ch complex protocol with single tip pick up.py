@@ -3,7 +3,7 @@ from opentrons.protocol_api import COLUMN, ALL, SINGLE, ROW
 import threading
 
 metadata = {
-    "protocolName": "96ch protocol with modules gripper moves and SINGLE tip pickup",
+    "protocolName": "96ch protocol with modules gripper moves and SINGLE tip pickup LPD",
     "author": "Derek Maggio <derek.maggio@opentrons.com>",
 }
 
@@ -342,7 +342,7 @@ def run(ctx: protocol_api.ProtocolContext) -> None:
     def test_pipetting():
         def test_single_tip_pickup_usage():
             pipette_96_channel.configure_nozzle_layout(style=SINGLE, start="H12")
-            pipette_96_channel.liquid_presence_detection = False        
+            pipette_96_channel.liquid_presence_detection = True        
             tip_count = 0  # Tip counter to ensure proper tip usage
             rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']  # 8 rows
             columns = range(1, 13)  # 12 columns
@@ -360,8 +360,6 @@ def run(ctx: protocol_api.ProtocolContext) -> None:
             # leave this dropping in waste chute, do not use get_disposal_preference
             # want to test partial drop
             ctx.move_labware(tip_rack_2, waste_chute, use_gripper=USING_GRIPPER)
-
-
             
         def test_full_tip_rack_usage():
             pipette_96_channel.configure_nozzle_layout(style=ALL, start="A1")

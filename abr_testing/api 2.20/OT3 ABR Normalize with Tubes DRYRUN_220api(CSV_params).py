@@ -27,49 +27,7 @@ def add_parameters(parameters: protocol_api.Parameters):
         display_name="Parameters CSV File",
         description="CSV file containing parameters for this protocol",
     )
-    # parameters.add_str(
-    #         variable_name="mount_pos_50",
-    #         display_name="1ch 50 ul Mount Position",
-    #         description="What mount to use",
-    #         choices=[
-    #             {"display_name": "left_mount", "value": "left"},
-    #             {"display_name": "right_mount", "value": "right"},
-    #         ],
-    #         default="right",
-    #     )
-    # parameters.add_str(
-    #         variable_name="mount_pos_1000",
-    #         display_name="1ch 1000 ul Mount Position",
-    #         description="What mount to use",
-    #         choices=[
-    #             {"display_name": "left_mount", "value": "left"},
-    #             {"display_name": "right_mount", "value": "right"},
-    #         ],
-    #         default="left",
-    #     )
-    # parameters.add_float(
-    #     variable_name = "dot_bottom",
-    #     display_name = ".bottom",
-    #     description = "Lowest value pipette will go to.",
-    #     default = 0.5,
-    #     choices=[
-    #         {"display_name": "0.0", "value": 0.0},
-    #         {"display_name": "0.1", "value": 0.1},
-    #         {"display_name": "0.2", "value": 0.2},
-    #         {"display_name": "0.3", "value": 0.3},
-    #         {"display_name": "0.4", "value": 0.4},
-    #         {"display_name": "0.5", "value": 0.5},
-    #         {"display_name": "0.6", "value": 0.6},
-    #         {"display_name": "0.7", "value": 0.7},
-    #         {"display_name": "0.8", "value": 0.8},
-    #         {"display_name": "0.9", "value": 0.9},
-    #         {"display_name": "1.0", "value": 1.0},
-    #     ]
-    # )
 def run(protocol: protocol_api.ProtocolContext):
-    # mount_pos_50ul = protocol.params.mount_pos_50
-    # mount_pos_1000ul = protocol.params.mount_pos_1000
-    # dot_bottom = protocol.params.dot_bottom
     csv_params = protocol.params.parameters_csv.parse_as_csv()
     mount_pos_50ul = csv_params[1][0]
     mount_pos_1000ul = csv_params[1][1]
