@@ -71,13 +71,23 @@ def add_parameters(parameters: protocol_api.Parameters):
             {"display_name": "0.9", "value": 0.9},
             {"display_name": "1.0", "value": 1.0},
         ]
+    ) 
+    parameters.add_str(
+        variable_name = "plate_orientation",
+        display_name = "Hellma Plate Orientation",
+        default = "0_deg",
+        choices = [
+            {"display_name": "0 degree Rotation", "value": "0_deg"},
+            {"display_name": "180 degree Rotation", "value": "180_deg"},
+        ]
     )
     
 
 def plate_reader_actions(protocol, plate_reader: protocol_api.ModuleContext, hellma_plate: protocol_api.Labware):
     wavelengths = [450, 650]
+    # Single Wavelength Readings
     for wavelength in wavelengths:
-        plate_reader.initialize("singleMeasure", [wavelength])
+        plate_reader.initialize("single", [wavelength], reference_wavelength = wavelength)
         plate_reader.open_lid()
         protocol.move_labware(hellma_plate, plate_reader, use_gripper=True)
         plate_reader.close_lid()
@@ -87,6 +97,17 @@ def plate_reader_actions(protocol, plate_reader: protocol_api.ModuleContext, hel
         plate_reader.open_lid()
         protocol.move_labware(hellma_plate, HELLMA_PLATE_SLOT, use_gripper=True)
         plate_reader.close_lid()
+    # Multi Wavelength
+    plate_reader.initialize("multi", [450, 650])
+    plate_reader.open_lid()
+    protocol.move_labware(hellma_plate, plate_reader, use_gripper=True)
+    plate_reader.close_lid()
+    result = plate_reader.read()
+    msg = f"result: {result}"
+    protocol.comment(msg=msg)
+    plate_reader.open_lid()
+    protocol.move_labware(hellma_plate, HELLMA_PLATE_SLOT, use_gripper=True)
+    plate_reader.close_lid()
 
 def run(protocol: protocol_api.ProtocolContext):
     # LOAD PARAMETERS
