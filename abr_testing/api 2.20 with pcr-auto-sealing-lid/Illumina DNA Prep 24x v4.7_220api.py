@@ -3,7 +3,7 @@ from opentrons import types
 import threading
 
 metadata = {
-    'protocolName': 'Illumina DNA Prep 24x v4.7',
+    'protocolName': 'Illumina DNA Prep 24x v4.7 with TC Auto Sealing Lid',
     'author': 'Opentrons <protocols@opentrons.com>',
     'source': 'Protocol Library',
     }
@@ -101,6 +101,15 @@ def add_parameters(parameters: protocol_api.Parameters):
         unit="sec"
     )
 
+def tc_auto_seal_lid_and_close(protocol, lids, used_lids, plate_in_thermocycler, thermocycler):
+    """Put lid on plate in thermocycler before cycle."""
+    lid_on_plate = lids[0]
+    protocol.move_labware(lid_on_plate, plate_in_thermocycler, use_gripper = True)
+    # Remove lid from the list
+    lids.pop(0)
+    used_lids.append(lid_on_plate)
+    thermocycler.close_lid()    
+    return lid_on_plate, lids, used_lids
 
 def run(protocol: protocol_api.ProtocolContext):
     heater_shaker_speed = protocol.params.heater_shaker_speed
@@ -130,6 +139,12 @@ def run(protocol: protocol_api.ProtocolContext):
     mag_block      = protocol.load_module('magneticBlockV1', 'C1')
     tiprack_200_1       = protocol.load_labware('opentrons_flex_96_tiprack_200ul', 'C2')
     tiprack_50_1        = protocol.load_labware('opentrons_flex_96_tiprack_50ul', 'C3')
+    # Opentrons tough pcr auto sealing lids
+    unused_lids = [protocol.load_labware("opentrons_tough_pcr_auto_sealing_lid", "C4")]
+    for i in range(2):
+        unused_lids.append(unused_lids[-1].load_labware("opentrons_tough_pcr_auto_sealing_lid"))
+    unused_lids.reverse() 
+    used_lids =[]
     # ========== THIRD ROW ===========
     thermocycler        = protocol.load_module('thermocycler module gen2')
     tiprack_200_2       = protocol.load_labware('opentrons_flex_96_tiprack_200ul', 'B2')
@@ -293,13 +308,18 @@ def run(protocol: protocol_api.ProtocolContext):
             #============================================================================================
             
             ############################################################################################################################################
-            thermocycler.close_lid()
+            lid_on_plate, unused_lids, used_lids = tc_auto_seal_lid_and_close(protocol, unused_lids, used_lids, sample_plate_1, thermocycler)
             profile_TAG = [
                 {'temperature': 55, 'hold_time_minutes': 15}
                 ]
             thermocycler.execute_profile(steps=profile_TAG, repetitions=1, block_max_volume=50)
             thermocycler.set_block_temperature(10)
             thermocycler.open_lid()
+            if  len(used_lids) <= 1:
+                protocol.move_labware(lid_on_plate, "B4", use_gripper = True)
+            else:
+                protocol.move_labware(lid_on_plate, used_lids[-1], use_gripper = True)
+                
             ############################################################################################################################################
 
             protocol.comment('--> Adding TAGSTOP')
@@ -322,13 +342,17 @@ def run(protocol: protocol_api.ProtocolContext):
             #===============================================
 
             ############################################################################################################################################
-            thermocycler.close_lid()
+            lid_on_plate, unused_lids, used_lids = tc_auto_seal_lid_and_close(protocol, unused_lids, used_lids, sample_plate_1, thermocycler)
             profile_TAGSTOP = [
                 {'temperature': 37, 'hold_time_minutes': 15}
                 ]
             thermocycler.execute_profile(steps=profile_TAGSTOP, repetitions=1, block_max_volume=50)
             thermocycler.set_block_temperature(10)
             thermocycler.open_lid()
+            if  len(used_lids) <= 1:
+                protocol.move_labware(lid_on_plate, "B4", use_gripper = True)
+            else:
+                protocol.move_labware(lid_on_plate, used_lids[-1], use_gripper = True)
             ############################################################################################################################################
 
             #============================================================================================
@@ -555,7 +579,7 @@ def run(protocol: protocol_api.ProtocolContext):
             thermocycler.set_block_temperature(4)
             thermocycler.set_lid_temperature(100) 
 
-            thermocycler.close_lid()
+            lid_on_plate,unused_lids, used_lids =tc_auto_seal_lid_and_close(protocol, unused_lids, used_lids,sample_plate_1, thermocycler)
             profile_PCR_1 = [
                 {'temperature': 68, 'hold_time_seconds': 180},
                 {'temperature': 98, 'hold_time_seconds': 180}
@@ -574,6 +598,10 @@ def run(protocol: protocol_api.ProtocolContext):
             thermocycler.set_block_temperature(10)
             ############################################################################################################################################
             thermocycler.open_lid()
+            if  len(used_lids) <= 1:
+                protocol.move_labware(lid_on_plate, "B4", use_gripper = True)
+            else:
+                protocol.move_labware(lid_on_plate, used_lids[-1], use_gripper = True)
 
         if STEP_CLEANUP == 1:
             protocol.comment('==============================================')
