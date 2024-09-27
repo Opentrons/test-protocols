@@ -30,7 +30,7 @@ TEMPERATURE_MODULE_ADAPTER_NAME = "opentrons_96_well_aluminum_block"
 TEMPERATURE_MODULE_NAME = "temperature module gen2"
 THERMOCYCLER_NAME = "thermocycler module gen2"
 
-PCR_PLATE_96_NAME = "nest_96_wellplate_100ul_pcr_full_skirt"
+PCR_PLATE_96_NAME = "armadillo_96_wellplate_200ul_pcr_full_skirt"
 RESERVOIR_NAME = "nest_96_wellplate_2ml_deep" #originally nest_1_reservoir_290ml, but we had none for testing
 TIPRACK_96_ADAPTER_NAME = "opentrons_flex_96_tiprack_adapter"
 PIPETTE_96_CHANNEL_NAME = "flex_96channel_1000"
@@ -109,7 +109,6 @@ def run(ctx: protocol_api.ProtocolContext) -> None:
     ### FIXTURES ###
     ################
 
-    trash_bin = ctx.load_trash_bin("B3")
     waste_chute = ctx.load_waste_chute()
 
     ###############
@@ -162,8 +161,6 @@ def run(ctx: protocol_api.ProtocolContext) -> None:
 
     pipette_96_channel = ctx.load_instrument(PIPETTE_96_CHANNEL_NAME, mount="left", tip_racks=tip_racks, liquid_presence_detection=True)
 
-    assert isinstance(pipette_96_channel.trash_container, protocol_api.TrashBin)
-
     ########################
     ### LOAD SOME LIQUID ###
     ########################
@@ -174,17 +171,6 @@ def run(ctx: protocol_api.ProtocolContext) -> None:
     ################################
     ### GRIPPER LABWARE MOVEMENT ###
     ################################
-
-    def get_disposal_preference():
-        """
-        Get the disposal preference based on the PREFER_MOVE_OFF_DECK flag.
-
-        Returns:
-            tuple: A tuple containing the disposal preference. The first element is the location preference,
-                   either `protocol_api.OFF_DECK` or `waste_chute`. The second element is a boolean indicating
-                   whether the gripper is being used or not.
-        """
-        return (protocol_api.OFF_DECK, not USING_GRIPPER) if PREFER_MOVE_OFF_DECK else (waste_chute, USING_GRIPPER)
 
     def run_moves(labware, move_sequences, reset_location, use_gripper):
         """
@@ -370,7 +356,7 @@ def run(ctx: protocol_api.ProtocolContext) -> None:
                     pipette_96_channel.touch_tip()
 
                     pipette_96_channel.dispense(5, dest_pcr_plate[well_position].bottom(b))
-                    pipette_96_channel.drop_tip(trash_bin)
+                    pipette_96_channel.drop_tip()
                     tip_count+=1
             # leave this dropping in waste chute, do not use get_disposal_preference
             # want to test partial drop
@@ -392,7 +378,7 @@ def run(ctx: protocol_api.ProtocolContext) -> None:
             pipette_96_channel.touch_tip()
 
             pipette_96_channel.air_gap(height=30)
-            pipette_96_channel.blow_out(trash_bin)
+            pipette_96_channel.blow_out()
 
             pipette_96_channel.aspirate(10, source_reservoir["A1"])
             pipette_96_channel.touch_tip()
@@ -401,7 +387,7 @@ def run(ctx: protocol_api.ProtocolContext) -> None:
             pipette_96_channel.mix(repetitions=5, volume=15)
             pipette_96_channel.return_tip()
             
-            ctx.move_labware(tip_rack_1, get_disposal_preference()[0], use_gripper=get_disposal_preference()[1])
+            ctx.move_labware(tip_rack_1, waste_chute, use_gripper=USING_GRIPPER)
             ctx.move_labware(tip_rack_3, tip_rack_adapter, use_gripper=USING_GRIPPER)
 
             pipette_96_channel.pick_up_tip(tip_rack_3["A1"])
@@ -418,14 +404,14 @@ def run(ctx: protocol_api.ProtocolContext) -> None:
             )
             pipette_96_channel.return_tip()
 
-            ctx.move_labware(tip_rack_3, get_disposal_preference()[0], use_gripper=get_disposal_preference()[1])
+            ctx.move_labware(tip_rack_3, waste_chute, use_gripper=USING_GRIPPER)
 
         test_single_tip_pickup_usage()
         test_full_tip_rack_usage()
         
 
-    def test_module_usage():
-        def test_thermocycler():
+    def test_module_usage(unused_lids, used_lids):
+        def test_thermocycler(unused_lids, used_lids):
             lid_on_plate, unused_lids, used_lids = tc_auto_seal_lid_and_close(ctx, unused_lids, used_lids, dest_pcr_plate, thermocycler)
             def set_temperature_with_timeout(temp_block, timeout):
                 def set_temperature():
@@ -461,7 +447,7 @@ def run(ctx: protocol_api.ProtocolContext) -> None:
             # Open lid
             thermocycler.open_lid()
             if  len(used_lids) <= 1:
-                ctx.move_labware(lid_on_plate, "B4", use_gripper = True)
+                ctx.move_labware(lid_on_plate, "B3", use_gripper = True)
             else:
                 ctx.move_labware(lid_on_plate, used_lids[-1], use_gripper = True)
             thermocycler.deactivate()
@@ -485,7 +471,7 @@ def run(ctx: protocol_api.ProtocolContext) -> None:
         def test_magnetic_block():
             pass
 
-        test_thermocycler()
+        test_thermocycler(unused_lids, used_lids)
         test_heater_shaker()
         test_temperature_module()
         test_magnetic_block()
@@ -495,7 +481,7 @@ def run(ctx: protocol_api.ProtocolContext) -> None:
     ###################################################################################################
     test_pipetting()
     test_gripper_moves()
-    test_module_usage()
+    test_module_usage(unused_lids, used_lids)
     test_manual_moves()
 
     ###################################################################################################
