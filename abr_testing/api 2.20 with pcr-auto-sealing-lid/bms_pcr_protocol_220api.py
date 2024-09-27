@@ -15,7 +15,7 @@ from typing import List
 import threading
 
 metadata = {
-    'protocolName': 'PCR Protocol',
+    'protocolName': 'PCR Protocol with TC Auto Sealing Lid',
     'author': 'Rami Farawi <ndiehl@opentrons.com',
 }
 requirements = {
@@ -53,6 +53,15 @@ def add_parameters(parameters: protocol_api.Parameters):
         unit="sec"
     )
 
+def tc_auto_seal_lid_and_close(protocol, lids, used_lids, plate_in_thermocycler, thermocycler):
+    """Put lid on plate in thermocycler before cycle."""
+    lid_on_plate = lids[0]
+    protocol.move_labware(lid_on_plate, plate_in_thermocycler, use_gripper = True)
+    # Remove lid from the list
+    lids.pop(0)
+    used_lids.append(lid_on_plate)
+    thermocycler.close_lid()    
+    return lid_on_plate, lids, used_lids
 
 def run(ctx: protocol_api.ProtocolContext):
     mount_pos_50ul = ctx.params.mount_pos_50
@@ -209,6 +218,13 @@ def run(ctx: protocol_api.ProtocolContext):
     source_plate = ctx.load_labware('opentrons_96_wellplate_200ul_pcr_full_skirt', location="D1") # do I change this to their plate?
 
     tiprack_50 = [ctx.load_labware('opentrons_flex_96_tiprack_50ul',  slot) for slot in [8, 9]]
+    
+    # Opentrons tough pcr auto sealing lids
+    unused_lids = [ctx.load_labware("opentrons_tough_pcr_auto_sealing_lid", "C4")]
+    for i in range(2):
+        unused_lids.append(unused_lids[-1].load_labware("opentrons_tough_pcr_auto_sealing_lid"))
+    unused_lids.reverse() 
+    used_lids =[]
 
     # LOAD PIPETTES
     p50 = ctx.load_instrument(
@@ -363,11 +379,14 @@ def run(ctx: protocol_api.ProtocolContext):
                     {'temperature': 72, 'hold_time_minutes': 5}
 
         ]
-
-        tc_mod.close_lid()
+        lid_on_plate, unused_lids, used_lids = tc_auto_seal_lid_and_close(ctx, unused_lids, used_lids, dest_plate, tc_mod)
         tc_mod.execute_profile(steps=profile1, repetitions=1, block_max_volume=50)
         tc_mod.execute_profile(steps=profile2, repetitions=30, block_max_volume=50)
         tc_mod.execute_profile(steps=profile3, repetitions=1, block_max_volume=50)
         tc_mod.set_block_temperature(4)
 
     tc_mod.open_lid()
+    if  len(used_lids) <= 1:
+        ctx.move_labware(lid_on_plate, "B4", use_gripper = True)
+    else:
+        ctx.move_labware(lid_on_plate, used_lids[-1], use_gripper = True)
