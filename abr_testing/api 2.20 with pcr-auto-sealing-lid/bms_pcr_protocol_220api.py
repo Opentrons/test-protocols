@@ -220,7 +220,7 @@ def run(ctx: protocol_api.ProtocolContext):
     tiprack_50 = [ctx.load_labware('opentrons_flex_96_tiprack_50ul',  slot) for slot in [8, 9]]
     
     # Opentrons tough pcr auto sealing lids
-    unused_lids = [ctx.load_labware("opentrons_tough_pcr_auto_sealing_lid", "C4")]
+    unused_lids = [ctx.load_labware("opentrons_tough_pcr_auto_sealing_lid", "C3")]
     for i in range(2):
         unused_lids.append(unused_lids[-1].load_labware("opentrons_tough_pcr_auto_sealing_lid"))
     unused_lids.reverse() 
@@ -387,6 +387,6 @@ def run(ctx: protocol_api.ProtocolContext):
 
     tc_mod.open_lid()
     if  len(used_lids) <= 1:
-        ctx.move_labware(lid_on_plate, "B4", use_gripper = True)
+        ctx.move_labware(lid_on_plate, "C2", use_gripper = True)
     else:
         ctx.move_labware(lid_on_plate, used_lids[-1], use_gripper = True)
