@@ -96,7 +96,7 @@ def run(protocol: protocol_api.ProtocolContext):
     sample_plate_2      = heatershaker.load_labware('thermoscientificnunc_96_wellplate_1300ul')
     reservoir           = protocol.load_labware('nest_96_wellplate_2ml_deep','2')    
     temp_block          = protocol.load_module('temperature module gen2', '3')
-    reagent_plate       = temp_block.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')
+    reagent_plate       = temp_block.load_labware('opentrons_96_wellplate_200ul_pcr_full_skirt')
     # ========== SECOND ROW ==========
     MAG_PLATE_SLOT      = protocol.load_module('magneticBlockV1', 'C1')
     tiprack_200_1       = protocol.load_labware('opentrons_flex_96_tiprack_200ul', '5')
@@ -109,7 +109,7 @@ def run(protocol: protocol_api.ProtocolContext):
     used_lids =[]
     # ========== THIRD ROW ===========
     thermocycler        = protocol.load_module('thermocycler module gen2')
-    sample_plate_1      = thermocycler.load_labware('nest_96_wellplate_100ul_pcr_full_skirt')
+    sample_plate_1      = thermocycler.load_labware('opentrons_96_wellplate_200ul_pcr_full_skirt')
     tiprack_200_2       = protocol.load_labware('opentrons_flex_96_tiprack_200ul', '8')
     tiprack_50_2        = protocol.load_labware('opentrons_flex_96_tiprack_50ul', '9')
     # ========== FOURTH ROW ==========
