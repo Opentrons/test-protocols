@@ -49,6 +49,13 @@ def add_parameters(parameters):
     default=False
     )
 
+    parameters.add_bool(
+        variable_name="disposable_lid",
+        display_name="Disposable Lid",
+        description="Note: only use if using disposible lids",
+        default=True
+    )
+
     parameters.add_int(
         variable_name="num_samples",
         display_name="number of samples",
@@ -88,7 +95,6 @@ def tc_auto_seal_lid_and_close(protocol, unused_lids, used_lids, plate_in_thermo
 
 def run(ctx):
         # Flexible Parameters for Customers to Change from Protocol Library Page
-    
     USE_GRIPPER         = True
     trash_tips          = ctx.params.trash_tips
     heater_shaker       = ctx.params.heater_shaker         # Is there a heater-shaker present?
@@ -98,12 +104,15 @@ def run(ctx):
     REUSE_REMOVE_TIPS   = False          # Reuse tips for supernatant removal
     num_samples         = ctx.params.num_samples
     PCRCYCLES           = ctx.params.PCRCYCLES
+    disposable_lid = ctx.params.disposable_lid
     Fragmentation_time  = 10
     ligation_tc_time    = 15
     Fragmentation_Mix_time = 60
     End_Repair_Mix_time    = 60
     Ligation_Mix_time      = 60
     amplification_Mix_time = 60
+    global unused_lids, used_lids
+    unused_lids, used_lids = [], []
 ################################################################################
 #                   Beginning Protocol- Setting Variables                      #
 ################################################################################
@@ -133,7 +142,7 @@ def run(ctx):
 
     # Importing Labware, Modules and Instruments
     magblock            = ctx.load_module('magneticBlockV1','D2')
-    temp_mod            = ctx.load_module('temperature module gen2','C1')
+    temp_mod            = ctx.load_module('temperature module gen2','B3')
     temp_adapter        = temp_mod.load_adapter('opentrons_96_well_aluminum_block')
     temp_plate          = temp_adapter.load_labware('opentrons_96_wellplate_200ul_pcr_full_skirt','Temp Module Reservoir Plate')
 
@@ -163,14 +172,13 @@ def run(ctx):
     reservoir           = ctx.load_labware('nest_96_wellplate_2ml_deep','C2')
 
     trash               = ctx.load_waste_chute()
-    
     # Load TC Lids
     # Opentrons tough pcr auto sealing lids
-    unused_lids = [ctx.load_labware("opentrons_tough_pcr_auto_sealing_lid", "C3")]
-    for i in range(2):
-        unused_lids.append(unused_lids[-1].load_labware("opentrons_tough_pcr_auto_sealing_lid"))
-    unused_lids.reverse() 
-    used_lids =[]
+    if disposable_lid:
+        unused_lids = [ctx.load_labware("opentrons_tough_pcr_auto_sealing_lid", "C3")]
+        for i in range(2):
+            unused_lids.append(unused_lids[-1].load_labware("opentrons_tough_pcr_auto_sealing_lid"))
+        unused_lids.reverse() 
 
     #Import Global Variables
 
@@ -438,6 +446,8 @@ def run(ctx):
         ctx.comment(f'Threw out: {rack_to_dispose} and placed {rack_to_add} to {deck_slot}')
 ######################################################################################################
     def run_tag_profile():
+        global unused_lids
+        global used_lids
         #heater shaker mixing speed and time
         if heater_shaker:
             h_s.set_and_wait_for_shake_speed(rpm=1400)
@@ -460,15 +470,18 @@ def run(ctx):
         )
         if heater_shaker:
             h_s.close_labware_latch()
-        lid_on_plate, unused_lids, used_lids = tc_auto_seal_lid_and_close(ctx, unused_lids, used_lids, sample_plate, tc_mod)
+
+        if disposable_lid:
+            lid_on_plate, unused_lids, used_lids = tc_auto_seal_lid_and_close(ctx, unused_lids, used_lids, sample_plate, tc_mod)
 
         tc_mod.set_block_temperature(temperature=37,hold_time_minutes=Fragmentation_time,block_max_volume=50)
-
         tc_mod.open_lid()
-        if  len(used_lids) <= 1:
-            ctx.move_labware(lid_on_plate, "C4", use_gripper = True)
-        else:
-            ctx.move_labware(lid_on_plate, used_lids[-1], use_gripper = True)
+
+        if disposable_lid:
+            if  len(used_lids) <= 1:
+                ctx.move_labware(lid_on_plate, "C4", use_gripper = True)
+            else:
+                ctx.move_labware(lid_on_plate, used_lids[-1], use_gripper = True)
         # #Move Plate to H-S
         ctx.comment('****Moving Plate off of TC****')
         if heater_shaker:
@@ -483,6 +496,8 @@ def run(ctx):
 
 ###################################################################################
     def run_er_profile():
+        global unused_lids
+        global used_lids
         if heater_shaker:
             h_s.set_and_wait_for_shake_speed(rpm=1400)
             ctx.delay(End_Repair_Mix_time)
@@ -504,18 +519,20 @@ def run(ctx):
         if heater_shaker:
             h_s.close_labware_latch()
 
-        lid_on_plate, unused_lids, used_lids = tc_auto_seal_lid_and_close(ctx, unused_lids, used_lids, sample_plate, tc_mod)
+        if disposable_lid:
+            lid_on_plate, unused_lids, used_lids = tc_auto_seal_lid_and_close(ctx, unused_lids, used_lids, sample_plate, tc_mod)
 
         tc_mod.set_block_temperature(temperature=65,hold_time_minutes=30,block_max_volume=50)
 
         tc_mod.deactivate_block()
-
-        # move lid
         tc_mod.open_lid()
-        if  len(used_lids) <= 1:
-            ctx.move_labware(lid_on_plate, "C4", use_gripper = True)
-        else:
-            ctx.move_labware(lid_on_plate, used_lids[-1], use_gripper = True)
+
+        if disposable_lid:
+            # move lid
+            if  len(used_lids) <= 1:
+                ctx.move_labware(lid_on_plate, "C4", use_gripper = True)
+            else:
+                ctx.move_labware(lid_on_plate, used_lids[-1], use_gripper = True)
         # #Move Plate to H-S
         ctx.comment('****Moving Plate off of TC****')
         if heater_shaker:
@@ -530,6 +547,8 @@ def run(ctx):
 
 #####################################################################################
     def run_ligation_profile():
+        global unused_lids
+        global used_lids
         #Ligration heatersheaker mixing speed and time
         ctx.comment("****Mixing Ligation using heatershaker")
         if heater_shaker:
@@ -553,7 +572,8 @@ def run(ctx):
         if heater_shaker:
             h_s.close_labware_latch()
 
-        lid_on_plate, unused_lids, used_lids = tc_auto_seal_lid_and_close(ctx, unused_lids, used_lids, sample_plate, tc_mod)
+        if disposable_lid:
+            lid_on_plate, unused_lids, used_lids = tc_auto_seal_lid_and_close(ctx, unused_lids, used_lids, sample_plate, tc_mod)
 
         tc_mod.set_block_temperature(temperature=20,hold_time_minutes=ligation_tc_time,block_max_volume=50)
 
@@ -562,10 +582,11 @@ def run(ctx):
         tc_mod.open_lid()
         # Move lid
         tc_mod.open_lid()
-        if  len(used_lids) <= 1:
-            ctx.move_labware(lid_on_plate, "C4", use_gripper = True)
-        else:
-            ctx.move_labware(lid_on_plate, used_lids[-1], use_gripper = True)
+        if disposable_lid:
+            if  len(used_lids) <= 1:
+                ctx.move_labware(lid_on_plate, "C4", use_gripper = True)
+            else:
+                ctx.move_labware(lid_on_plate, used_lids[-1], use_gripper = True)
 
         # #Move Plate to H-S
         ctx.comment('****Moving Plate off of TC****')
@@ -581,6 +602,8 @@ def run(ctx):
 
 #################################################################################
     def run_amplification_profile():
+        global unused_lids
+        global used_lids
         #Ligration heatersheaker mixing speed and time
         ctx.comment("****Mixing amplification using heatershaker")
         if heater_shaker:
@@ -605,7 +628,8 @@ def run(ctx):
         ############################################################################################################################################
         if dry_run == False:
             tc_mod.set_lid_temperature(105)
-        lid_on_plate, unused_lids, used_lids = tc_auto_seal_lid_and_close(ctx, unused_lids, used_lids, sample_plate_2, tc_mod)
+        if disposable_lid:
+            lid_on_plate, unused_lids, used_lids = tc_auto_seal_lid_and_close(ctx, unused_lids, used_lids, sample_plate_2, tc_mod)
         
         if dry_run == False:
             profile_PCR_1 = [
@@ -625,10 +649,11 @@ def run(ctx):
             tc_mod.set_block_temperature(4)
         ############################################################################################################################################
         tc_mod.open_lid()
-        if  len(used_lids) <= 1:
-            ctx.move_labware(lid_on_plate, "C4", use_gripper = True)
-        else:
-            ctx.move_labware(lid_on_plate, used_lids[-1], use_gripper = True)
+        if disposable_lid:
+            if  len(used_lids) <= 1:
+                ctx.move_labware(lid_on_plate, "C4", use_gripper = True)
+            else:
+                ctx.move_labware(lid_on_plate, used_lids[-1], use_gripper = True)
 
         #Move Sample Plate to H-S
         ctx.comment("****Moving Sample Plate back to H-S****")
