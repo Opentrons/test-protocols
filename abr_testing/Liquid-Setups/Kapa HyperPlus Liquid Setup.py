@@ -5,7 +5,7 @@ metadata = {
     'protocolName': 'PVT1ABR12: KAPA HyperPlus Library Preparation Liquid Setup',
     'author': 'Rhyann Clarke <rhyann.clarke@opentrons.com>',
     'source': 'Protocol Library',
-    }
+}
 
 requirements = {
     "robotType": "Flex",
