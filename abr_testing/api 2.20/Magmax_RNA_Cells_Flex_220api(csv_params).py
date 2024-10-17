@@ -106,7 +106,7 @@ def run(ctx:protocol_api.ProtocolContext):
     if temp_mod:
         temp = ctx.load_module('temperature module gen2','D3')
         temp_block = temp.load_adapter('opentrons_96_well_aluminum_block')
-        elutionplate = temp_block.load_labware('opentrons_96_wellplate_200ul_pcr_full_skirt','Elution Plate')
+        elutionplate = temp_block.load_labware('armadilo_96_wellplate_200ul_pcr_full_skirt','Elution Plate')
         if not dry_run:
             def set_temperature_with_timeout(temp_block, timeout):
                 def set_temperature():
@@ -125,7 +125,7 @@ def run(ctx:protocol_api.ProtocolContext):
                 ctx.comment(str(e))
                 raise
     else:
-        elutionplate = ctx.load_labware('opentrons_96_wellplate_200ul_pcr_full_skirt','A3','Elution Plate')
+        elutionplate = ctx.load_labware('armadillo_96_wellplate_200ul_pcr_full_skirt','A3','Elution Plate')
 
     magblock = ctx.load_module('magneticBlockV1','C1')
     waste = ctx.load_labware('nest_1_reservoir_195ml', 'B3','Liquid Waste').wells()[0].top()
