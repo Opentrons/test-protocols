@@ -176,7 +176,7 @@ def run(ctx):
     # Opentrons tough pcr auto sealing lids
     if disposable_lid:
         unused_lids = [ctx.load_labware("opentrons_tough_pcr_auto_sealing_lid", "C3")]
-        for i in range(2):
+        for i in range(4):
             unused_lids.append(unused_lids[-1].load_labware("opentrons_tough_pcr_auto_sealing_lid"))
         unused_lids.reverse() 
 
@@ -481,7 +481,7 @@ def run(ctx):
             if  len(used_lids) <= 1:
                 ctx.move_labware(lid_on_plate, "C4", use_gripper = True)
             else:
-                ctx.move_labware(lid_on_plate, used_lids[-1], use_gripper = True)
+                ctx.move_labware(lid_on_plate, used_lids[-2], use_gripper = True)
         # #Move Plate to H-S
         ctx.comment('****Moving Plate off of TC****')
         if heater_shaker:
@@ -532,7 +532,7 @@ def run(ctx):
             if  len(used_lids) <= 1:
                 ctx.move_labware(lid_on_plate, "C4", use_gripper = True)
             else:
-                ctx.move_labware(lid_on_plate, used_lids[-1], use_gripper = True)
+                ctx.move_labware(lid_on_plate, used_lids[-2], use_gripper = True)
         # #Move Plate to H-S
         ctx.comment('****Moving Plate off of TC****')
         if heater_shaker:
@@ -586,7 +586,7 @@ def run(ctx):
             if  len(used_lids) <= 1:
                 ctx.move_labware(lid_on_plate, "C4", use_gripper = True)
             else:
-                ctx.move_labware(lid_on_plate, used_lids[-1], use_gripper = True)
+                ctx.move_labware(lid_on_plate, used_lids[-2], use_gripper = True)
 
         # #Move Plate to H-S
         ctx.comment('****Moving Plate off of TC****')
@@ -653,7 +653,7 @@ def run(ctx):
             if  len(used_lids) <= 1:
                 ctx.move_labware(lid_on_plate, "C4", use_gripper = True)
             else:
-                ctx.move_labware(lid_on_plate, used_lids[-1], use_gripper = True)
+                ctx.move_labware(lid_on_plate, used_lids[-2], use_gripper = True)
 
         #Move Sample Plate to H-S
         ctx.comment("****Moving Sample Plate back to H-S****")
