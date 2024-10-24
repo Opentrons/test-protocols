@@ -473,7 +473,8 @@ def run(ctx):
 
         if disposable_lid:
             lid_on_plate, unused_lids, used_lids = tc_auto_seal_lid_and_close(ctx, unused_lids, used_lids, sample_plate, tc_mod)
-
+        else:
+            tc_mod.close_lid()
         tc_mod.set_block_temperature(temperature=37,hold_time_minutes=Fragmentation_time,block_max_volume=50)
         tc_mod.open_lid()
 
@@ -521,7 +522,8 @@ def run(ctx):
 
         if disposable_lid:
             lid_on_plate, unused_lids, used_lids = tc_auto_seal_lid_and_close(ctx, unused_lids, used_lids, sample_plate, tc_mod)
-
+        else:
+            tc_mod.close_lid()
         tc_mod.set_block_temperature(temperature=65,hold_time_minutes=30,block_max_volume=50)
 
         tc_mod.deactivate_block()
@@ -574,7 +576,8 @@ def run(ctx):
 
         if disposable_lid:
             lid_on_plate, unused_lids, used_lids = tc_auto_seal_lid_and_close(ctx, unused_lids, used_lids, sample_plate, tc_mod)
-
+        else:
+            tc_mod.close_lid()
         tc_mod.set_block_temperature(temperature=20,hold_time_minutes=ligation_tc_time,block_max_volume=50)
 
         tc_mod.deactivate_block()
@@ -630,7 +633,8 @@ def run(ctx):
             tc_mod.set_lid_temperature(105)
         if disposable_lid:
             lid_on_plate, unused_lids, used_lids = tc_auto_seal_lid_and_close(ctx, unused_lids, used_lids, sample_plate_2, tc_mod)
-        
+        else:
+            tc_mod.close_lid()
         if dry_run == False:
             profile_PCR_1 = [
                 {'temperature': 98, 'hold_time_seconds': 45}

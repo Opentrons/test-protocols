@@ -52,6 +52,12 @@ def add_parameters(parameters: protocol_api.Parameters):
         maximum=7200,
         unit="sec"
     )
+    parameters.add_bool(
+        variable_name="disposable_lid",
+        display_name="Disposable Lid",
+        description="Note: only use if using disposible lids",
+        default=True
+    )
 
 def tc_auto_seal_lid_and_close(protocol, lids, used_lids, plate_in_thermocycler, thermocycler):
     """Put lid on plate in thermocycler before cycle."""
@@ -66,6 +72,7 @@ def tc_auto_seal_lid_and_close(protocol, lids, used_lids, plate_in_thermocycler,
 def run(ctx: protocol_api.ProtocolContext):
     mount_pos_50ul = ctx.params.mount_pos_50
     temp_mod_timeout = ctx.params.temp_mod_timeout
+    disposable_lid = ctx.params.disposable_lid
     async def _driver_get_power_output():
         """Get Raw Power Output for each Thermocycler element."""
         c = (
@@ -220,11 +227,12 @@ def run(ctx: protocol_api.ProtocolContext):
     tiprack_50 = [ctx.load_labware('opentrons_flex_96_tiprack_50ul',  slot) for slot in [8, 9]]
     
     # Opentrons tough pcr auto sealing lids
-    unused_lids = [ctx.load_labware("opentrons_tough_pcr_auto_sealing_lid", "C3")]
-    for i in range(2):
-        unused_lids.append(unused_lids[-1].load_labware("opentrons_tough_pcr_auto_sealing_lid"))
-    unused_lids.reverse() 
-    used_lids =[]
+    if disposable_lid:
+        unused_lids = [ctx.load_labware("opentrons_tough_pcr_auto_sealing_lid", "C3")]
+        for i in range(2):
+            unused_lids.append(unused_lids[-1].load_labware("opentrons_tough_pcr_auto_sealing_lid"))
+        unused_lids.reverse() 
+    used_lids = []
 
     # LOAD PIPETTES
     p50 = ctx.load_instrument(
@@ -379,14 +387,18 @@ def run(ctx: protocol_api.ProtocolContext):
                     {'temperature': 72, 'hold_time_minutes': 5}
 
         ]
-        lid_on_plate, unused_lids, used_lids = tc_auto_seal_lid_and_close(ctx, unused_lids, used_lids, dest_plate, tc_mod)
+        if disposable_lid:
+            lid_on_plate, unused_lids, used_lids = tc_auto_seal_lid_and_close(ctx, unused_lids, used_lids, dest_plate, tc_mod)
+        else:
+            tc_mod.close_lid()
         tc_mod.execute_profile(steps=profile1, repetitions=1, block_max_volume=50)
         tc_mod.execute_profile(steps=profile2, repetitions=30, block_max_volume=50)
         tc_mod.execute_profile(steps=profile3, repetitions=1, block_max_volume=50)
         tc_mod.set_block_temperature(4)
 
     tc_mod.open_lid()
-    if  len(used_lids) <= 1:
-        ctx.move_labware(lid_on_plate, "C2", use_gripper = True)
-    else:
-        ctx.move_labware(lid_on_plate, used_lids[-1], use_gripper = True)
+    if disposable_lid:
+        if  len(used_lids) <= 1:
+            ctx.move_labware(lid_on_plate, "C2", use_gripper = True)
+        else:
+            ctx.move_labware(lid_on_plate, used_lids[-2], use_gripper = True)
