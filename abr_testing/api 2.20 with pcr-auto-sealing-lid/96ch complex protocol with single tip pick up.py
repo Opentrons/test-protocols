@@ -84,27 +84,34 @@ def add_parameters(parameters: protocol_api.Parameters):
         maximum=7200,
         unit="sec"
     )
+    parameters.add_bool(
+        variable_name="disposable_lid",
+        display_name="Disposable Lid",
+        description="Note: only use if using disposible lids",
+        default=True
+    )
+    
 
 
 #################
 ### RUN ###
 #################
 
-def tc_auto_seal_lid_and_close(protocol, lids, used_lids, plate_in_thermocycler, thermocycler):
+def tc_auto_seal_lid_and_close(protocol, unused_lids, used_lids, plate_in_thermocycler, thermocycler):
     """Put lid on plate in thermocycler before cycle."""
-    lid_on_plate = lids[0]
+    lid_on_plate = unused_lids[0]
     protocol.move_labware(lid_on_plate, plate_in_thermocycler, use_gripper = True)
     # Remove lid from the list
-    lids.pop(0)
+    unused_lids.pop(0)
     used_lids.append(lid_on_plate)
     thermocycler.close_lid()    
-    return lid_on_plate, lids, used_lids
+    return lid_on_plate, unused_lids, used_lids
 
 def run(ctx: protocol_api.ProtocolContext) -> None:
     b = ctx.params.dot_bottom
     tc_block_timeout = ctx.params.tc_block_timeout
     TIPRACK_96_NAME = ctx.params.tip_size
-    
+    disposable_lid = ctx.params.disposable_lid
     ################
     ### FIXTURES ###
     ################
@@ -118,12 +125,12 @@ def run(ctx: protocol_api.ProtocolContext) -> None:
     magnetic_block = ctx.load_module(MAGNETIC_BLOCK_NAME, "A3")
     heater_shaker = ctx.load_module(HEATER_SHAKER_NAME, "D1")
     temperature_module = ctx.load_module(TEMPERATURE_MODULE_NAME, "C1")    # Opentrons tough pcr auto sealing lids
-    unused_lids = [ctx.load_labware("opentrons_tough_pcr_auto_sealing_lid", "A4")]
-    for i in range(2):
-        unused_lids.append(unused_lids[-1].load_labware("opentrons_tough_pcr_auto_sealing_lid"))
-    unused_lids.reverse() 
-    used_lids =[]
-    
+    if disposable_lid:
+        unused_lids = [ctx.load_labware("opentrons_tough_pcr_auto_sealing_lid", "A4")]
+        for i in range(2):
+            unused_lids.append(unused_lids[-1].load_labware("opentrons_tough_pcr_auto_sealing_lid"))
+        unused_lids.reverse() 
+    used_lids = []    
     thermocycler.open_lid()
     heater_shaker.open_labware_latch()
 
@@ -412,7 +419,8 @@ def run(ctx: protocol_api.ProtocolContext) -> None:
 
     def test_module_usage(unused_lids, used_lids):
         def test_thermocycler(unused_lids, used_lids):
-            lid_on_plate, unused_lids, used_lids = tc_auto_seal_lid_and_close(ctx, unused_lids, used_lids, dest_pcr_plate, thermocycler)
+            if disposable_lid:
+                lid_on_plate, unused_lids, used_lids = tc_auto_seal_lid_and_close(ctx, unused_lids, used_lids, dest_pcr_plate, thermocycler)
             def set_temperature_with_timeout(temp_block, timeout):
                 def set_temperature():
                     thermocycler.set_block_temperature(4)
@@ -446,10 +454,11 @@ def run(ctx: protocol_api.ProtocolContext) -> None:
             thermocycler.set_lid_temperature(105)
             # Open lid
             thermocycler.open_lid()
-            if  len(used_lids) <= 1:
-                ctx.move_labware(lid_on_plate, "B3", use_gripper = True)
-            else:
-                ctx.move_labware(lid_on_plate, used_lids[-1], use_gripper = True)
+            if disposable_lid:
+                if  len(used_lids) <= 1:
+                    ctx.move_labware(lid_on_plate, "B3", use_gripper = True)
+                else:
+                    ctx.move_labware(lid_on_plate, used_lids[-2], use_gripper = True)
             thermocycler.deactivate()
 
         def test_heater_shaker():
